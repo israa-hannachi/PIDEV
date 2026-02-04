@@ -1,0 +1,71 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}Register for {{ event.titre }} - EventHub{% endblock %}
+
+{% block body %}
+    <div class="bg-light py-5 min-vh-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="text-center mb-5">
+                                <i class="fas fa-id-card text-primary fa-3x mb-3"></i>
+                                <h1 class="fw-bold">Registration</h1>
+                                <p class="text-muted">Fill out the form below to secure your spot for <strong>{{ event.titre }}</strong></p>
+                            </div>
+
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : 'info') }} mb-4">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+
+                            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold small text-uppercase">Your Name</label>
+                                        {{ form_widget(form.visitorName, {'attr': {'class': 'form-control rounded-pill p-3', 'placeholder': 'John Doe'}}) }}
+                                        <div class="text-danger small mt-1">{{ form_errors(form.visitorName) }}</div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold small text-uppercase">Email Address</label>
+                                        {{ form_widget(form.visitorEmail, {'attr': {'class': 'form-control rounded-pill p-3', 'placeholder': 'john@example.com'}}) }}
+                                        <div class="text-danger small mt-1">{{ form_errors(form.visitorEmail) }}</div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-uppercase">Payment Method</label>
+                                        {{ form_widget(form.modePaiement, {'attr': {'class': 'form-select rounded-pill p-3'}}) }}
+                                        <div class="text-danger small mt-1">{{ form_errors(form.modePaiement) }}</div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-uppercase">Amount to Pay</label>
+                                        <div class="input-group">
+                                            {{ form_widget(form.montantPaye, {'attr': {'class': 'form-control rounded-pill p-3', 'readonly': 'readonly', 'value': event.prix}}) }}
+                                            <span class="input-group-text bg-transparent border-0">€</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">
+                                            Confirm Registration
+                                        </button>
+                                        <a href="{{ path('app_front_event_show', {id: event.id}) }}" class="btn btn-link w-100 mt-2 text-decoration-none text-muted">Cancel</a>
+                                    </div>
+                                </div>
+                                <div style="display: none;">
+                                    {{ form_rest(form) }}
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

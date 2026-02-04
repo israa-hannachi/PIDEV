@@ -1,0 +1,51 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Registration index{% endblock %}
+
+{% block body %}
+    <h1>Registration index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>VisitorName</th>
+                <th>VisitorEmail</th>
+                <th>DateInscription</th>
+                <th>Statut</th>
+                <th>Presence</th>
+                <th>ModePaiement</th>
+                <th>MontantPaye</th>
+                <th>PaiementStatut</th>
+                <th>Notes</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for registration in registrations %}
+            <tr>
+                <td>{{ registration.id }}</td>
+                <td>{{ registration.visitorName }}</td>
+                <td>{{ registration.visitorEmail }}</td>
+                <td>{{ registration.dateInscription ? registration.dateInscription|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ registration.statut }}</td>
+                <td>{{ registration.presence ? 'Yes' : 'No' }}</td>
+                <td>{{ registration.modePaiement }}</td>
+                <td>{{ registration.montantPaye }}</td>
+                <td>{{ registration.paiementStatut }}</td>
+                <td>{{ registration.notes }}</td>
+                <td>
+                    <a href="{{ path('admin_registration_show', {'id': registration.id}) }}">show</a>
+                    <a href="{{ path('admin_registration_edit', {'id': registration.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_registration_new') }}">Create new</a>
+{% endblock %}

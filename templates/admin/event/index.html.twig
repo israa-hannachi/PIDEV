@@ -1,0 +1,53 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Event index{% endblock %}
+
+{% block body %}
+    <h1>Event index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>DateCreation</th>
+                <th>DateDebut</th>
+                <th>DateFin</th>
+                <th>Capacite</th>
+                <th>Inscrits</th>
+                <th>Image</th>
+                <th>Categorie</th>
+                <th>Prix</th>
+                <th>Lieu</th>
+                <th>Statut</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for event in events %}
+            <tr>
+                <td>{{ event.id }}</td>
+                <td>{{ event.titre }}</td>
+                <td>{{ event.description }}</td>
+                <td>{{ event.dateCreation ? event.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ event.dateDebut ? event.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ event.dateFin ? event.dateFin|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ event.capacite }}</td>
+                <td>{{ event.inscrits }}</td>
+                <td>{{ event.image }}</td>
+                <td>{{ event.categorie }}</td>
+                <td>{{ event.prix }}</td>
+                <td>{{ event.lieu }}</td>
+                <td>{{ event.statut }}</td>
+                <td>
+                    <a href="{{ path('admin_event_show', {'id': event.id}) }}">show</a>
+                    <a href="{{ path('admin_event_edit', {'id': event.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_event_new') }}">Create new</a>
+{% endblock %}

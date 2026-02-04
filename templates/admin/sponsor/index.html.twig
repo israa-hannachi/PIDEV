@@ -1,0 +1,59 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Sponsor index{% endblock %}
+
+{% block body %}
+    <h1>Sponsor index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Logo</th>
+                <th>SiteWeb</th>
+                <th>Type</th>
+                <th>Montant</th>
+                <th>DateDebut</th>
+                <th>DateFin</th>
+                <th>Statut</th>
+                <th>ContactPersonne</th>
+                <th>ContactEmail</th>
+                <th>ContactTelephone</th>
+                <th>DateCreation</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for sponsor in sponsors %}
+            <tr>
+                <td>{{ sponsor.id }}</td>
+                <td>{{ sponsor.nom }}</td>
+                <td>{{ sponsor.description }}</td>
+                <td>{{ sponsor.logo }}</td>
+                <td>{{ sponsor.siteWeb }}</td>
+                <td>{{ sponsor.type }}</td>
+                <td>{{ sponsor.montant }}</td>
+                <td>{{ sponsor.dateDebut ? sponsor.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ sponsor.dateFin ? sponsor.dateFin|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ sponsor.statut }}</td>
+                <td>{{ sponsor.contactPersonne }}</td>
+                <td>{{ sponsor.contactEmail }}</td>
+                <td>{{ sponsor.contactTelephone }}</td>
+                <td>{{ sponsor.dateCreation ? sponsor.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('admin_sponsor_show', {'id': sponsor.id}) }}">show</a>
+                    <a href="{{ path('admin_sponsor_edit', {'id': sponsor.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="15">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_sponsor_new') }}">Create new</a>
+{% endblock %}
