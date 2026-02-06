@@ -42,33 +42,6 @@
                             </a>
                         </li>
 
-                        <li class="nxl-item {{ app.request.get('_route') starts with 'admin_account' ? 'active' : '' }}">
-                            <a href="{{ path('admin_account_index') }}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-users"></i></span>
-                                <span class="nxl-mtext">Comptes</span>
-                            </a>
-                        </li>
-
-                        <li class="nxl-item {{ app.request.get('_route') starts with 'admin_category' ? 'active' : '' }}">
-                            <a href="{{ path('admin_category_index') }}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-list"></i></span>
-                                <span class="nxl-mtext">Catégories</span>
-                            </a>
-                        </li>
-
-                        <li class="nxl-item {{ app.request.get('_route') starts with 'admin_game' ? 'active' : '' }}">
-                            <a href="{{ path('admin_game_index') }}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-play-circle"></i></span>
-                                <span class="nxl-mtext">Jeux</span>
-                            </a>
-                        </li>
-
-                        <li class="nxl-item {{ app.request.get('_route') starts with 'admin_forum' ? 'active' : '' }}">
-                            <a href="{{ path('admin_forum_index') }}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-message-circle"></i></span>
-                                <span class="nxl-mtext">Forum</span>
-                            </a>
-                        </li>
 
                         <li class="nxl-item nxl-hasmenu {{ (app.request.get('_route') starts with 'admin_event') or (app.request.get('_route') starts with 'admin_registration') or (app.request.get('_route') starts with 'admin_sponsor') ? 'active nxl-trigger' : '' }}">
                             <a href="javascript:void(0);" class="nxl-link">
@@ -89,19 +62,6 @@
                             </ul>
                         </li>
 
-                        <li class="nxl-item {{ app.request.get('_route') starts with 'admin_meet' ? 'active' : '' }}">
-                            <a href="{{ path('admin_meet_index') }}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-video"></i></span>
-                                <span class="nxl-mtext">Meet</span>
-                            </a>
-                        </li>
-
-                        <li class="nxl-item {{ app.request.get('_route') starts with 'admin_payment' ? 'active' : '' }}">
-                            <a href="{{ path('admin_payment_index') }}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-dollar-sign"></i></span>
-                                <span class="nxl-mtext">Payment</span>
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>
