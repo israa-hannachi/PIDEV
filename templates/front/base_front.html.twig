@@ -1,458 +1,160 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}EventHub - Your Gateway to Amazing Events{% endblock %}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-        <style>
-            :root {
-                --primary: #6366f1;
-                --primary-dark: #4f46e5;
-                --secondary: #ec4899;
-                --dark: #0f172a;
-                --gray: #64748b;
-                --glass: rgba(255, 255, 255, 0.7);
-            }
-            body {
-                font-family: 'Outfit', sans-serif;
-                color: var(--dark);
-                overflow-x: hidden;
-            }
-            .navbar {
-                background: var(--glass);
-                backdrop-filter: blur(10px);
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                padding: 20px 0;
-            }
-            .navbar-brand {
-                font-weight: 700;
-                font-size: 1.5rem;
-                color: var(--primary) !important;
-            }
-            .hero-section {
-                padding: 100px 0;
-                background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
-                position: relative;
-            }
-            .hero-title {
-                font-size: 4rem;
-                font-weight: 800;
-                line-height: 1.1;
-                margin-bottom: 2rem;
-                background: linear-gradient(to right, var(--primary), var(--secondary));
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-            .btn-primary {
-                background: var(--primary);
-                border: none;
-                padding: 12px 30px;
-                border-radius: 12px;
-                font-weight: 600;
-                transition: transform 0.2s;
-            }
-            .btn-primary:hover {
-                background: var(--primary-dark);
-                transform: translateY(-2px);
-            }
-            .card {
-                border: none;
-                border-radius: 20px;
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-                transition: transform 0.3s;
-            }
-            .card:hover {
-                transform: translateY(-10px);
-            }
-            .footer {
-                padding: 80px 0 40px;
-                background: var(--dark);
-                color: white;
-            }
-            .floating-chat-btn {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(135deg, var(--primary), var(--secondary));
-                color: white;
-                border: none;
-                border-radius: 50%;
-                font-size: 1.5rem;
-                cursor: pointer;
-                box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-                transition: transform 0.2s, box-shadow 0.2s;
-                z-index: 999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .floating-chat-btn:hover {
-                transform: scale(1.1);
-                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
-            }
-            .floating-geo-btn {
-                position: fixed;
-                bottom: 100px;
-                right: 30px;
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(135deg, #10b981, #059669);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                font-size: 1.5rem;
-                cursor: pointer;
-                box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
-                transition: transform 0.2s, box-shadow 0.2s;
-                z-index: 999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .floating-geo-btn:hover {
-                transform: scale(1.1);
-                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
-            }
-            .geo-modal {
-                display: none;
-                position: fixed;
-                z-index: 1050;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-            .geo-modal.show {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .geo-modal-content {
-                background: white;
-                border-radius: 20px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                max-width: 600px;
-                width: 90%;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-            .geo-modal-header {
-                background: linear-gradient(135deg, #10b981, #059669);
-                color: white;
-                padding: 25px;
-                border-radius: 20px 20px 0 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .geo-modal-header h2 {
-                margin: 0;
-                font-size: 1.5rem;
-            }
-            .geo-modal-close {
-                background: none;
-                border: none;
-                color: white;
-                font-size: 1.5rem;
-                cursor: pointer;
-            }
-            .geo-modal-body {
-                padding: 25px;
-            }
-            .geo-info-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-            .geo-info-item {
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 10px;
-                border-left: 4px solid #10b981;
-            }
-            .geo-info-label {
-                font-size: 0.85rem;
-                color: #64748b;
-                text-transform: uppercase;
-                font-weight: 600;
-                margin-bottom: 5px;
-            }
-            .geo-info-value {
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: #0f172a;
-            }
-            #geoMap {
-                width: 100%;
-                height: 300px;
-                border-radius: 10px;
-                margin-top: 15px;
-            }
-            .geo-loading {
-                text-align: center;
-                padding: 20px;
-            }
-            .geo-spinner {
-                display: inline-block;
-                width: 30px;
-                height: 30px;
-                border: 3px solid #f3f3f3;
-                border-top: 3px solid #10b981;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-            @media (max-width: 768px) {
-                .floating-geo-btn {
-                    bottom: 20px;
-                    right: 20px;
-                    width: 50px;
-                    height: 50px;
-                    font-size: 1.2rem;
-                }
-                .floating-chat-btn {
-                    bottom: 80px;
-                }
-                .geo-info-grid {
-                    grid-template-columns: 1fr;
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Naja7ni - Accueil{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#f8fafc',
+                        foreground: '#0f172a',
+                        sidebar: '#ffffff',
+                        'sidebar-border': '#e2e8f0',
+                        primary: '#6366f1',
+                        secondary: '#ec4899',
+                        accent: '#f59e0b',
+                        muted: '#f1f5f9',
+                        'muted-foreground': '#64748b',
+                        border: '#e1e7ef',
+                        'input-background': '#f1f5f9',
+                    }
                 }
             }
-            {% block extra_css %}{% endblock %}
-        </style>
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg sticky-top">
-            <div class="container">
-                <a class="navbar-brand" href="{{ path('app_front_home') }}">
-                    <i class="fas fa-bolt me-2"></i>EventHub
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block stylesheets %}{% endblock %}
+
+    <style>
+        .nav-item.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .nav-item:not(.active):hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-24 bg-sidebar border-r border-sidebar-border h-screen flex flex-col items-center py-8 gap-8 z-20">
+            <!-- Logo -->
+            <div class="flex items-center justify-center mb-2">
+                <a href="{{ path('app_front_home') }}">
+                    <img src="{{ asset('assets/back/images/small.png') }}" alt="Naja7ni" class="w-12 h-12 object-contain filter drop-shadow-md">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_front_home') }}">Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_front_chat') }}" title="Chat with AI">
-                                <i class="fas fa-message me-2"></i>AI Chat
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-primary text-white ms-lg-3" href="{{ path('admin_event_index') }}">Admin Dashboard</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
-        </nav>
 
-        {% block body %}{% endblock %}
+            <!-- Navigation -->
+            <nav class="flex flex-col gap-4 w-full px-2">
+                <a href="{{ path('app_front_home') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') == 'app_front_home' ? 'active' : '' }}">
+                    <i data-lucide="home" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Accueil</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="user" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Profil</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="folder-open" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Catégories</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Meet</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="gamepad-2" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Jeux</span>
+                </a>
+                <a href="{{ path('app_front_home') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') starts with 'app_front_event' ? 'active' : '' }}">
+                    <i data-lucide="calendar" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Events</span>
+                </a>
+                <a href="{{ path('app_front_chat') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') == 'app_front_chat' ? 'active' : '' }}">
+                    <i data-lucide="messages-square" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Chat</span>
+                </a>
+            </nav>
+        </aside>
 
-        <a href="{{ path('app_front_chat') }}" class="floating-chat-btn" title="Chat with AI Assistant">
-            <i class="fas fa-comments"></i>
-        </a>
-
-        <button class="floating-geo-btn" id="geoBtn" title="Show my location">
-            <i class="fas fa-map-location-dot"></i>
-        </button>
-
-        <div class="geo-modal" id="geoModal">
-            <div class="geo-modal-content">
-                <div class="geo-modal-header">
-                    <h2><i class="fas fa-map-marker-alt me-2"></i>Your Location</h2>
-                    <button class="geo-modal-close" id="geoModalClose">&times;</button>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navbar -->
+            <nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+                <div class="flex items-center gap-8">
+                    <a href="{{ path('app_front_home') }}">
+                        <img src="{{ asset('assets/back/images/long logo.png') }}" alt="Naja7ni" class="h-10 object-contain">
+                    </a>
                 </div>
-                <div class="geo-modal-body">
-                    <div id="geoContent">
-                        <div class="geo-loading">
-                            <div class="geo-spinner"></div>
-                            <p>Locating you...</p>
-                        </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-xl mx-8">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+                        <input type="text" placeholder="Rechercher des cours, modules..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center gap-4">
+                    <a href="{{ path('admin_dashboard') }}" class="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl font-semibold hover:bg-primary/20 transition-colors">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span class="hidden md:block">Admin</span>
+                    </a>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
+                        <i data-lucide="bell"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                    </button>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+                        <i data-lucide="settings"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </button>
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105">
+                        A
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-7xl mx-auto space-y-8">
+                        {% block body %}{% endblock %}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-        <script>
-            const geoBtn = document.getElementById('geoBtn');
-            const geoModal = document.getElementById('geoModal');
-            const geoModalClose = document.getElementById('geoModalClose');
-            const geoContent = document.getElementById('geoContent');
-            let map = null;
+    <!-- Application Scripts -->
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
 
-            geoBtn.addEventListener('click', () => {
-                geoModal.classList.add('show');
-                fetchGeoLocation();
-            });
-
-            geoModalClose.addEventListener('click', () => {
-                geoModal.classList.remove('show');
-            });
-
-            geoModal.addEventListener('click', (e) => {
-                if (e.target === geoModal) {
-                    geoModal.classList.remove('show');
-                }
-            });
-
-            async function fetchGeoLocation() {
-                try {
-                    const response = await fetch('/api/geolocate');
-                    if (!response.ok) {
-                        geoContent.innerHTML = '<p class="text-danger">Failed to fetch location data.</p>';
-                        return;
-                    }
-
-                    const data = await response.json();
-                    displayGeoData(data);
-                } catch (error) {
-                    geoContent.innerHTML = '<p class="text-danger">Error: ' + error.message + '</p>';
-                }
-            }
-
-            async function displayGeoData(data) {
-                const lat = parseFloat(data.latitude);
-                const lng = parseFloat(data.longitude);
-
-                let html = `
-                    <div class="geo-info-grid">
-                        <div class="geo-info-item">
-                            <div class="geo-info-label">IP Address</div>
-                            <div class="geo-info-value">${data.ip || 'N/A'}</div>
-                        </div>
-                        <div class="geo-info-item">
-                            <div class="geo-info-label">City</div>
-                            <div class="geo-info-value">${data.city || 'N/A'}</div>
-                        </div>
-                        <div class="geo-info-item">
-                            <div class="geo-info-label">Country</div>
-                            <div class="geo-info-value">${data.country || 'N/A'}</div>
-                        </div>
-                        <div class="geo-info-item">
-                            <div class="geo-info-label">Continent</div>
-                            <div class="geo-info-value">${data.continent || 'N/A'}</div>
-                        </div>
-                        <div class="geo-info-item">
-                            <div class="geo-info-label">Latitude</div>
-                            <div class="geo-info-value">${lat.toFixed(4)}</div>
-                        </div>
-                        <div class="geo-info-item">
-                            <div class="geo-info-label">Longitude</div>
-                            <div class="geo-info-value">${lng.toFixed(4)}</div>
-                        </div>
-                    </div>
-                    <div id="geoMap"></div>
-                    <div id="nearbyEventsContainer" style="margin-top: 20px;"></div>
-                `;
-
-                geoContent.innerHTML = html;
-
-                // Initialize map after DOM update
-                setTimeout(() => {
-                    if (map) {
-                        map.remove();
-                    }
-                    map = L.map('geoMap').setView([lat, lng], 10);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(map);
-                    L.marker([lat, lng], {
-                        icon: L.icon({
-                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-                            iconSize: [25, 41],
-                            iconAnchor: [12, 41]
-                        })
-                    }).addTo(map)
-                        .bindPopup(`<b>Your Location</b><br>${data.city}, ${data.country}`)
-                        .openPopup();
-
-                    // Fetch nearby events
-                    fetchNearbyEvents(lat, lng, 50);
-                }, 0);
-            }
-
-            async function fetchNearbyEvents(latitude, longitude, radius) {
-                try {
-                    const response = await fetch(`/api/nearby-events?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
-                    if (!response.ok) {
-                        document.getElementById('nearbyEventsContainer').innerHTML = '<p class="text-muted">No nearby events found.</p>';
-                        return;
-                    }
-
-                    const data = await response.json();
-                    displayNearbyEvents(data.events, latitude, longitude);
-                } catch (error) {
-                    console.error('Error fetching nearby events:', error);
-                }
-            }
-
-            function displayNearbyEvents(events, userLat, userLng) {
-                const container = document.getElementById('nearbyEventsContainer');
-                
-                if (!events || events.length === 0) {
-                    container.innerHTML = '<p class="text-muted text-center" style="padding: 20px;">No events within 50 km of your location.</p>';
-                    return;
-                }
-
-                let html = '<h6 class="mb-3"><i class="fas fa-calendar me-2"></i>Nearby Events (' + events.length + ')</h6>';
-                html += '<div style="max-height: 200px; overflow-y: auto;">';
-
-                events.forEach(event => {
-                    html += `
-                        <div style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer;" onclick="window.location.href='/event/${event.id}'">
-                            <strong style="color: #0f172a;">${event.titre}</strong>
-                            <div style="font-size: 0.85rem; color: #64748b;">
-                                <i class="fas fa-map-marker-alt" style="color: #10b981;"></i> ${event.distance_km} km away
-                            </div>
-                        </div>
-                    `;
-                });
-
-                html += '</div>';
-                container.innerHTML = html;
-
-                // Add event markers to map
-                events.forEach(event => {
-                    if (event.latitude && event.longitude) {
-                        L.marker([parseFloat(event.latitude), parseFloat(event.longitude)], {
-                            icon: L.icon({
-                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41]
-                            })
-                        }).addTo(map)
-                            .bindPopup(`<b>${event.titre}</b><br><small>${event.distance_km} km away</small>`);
-                    }
-                });
-            }
-        </script>
-
-        <footer class="footer">
-            <div class="container text-center">
-                <h3 class="fw-bold mb-4">EventHub</h3>
-                <p class="text-muted mb-4">The ultimate platform for event management and registration.</p>
-                <div class="d-flex justify-content-center gap-3 mb-4">
-                    <a href="#" class="text-white fs-4"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-white fs-4"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white fs-4"><i class="fab fa-linkedin"></i></a>
-                </div>
-                <hr class="opacity-10 my-4">
-                <p class="mb-0">&copy; 2026 EventHub. All rights reserved.</p>
-            </div>
-        </footer>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        {% block javascripts %}{% endblock %}
-    </body>
 </html>

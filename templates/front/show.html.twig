@@ -1,128 +1,162 @@
 {% extends 'front/base_front.html.twig' %}
 
-{% block title %}{{ event.titre }} - EventHub{% endblock %}
+{% block title %}{{ event.titre }} - Naja7ni{% endblock %}
 
 {% block body %}
-    <div class="bg-light py-5">
-        <div class="container">
-            <nav aria-label="breadcrumb" class="mb-4">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ path('app_front_home') }}">Events</a></li>
-                    <li class="breadcrumb-item active">{{ event.titre }}</li>
-                </ol>
-            </nav>
+<!-- Breadcrumbs -->
+<nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ path('app_front_home') }}" class="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                Événements
+            </a>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground"></i>
+                <span class="ml-1 text-sm font-bold text-foreground md:ml-2">{{ event.titre|length > 30 ? event.titre|slice(0, 30) ~ '...' : event.titre }}</span>
+            </div>
+        </li>
+    </ol>
+</nav>
 
-            <div class="row g-5">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm mb-4">
-                        {% if event.image %}
-                            <img src="{{ event.image }}" class="card-img-top" alt="{{ event.titre }}" style="max-height: 400px; object-fit: cover;">
-                        {% endif %}
-                        <div class="card-body p-4 p-md-5">
-                            <span class="badge bg-primary-subtle text-primary mb-3">{{ event.categorie }}</span>
-                            <h1 class="fw-bold mb-4">{{ event.titre }}</h1>
-                            
-                            <div class="d-flex flex-wrap gap-4 mb-5 border-bottom pb-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
-                                        <i class="far fa-calendar-alt text-primary fa-lg"></i>
-                                    </div>
-                                    <div>
-                                        <div class="small text-muted text-uppercase fw-bold">Date & Time</div>
-                                        <div class="fw-bold">{{ event.dateDebut|date('F d, Y @ H:i') }}</div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
-                                        <i class="fas fa-map-marker-alt text-primary fa-lg"></i>
-                                    </div>
-                                    <div>
-                                        <div class="small text-muted text-uppercase fw-bold">Location</div>
-                                        <div class="fw-bold">{{ event.lieu }}</div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
-                                        <i class="fas fa-ticket-alt text-primary fa-lg"></i>
-                                    </div>
-                                    <div>
-                                        <div class="small text-muted text-uppercase fw-bold">Price</div>
-                                        <div class="fw-bold">{{ event.prix > 0 ? event.prix ~ ' €' : 'Free Entry' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h4 class="fw-bold mb-3">About this event</h4>
-                            <div class="text-muted lh-lg mb-5">
-                                {{ event.description|nl2br }}
-                            </div>
-
-                            {% if event.latitude and event.longitude %}
-                                <h4 class="fw-bold mb-3">Event Location Map</h4>
-                                <div id="eventMap" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 20px;"></div>
-                                <div class="alert alert-info mb-3">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Coordinates:</strong> {{ event.latitude|round(4) }}, {{ event.longitude|round(4) }}
-                                </div>
-                            {% endif %}
-
-                            {% if event.sponsors|length > 0 %}
-                                <h5 class="fw-bold mb-3">Sponsors</h5>
-                                <div class="d-flex flex-wrap gap-3">
-                                    {% for sponsor in event.sponsors %}
-                                        <span class="badge bg-light text-dark border p-2">{{ sponsor.nom }}</span>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Main Content -->
+    <div class="lg:col-span-8 space-y-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
+            {% if event.image %}
+                <div class="h-96 w-full">
+                    <img src="{{ event.image }}" class="w-full h-full object-cover" alt="{{ event.titre }}">
+                </div>
+            {% endif %}
+            
+            <div class="p-8">
+                <span class="text-sm font-bold text-primary bg-primary/5 px-3 py-1.5 rounded-lg mb-6 inline-block">{{ event.categorie }}</span>
+                <h1 class="text-4xl font-extrabold text-foreground mb-8">{{ event.titre }}</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 pb-8 border-b border-border">
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-primary/5 rounded-2xl text-primary">
+                            <i data-lucide="calendar" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Date & Heure</p>
+                            <p class="font-bold text-foreground text-sm">{{ event.dateDebut|date('d F, Y @ H:i') }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-primary/5 rounded-2xl text-primary">
+                            <i data-lucide="map-pin" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Lieu</p>
+                            <p class="font-bold text-foreground text-sm line-clamp-1">{{ event.lieu }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-primary/5 rounded-2xl text-primary">
+                            <i data-lucide="ticket" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Prix</p>
+                            <p class="font-bold text-foreground text-sm">{{ event.prix > 0 ? event.prix ~ ' €' : 'Gratuit' }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="card shadow-sm sticky-top" style="top: 100px;">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-4">Registration</h5>
-                            
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Capacity</span>
-                                    <span class="fw-bold">{{ event.capacite }} seats</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3">
-                                    <span class="text-muted">Availability</span>
-                                    <span class="{{ event.inscrits >= event.capacite ? 'text-danger' : 'text-success' }} fw-bold">
-                                        {{ event.capacite - event.inscrits }} left
-                                    </span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ (event.inscrits / event.capacite * 100)|round }}%"></div>
-                                </div>
-                            </div>
+                <div class="prose prose-slate max-w-none mb-10">
+                    <h3 class="text-2xl font-bold mb-4">À propos de cet événement</h3>
+                    <p class="text-muted-foreground leading-relaxed whitespace-pre-line">{{ event.description }}</p>
+                </div>
 
-                            {% if event.inscrits < event.capacite %}
-                                <a href="{{ path('app_front_event_register', {id: event.id}) }}" class="btn btn-primary w-100 py-3 fw-bold">
-                                    Register Now
-                                </a>
-                            {% else %}
-                                <button class="btn btn-secondary w-100 py-3 fw-bold" disabled>
-                                    Fully Booked
-                                </button>
-                            {% endif %}
-                            
-                            <p class="text-center text-muted small mt-3 px-3">
-                                <i class="fas fa-shield-alt me-1"></i> Secure registration. No hidden fees.
-                            </p>
+                {% if event.latitude and event.longitude %}
+                    <div class="space-y-4">
+                        <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="map" class="w-6 h-6"></i>
+                            Emplacement
+                        </h3>
+                        <div id="eventMap" class="w-full h-80 rounded-2xl border border-border"></div>
+                        <div class="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-4 rounded-xl">
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                            <span>Coordonnées: {{ event.latitude|round(4) }}, {{ event.longitude|round(4) }}</span>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
+    <!-- Sidebar / Registration -->
+    <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-8 sticky top-8">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-5 h-5 text-primary"></i>
+                Inscription
+            </h3>
+
+            <div class="space-y-6 mb-8">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-muted-foreground font-medium">Capacité totale</span>
+                    <span class="font-bold text-foreground">{{ event.capacite }} places</span>
+                </div>
+                
+                {% set availability = event.capacite - event.inscrits %}
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-muted-foreground font-medium">Disponibilité</span>
+                    <span class="font-bold {{ availability > 0 ? 'text-green-600' : 'text-red-500' }}">
+                        {{ availability > 0 ? availability ~ ' restantes' : 'Complet' }}
+                    </span>
+                </div>
+
+                <div class="space-y-2">
+                    {% set progress = (event.inscrits / event.capacite * 100)|round %}
+                    <div class="flex justify-between text-[10px] items-center font-bold px-1">
+                        <span class="text-muted-foreground uppercase">Taux de remplissage</span>
+                        <span class="text-primary">{{ progress }}%</span>
+                    </div>
+                    <div class="h-3 bg-muted rounded-full overflow-hidden">
+                        <div class="h-full bg-primary transition-all duration-700 w-[{{ progress }}%]"></div>
+                    </div>
+                </div>
+            </div>
+
+            {% if event.inscrits < event.capacite %}
+                <a href="{{ path('app_front_event_register', {id: event.id}) }}" class="block w-full py-4 bg-primary text-white text-center rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transform transition-all active:scale-95">
+                    S'inscrire maintenant
+                </a>
+            {% else %}
+                <button class="w-full py-4 bg-muted text-muted-foreground rounded-2xl font-bold cursor-not-allowed" disabled>
+                    Événement complet
+                </button>
+            {% endif %}
+            
+            <p class="text-center text-[11px] text-muted-foreground mt-4 px-4 leading-tight">
+                <i data-lucide="shield-check" class="w-3 h-3 inline mr-1 opacity-70"></i>
+                Inscription sécurisée. Une confirmation vous sera envoyée par email.
+            </p>
+
+            {% if event.sponsors|length > 0 %}
+                <div class="mt-10 pt-8 border-t border-border">
+                    <h4 class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Sponsors de l'événement</h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for sponsor in event.sponsors %}
+                            <span class="px-3 py-1 bg-muted/50 text-muted-foreground rounded-lg text-xs font-semibold border border-border/50">{{ sponsor.nom }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
             {% if event.latitude and event.longitude %}
                 const lat = {{ event.latitude }};
                 const lng = {{ event.longitude }};
@@ -131,7 +165,13 @@
                     maxZoom: 19,
                     attribution: '&copy; OpenStreetMap contributors'
                 }).addTo(eventMap);
-                L.marker([lat, lng]).addTo(eventMap)
+                L.marker([lat, lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41]
+                    })
+                }).addTo(eventMap)
                     .bindPopup(`<b>{{ event.titre }}</b><br>{{ event.lieu }}`)
                     .openPopup();
             {% endif %}
