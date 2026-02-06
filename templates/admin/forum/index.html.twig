@@ -1,0 +1,23 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Forum - Admin{% endblock %}
+{% block header_title %}Forum{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item">Forum</li>{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card stretch stretch-full">
+                    <div class="card-header">
+                        <h5 class="card-title">Forum Management</h5>
+                        <a href="javascript:void(0);" class="btn btn-primary btn-sm">Add Topic</a>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Manage forum topics and discussions here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

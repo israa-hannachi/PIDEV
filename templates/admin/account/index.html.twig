@@ -1,0 +1,23 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Accounts - Admin{% endblock %}
+{% block header_title %}Accounts{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item">Accounts</li>{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card stretch stretch-full">
+                    <div class="card-header">
+                        <h5 class="card-title">Accounts Management</h5>
+                        <a href="javascript:void(0);" class="btn btn-primary btn-sm">Add Account</a>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Manage user accounts here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
