@@ -1,0 +1,95 @@
+{% extends 'naja7ni/base.html.twig' %}
+
+{% block title %}Naja7ni - Mes favoris{% endblock %}
+
+{% block body %}
+    <div class="mb-8 flex items-start justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-12 h-12 bg-accent/10 text-accent rounded-xl flex items-center justify-center">
+                    <i data-lucide="star" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold">Mes favoris</h1>
+                    <p class="text-sm text-muted-foreground">Liste des cours que tu as ajoutés aux favoris.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_categorie_index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+                <i data-lucide="list" class="w-4 h-4"></i>
+                Retour aux catégories
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+        <div class="flex items-center justify-between gap-6 mb-6">
+            <h2 class="text-xl font-bold">Cours favoris ({{ cours|length }})</h2>
+            <div class="flex items-center gap-3">
+                {% set _sort = sort|default('date_desc') %}
+                {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Date') %}
+                <details class="relative">
+                    <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                        Trier ({{ _sortLabel }})
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-20">
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_favoris_index', app.request.query.all|merge({'sort': 'date_desc'})) }}">Date (récent)</a>
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_favoris_index', app.request.query.all|merge({'sort': 'alpha_asc'})) }}">A → Z</a>
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_favoris_index', app.request.query.all|merge({'sort': 'alpha_desc'})) }}">Z → A</a>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        {% if cours|length > 0 %}
+            <div class="space-y-3">
+                {% for cour in cours %}
+                    <div class="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/60 transition-colors">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="book-open" class="w-5 h-5 text-primary mt-0.5"></i>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-semibold">{{ cour.titre }}</h3>
+                                </div>
+                                {% if cour.description %}
+                                    <p class="text-sm text-muted-foreground">{{ cour.description|slice(0, 140) }}{% if cour.description|length > 140 %}...{% endif %}</p>
+                                {% endif %}
+                                {% if cour.module and cour.module.categorie %}
+                                    <p class="text-xs text-muted-foreground mt-1">
+                                        Catégorie
+                                        <a class="font-semibold text-primary hover:underline" href="{{ path('app_categorie_show', {'id': cour.module.categorie.id}) }}">{{ cour.module.categorie.nom }}</a>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <form method="post" action="{{ path('app_favoris_toggle', {'id': cour.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_favori' ~ cour.id) }}">
+                                <button type="submit" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-border hover:bg-muted transition" title="Retirer des favoris">
+                                    <i data-lucide="star" class="w-5 h-5 text-accent"></i>
+                                </button>
+                            </form>
+                            {% if cour.module and cour.module.categorie %}
+                                <a href="{{ path('app_categorie_show', {'id': cour.module.categorie.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                    Voir
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-4 rounded-xl border border-border bg-muted/20 text-sm text-muted-foreground flex items-center justify-between gap-4">
+                <span>Aucun cours dans les favoris.</span>
+                <a href="{{ path('app_cours_index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Ajouter des cours
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

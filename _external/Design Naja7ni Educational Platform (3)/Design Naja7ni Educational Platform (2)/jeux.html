@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naja7ni - Jeux</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <aside id="sidebar"
+            class="w-24 bg-sidebar border-r border-sidebar-border h-screen flex flex-col items-center py-8 gap-8">
+            <div class="flex items-center justify-center mb-2">
+                <img src="assets/images/logo-small.png" alt="Naja7ni"
+                    class="w-12 h-12 object-contain filter drop-shadow-md">
+            </div>
+            <nav class="flex flex-col gap-4 w-full px-2">
+                <a href="index.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="home" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Accueil</span>
+                </a>
+                <a href="profil.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="user" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Profil</span>
+                </a>
+                <a href="categories.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="folder-open" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Catégories</span>
+                </a>
+                <a href="meet.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Meet</span>
+                </a>
+                <a href="jeux.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group active">
+                    <i data-lucide="gamepad-2" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Jeux</span>
+                </a>
+                <a href="events.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="calendar" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Events</span>
+                </a>
+                <a href="forums.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="messages-square" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Forums</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+                <div class="flex items-center gap-8">
+                    <img src="assets/images/logo-full.png" alt="Naja7ni" class="h-10 object-contain">
+                </div>
+                <div class="flex-1 max-w-xl mx-8">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+                        <input type="text" placeholder="Rechercher des cours, modules..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
+                        <i data-lucide="bell"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                    </button>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+                        <i data-lucide="settings"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </button>
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105">
+                        A</div>
+                </div>
+            </nav>
+
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold mb-2">Jeux Éducatifs</h1>
+                            <p class="text-muted-foreground">Apprenez en vous amusant avec nos jeux interactifs</p>
+                        </div>
+
+                        <!-- Stats Banner -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                            <div
+                                class="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-white shadow-lg shadow-primary/20 transform hover:-translate-y-1 transition-all">
+                                <div class="flex items-center gap-4 mb-2">
+                                    <div class="p-2 bg-white/20 rounded-lg">
+                                        <i data-lucide="trophy" class="w-6 h-6"></i>
+                                    </div>
+                                    <span class="text-3xl font-bold">1,240</span>
+                                </div>
+                                <p class="text-white/90 text-sm font-medium">Points totaux</p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-secondary to-secondary/80 rounded-2xl p-6 text-white shadow-lg shadow-secondary/20 transform hover:-translate-y-1 transition-all">
+                                <div class="flex items-center gap-4 mb-2">
+                                    <div class="p-2 bg-white/20 rounded-lg">
+                                        <i data-lucide="target" class="w-6 h-6"></i>
+                                    </div>
+                                    <span class="text-3xl font-bold">15</span>
+                                </div>
+                                <p class="text-white/90 text-sm font-medium">Jeux complétés</p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-accent to-accent/80 rounded-2xl p-6 text-white shadow-lg shadow-accent/20 transform hover:-translate-y-1 transition-all">
+                                <div class="flex items-center gap-4 mb-2">
+                                    <div class="p-2 bg-white/20 rounded-lg">
+                                        <i data-lucide="star" class="w-6 h-6"></i>
+                                    </div>
+                                    <span class="text-3xl font-bold">8</span>
+                                </div>
+                                <p class="text-white/90 text-sm font-medium">Badges gagnés</p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg shadow-orange-500/20 transform hover:-translate-y-1 transition-all">
+                                <div class="flex items-center gap-4 mb-2">
+                                    <div class="p-2 bg-white/20 rounded-lg">
+                                        <i data-lucide="zap" class="w-6 h-6"></i>
+                                    </div>
+                                    <span class="text-3xl font-bold">#12</span>
+                                </div>
+                                <p class="text-white/90 text-sm font-medium">Classement</p>
+                            </div>
+                        </div>
+
+                        <!-- Games Grid -->
+                        <h2 class="text-2xl font-bold mb-6">Jeux Disponibles</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Game 1 -->
+                            <div
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1 hover:border-blue-200">
+                                <div
+                                    class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform shadow-blue-500/20 shadow-lg">
+                                    🧠
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Quiz
+                                    Master</h3>
+                                <p class="text-sm text-muted-foreground mb-6">Testez vos connaissances en temps limité
+                                </p>
+                                <div class="flex items-center justify-between pt-4 border-t border-border/50">
+                                    <span class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                        2,456 joueurs
+                                    </span>
+                                    <button
+                                        class="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary/90 transition-all font-medium flex items-center gap-2 shadow-md hover:shadow-lg">
+                                        <i data-lucide="play" class="w-4 h-4"></i>
+                                        Jouer
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Game 2 -->
+                            <div
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1 hover:border-purple-200">
+                                <div
+                                    class="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform shadow-purple-500/20 shadow-lg">
+                                    💻
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Code
+                                    Challenge</h3>
+                                <p class="text-sm text-muted-foreground mb-6">Défis de programmation en direct</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-border/50">
+                                    <span class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                        1,823 joueurs
+                                    </span>
+                                    <button
+                                        class="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary/90 transition-all font-medium flex items-center gap-2 shadow-md hover:shadow-lg">
+                                        <i data-lucide="play" class="w-4 h-4"></i>
+                                        Jouer
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Game 3 -->
+                            <div
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1 hover:border-green-200">
+                                <div
+                                    class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform shadow-green-500/20 shadow-lg">
+                                    🔢
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Math
+                                    Battle</h3>
+                                <p class="text-sm text-muted-foreground mb-6">Compétition mathématiques multijoueur</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-border/50">
+                                    <span class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
+                                        3,142 joueurs
+                                    </span>
+                                    <button
+                                        class="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary/90 transition-all font-medium flex items-center gap-2 shadow-md hover:shadow-lg">
+                                        <i data-lucide="play" class="w-4 h-4"></i>
+                                        Jouer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>

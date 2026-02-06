@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naja7ni - Catégories</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="w-24 bg-sidebar border-r border-sidebar-border h-screen flex flex-col items-center py-8 gap-8">
+            <div class="flex items-center justify-center mb-2">
+                <img src="assets/images/logo-small.png" alt="Naja7ni"
+                    class="w-12 h-12 object-contain filter drop-shadow-md">
+            </div>
+            <nav class="flex flex-col gap-4 w-full px-2">
+                <a href="index.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="home" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Accueil</span>
+                </a>
+                <a href="profil.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="user" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Profil</span>
+                </a>
+                <a href="/categorie"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group active">
+                    <i data-lucide="folder-open" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Catégories</span>
+                </a>
+                <a href="meet.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Meet</span>
+                </a>
+                <a href="jeux.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="gamepad-2" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Jeux</span>
+                </a>
+                <a href="events.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="calendar" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Events</span>
+                </a>
+                <a href="forums.html"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="messages-square" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Forums</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+                <div class="flex items-center gap-8">
+                    <img src="assets/images/logo-full.png" alt="Naja7ni" class="h-10 object-contain">
+                </div>
+                <div class="flex-1 max-w-xl mx-8">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+                        <input type="text" placeholder="Rechercher des cours, modules..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
+                        <i data-lucide="bell"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                    </button>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+                        <i data-lucide="settings"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </button>
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105">
+                        A</div>
+                </div>
+            </nav>
+
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold mb-2">Catégories de Cours</h1>
+                            <p class="text-muted-foreground">Sélectionnez une catégorie pour voir les modules et cours
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                            <!-- Category 1 -->
+                            <a href="#dev-web"
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-md transition-all cursor-pointer group hover:-translate-y-1">
+                                <div
+                                    class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform shadow-blue-500/20 shadow-lg">
+                                    <i data-lucide="code" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                                    Développement Web</h3>
+                                <p class="text-sm text-muted-foreground mb-4 leading-relaxed">HTML, CSS, JavaScript,
+                                    React, et plus</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-border/50">
+                                    <span class="text-sm font-semibold text-primary/80">2 modules</span>
+                                    <i data-lucide="chevron-right"
+                                        class="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+                                </div>
+                            </a>
+
+                            <!-- Category 2 -->
+                            <a href="#design"
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-md transition-all cursor-pointer group hover:-translate-y-1">
+                                <div
+                                    class="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform shadow-purple-500/20 shadow-lg">
+                                    <i data-lucide="palette" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Design &
+                                    Créativité</h3>
+                                <p class="text-sm text-muted-foreground mb-4 leading-relaxed">UX/UI, Graphisme, Design
+                                    Thinking</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-border/50">
+                                    <span class="text-sm font-semibold text-primary/80">1 module</span>
+                                    <i data-lucide="chevron-right"
+                                        class="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Detailed Modules List (Static Expansion) -->
+                        <div class="space-y-8">
+                            <section id="dev-web" class="bg-white rounded-2xl shadow-sm border border-border p-8">
+                                <div class="flex items-center gap-4 mb-6 pb-6 border-b border-border">
+                                    <div
+                                        class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                                        <i data-lucide="code" class="w-6 h-6"></i>
+                                    </div>
+                                    <h2 class="text-2xl font-bold">Développement Web - Programme Détaillé</h2>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <!-- Module 1 -->
+                                    <div class="space-y-4">
+                                        <h3 class="text-lg font-bold flex items-center gap-2">
+                                            <i data-lucide="layers" class="w-5 h-5 text-primary"></i>
+                                            Front-End Development
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-blue-500"></i>
+                                                    <span class="text-sm font-medium">HTML & CSS Fondamentaux</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">4h
+                                                    30min</span>
+                                            </li>
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-blue-500"></i>
+                                                    <span class="text-sm font-medium">JavaScript Moderne</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">6h
+                                                    15min</span>
+                                            </li>
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-blue-500"></i>
+                                                    <span class="text-sm font-medium">React.js Complet</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">8h</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Module 2 -->
+                                    <div class="space-y-4">
+                                        <h3 class="text-lg font-bold flex items-center gap-2">
+                                            <i data-lucide="database" class="w-5 h-5 text-primary"></i>
+                                            Back-End Development
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-blue-500"></i>
+                                                    <span class="text-sm font-medium">Node.js & Express</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">5h
+                                                    45min</span>
+                                            </li>
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-blue-500"></i>
+                                                    <span class="text-sm font-medium">Bases de données SQL</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">4h</span>
+                                            </li>
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-blue-500"></i>
+                                                    <span class="text-sm font-medium">API REST</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">3h
+                                                    30min</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="design" class="bg-white rounded-2xl shadow-sm border border-border p-8">
+                                <div class="flex items-center gap-4 mb-6 pb-6 border-b border-border">
+                                    <div
+                                        class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                                        <i data-lucide="palette" class="w-6 h-6"></i>
+                                    </div>
+                                    <h2 class="text-2xl font-bold">Design & Créativité - Programme Détaillé</h2>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <!-- Module 1 -->
+                                    <div class="space-y-4">
+                                        <h3 class="text-lg font-bold flex items-center gap-2">
+                                            <i data-lucide="pen-tool" class="w-5 h-5 text-primary"></i>
+                                            UX Design
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-purple-500"></i>
+                                                    <span class="text-sm font-medium">Introduction à l'UX</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">3h
+                                                    45min</span>
+                                            </li>
+                                            <li
+                                                class="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/60 transition-colors">
+                                                <div class="flex items-center gap-3">
+                                                    <i data-lucide="play-circle" class="w-4 h-4 text-purple-500"></i>
+                                                    <span class="text-sm font-medium">Recherche Utilisateur</span>
+                                                </div>
+                                                <span
+                                                    class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">4h
+                                                    30min</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>

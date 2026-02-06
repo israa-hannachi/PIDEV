@@ -1,0 +1,150 @@
+{% extends 'naja7ni/base.html.twig' %}
+
+{% block title %}Naja7ni - {{ module.titre }}{% endblock %}
+
+{% block body %}
+    <div class="mb-8 flex items-start justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-12 h-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold">{{ module.titre }}</h1>
+                    <p class="text-sm text-muted-foreground">
+                        Dans la catégorie
+                        <a class="font-semibold text-primary hover:underline" href="{{ path('app_categorie_show', {'id': module.categorie.id}) }}">{{ module.categorie.nom }}</a>
+                    </p>
+                </div>
+            </div>
+            <p class="text-muted-foreground">
+                {{ module.description ? module.description : 'Aucune description.' }}
+            </p>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground">
+                    <i data-lucide="list-ordered" class="w-4 h-4"></i>
+                    {{ module.cours|length }} cours
+                </span>
+                {% if module.niveau %}
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground">
+                        <i data-lucide="signal" class="w-4 h-4"></i>
+                        {{ module.niveau }}
+                    </span>
+                {% endif %}
+                {% if module.duree %}
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        {{ module.duree }}h
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_cours_new') }}?module={{ module.id }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Ajouter un cours
+            </a>
+            <a href="{{ path('app_module_edit', {'id': module.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+                <i data-lucide="pencil" class="w-4 h-4"></i>
+                Modifier
+            </a>
+            {{ include('module/_delete_form.html.twig') }}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+        <div class="flex items-center justify-between gap-6 mb-6">
+            <h2 class="text-xl font-bold">Cours ({{ module.cours|length }})</h2>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('app_favoris_index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                    <i data-lucide="star" class="w-4 h-4"></i>
+                    Mes favoris
+                </a>
+                {% set _sort = sort_cours|default('date_desc') %}
+                {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Date') %}
+                <details class="relative">
+                    <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                        Trier cours ({{ _sortLabel }})
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-20">
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_module_show', {'id': module.id, 'sort_cours': 'date_desc'}) }}">Date (récent)</a>
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_module_show', {'id': module.id, 'sort_cours': 'alpha_asc'}) }}">A → Z</a>
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_module_show', {'id': module.id, 'sort_cours': 'alpha_desc'}) }}">Z → A</a>
+                    </div>
+                </details>
+                <a href="{{ path('app_categorie_show', {'id': module.categorie.id}) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/70 transition font-semibold">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Retour à la catégorie
+                </a>
+            </div>
+        </div>
+
+        {% if cours|length > 0 %}
+            <div class="space-y-3">
+                {% for cour in cours %}
+                    {% set duree = cour.duree ?? 0 %}
+                    {% set h = (duree // 60) %}
+                    {% set m = (duree % 60) %}
+
+                    <div class="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/60 transition-colors">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="play-circle" class="w-5 h-5 text-primary mt-0.5"></i>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-semibold">{{ cour.titre }}</h3>
+                                    {% if cour.ordre is not null %}
+                                        <span class="text-xs text-muted-foreground bg-white px-2 py-0.5 rounded border border-border">#{{ cour.ordre }}</span>
+                                    {% endif %}
+                                    {% if cour.contenu %}
+                                        <span class="text-xs text-muted-foreground bg-white px-2 py-0.5 rounded border border-border">Texte</span>
+                                    {% elseif cour.fichierContenu %}
+                                        <span class="text-xs text-muted-foreground bg-white px-2 py-0.5 rounded border border-border">Fichier</span>
+                                    {% endif %}
+                                </div>
+                                {% if cour.description %}
+                                    <p class="text-sm text-muted-foreground">{{ cour.description|slice(0, 140) }}{% if cour.description|length > 140 %}...{% endif %}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">
+                                {% if duree > 0 %}
+                                    {% if h > 0 %}{{ h }}h{% endif %}{% if m > 0 %} {{ m }}min{% endif %}
+                                    {% if h == 0 and m == 0 %}{{ duree }}min{% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                            {% set _isFavori = favoris_ids is defined and (cour.id in favoris_ids) %}
+                            <form method="post" action="{{ path('app_favoris_toggle', {'id': cour.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_favori' ~ cour.id) }}">
+                                <button type="submit" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-border hover:bg-muted transition" title="{{ _isFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                                    <i data-lucide="star" class="w-5 h-5 {{ _isFavori ? 'text-accent' : 'text-muted-foreground' }}"></i>
+                                </button>
+                            </form>
+                            <a href="{{ path('app_cours_show', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                Voir
+                            </a>
+                            <a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                                <i data-lucide="settings" class="w-4 h-4"></i>
+                                Modifier
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-4 rounded-xl border border-border bg-muted/20 text-sm text-muted-foreground flex items-center justify-between gap-4">
+                <span>Aucun cours dans ce module.</span>
+                <a href="{{ path('app_cours_new') }}?module={{ module.id }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Ajouter le premier cours
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

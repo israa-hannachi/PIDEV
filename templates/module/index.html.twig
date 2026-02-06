@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Module index{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between gap-4">
+        <h1>Module index</h1>
+        {% set _sort = app.request.query.get('sort')|default('date_desc') %}
+        {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Date') %}
+        <details class="relative">
+            <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded border">
+                Trier ({{ _sortLabel }})
+            </summary>
+            <div class="absolute right-0 mt-2 w-44 bg-white border rounded shadow overflow-hidden z-20">
+                <a class="block px-3 py-2 hover:bg-gray-100" href="{{ path('app_module_index', app.request.query.all|merge({'sort': 'date_desc'})) }}">Date (récent)</a>
+                <a class="block px-3 py-2 hover:bg-gray-100" href="{{ path('app_module_index', app.request.query.all|merge({'sort': 'alpha_asc'})) }}">A → Z</a>
+                <a class="block px-3 py-2 hover:bg-gray-100" href="{{ path('app_module_index', app.request.query.all|merge({'sort': 'alpha_desc'})) }}">Z → A</a>
+            </div>
+        </details>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Duree</th>
+                <th>Niveau</th>
+                <th>DateCreation</th>
+                <th>Actif</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for module in modules %}
+            <tr>
+                <td>{{ module.id }}</td>
+                <td>{{ module.titre }}</td>
+                <td>{{ module.description }}</td>
+                <td>{{ module.duree }}</td>
+                <td>{{ module.niveau }}</td>
+                <td>{{ module.dateCreation ? module.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ module.actif ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_module_show', {'id': module.id}) }}">show</a>
+                    <a href="{{ path('app_module_edit', {'id': module.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

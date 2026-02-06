@@ -1,0 +1,111 @@
+{% extends 'naja7ni/base.html.twig' %}
+
+{% block title %}Naja7ni - Recherche{% endblock %}
+
+{% block body %}
+    <div class="mb-8 flex items-start justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                    <i data-lucide="search" class="w-6 h-6"></i>
+                </div>
+                <h1 class="text-3xl font-bold">Recherche</h1>
+            </div>
+            <p class="text-muted-foreground">Résultats pour <span class="font-semibold">"{{ q }}"</span></p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-border p-6 mb-8">
+        <form method="get" action="{{ path('app_search') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-semibold mb-2">Mot-clé</label>
+                <input name="q" value="{{ q }}" class="w-full px-4 py-2.5 bg-white rounded-xl border border-border focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition" placeholder="Rechercher..." />
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-2">Type</label>
+                <select name="type" class="w-full px-4 py-2.5 bg-white rounded-xl border border-border focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition">
+                    <option value="all" {{ type == 'all' ? 'selected' : '' }}>Tout</option>
+                    <option value="categorie" {{ type == 'categorie' ? 'selected' : '' }}>Catégories</option>
+                    <option value="module" {{ type == 'module' ? 'selected' : '' }}>Modules</option>
+                    <option value="cours" {{ type == 'cours' ? 'selected' : '' }}>Cours</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-2">Tri</label>
+                <select name="sort" class="w-full px-4 py-2.5 bg-white rounded-xl border border-border focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition">
+                    <option value="relevance" {{ sort == 'relevance' ? 'selected' : '' }}>Pertinence</option>
+                    <option value="date_desc" {{ sort in ['date', 'date_desc'] ? 'selected' : '' }}>Date (récent)</option>
+                    <option value="alpha_asc" {{ sort in ['alpha', 'alpha_asc'] ? 'selected' : '' }}>A → Z</option>
+                    <option value="alpha_desc" {{ sort == 'alpha_desc' ? 'selected' : '' }}>Z → A</option>
+                </select>
+            </div>
+            <div class="md:col-span-2"></div>
+            <div class="flex justify-end">
+                <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition" type="submit">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    Rechercher
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if q == '' %}
+        <div class="p-4 rounded-xl border border-border bg-muted/20 text-sm text-muted-foreground">Saisis un mot dans la barre de recherche.</div>
+    {% else %}
+        <div class="space-y-8">
+            {% if type in ['all', 'categorie'] %}
+                <section class="bg-white rounded-2xl shadow-sm border border-border p-6">
+                    <h2 class="text-xl font-bold mb-4">Catégories ({{ categories|length }})</h2>
+                    {% if categories|length > 0 %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for categorie in categories %}
+                                <a href="{{ path('app_categorie_show', {'id': categorie.id}) }}" class="p-4 rounded-xl border border-border hover:bg-muted/30 transition block">
+                                    <div class="font-semibold">{{ categorie.nom }}</div>
+                                    {% if categorie.description %}<div class="text-sm text-muted-foreground">{{ categorie.description|slice(0,120) }}{% if categorie.description|length > 120 %}...{% endif %}</div>{% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-muted-foreground">Aucun résultat.</div>
+                    {% endif %}
+                </section>
+            {% endif %}
+
+            {% if type in ['all', 'module'] %}
+                <section class="bg-white rounded-2xl shadow-sm border border-border p-6">
+                    <h2 class="text-xl font-bold mb-4">Modules ({{ modules|length }})</h2>
+                    {% if modules|length > 0 %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for module in modules %}
+                                <a href="{{ path('app_module_show', {'id': module.id}) }}" class="p-4 rounded-xl border border-border hover:bg-muted/30 transition block">
+                                    <div class="font-semibold">{{ module.titre }}</div>
+                                    {% if module.description %}<div class="text-sm text-muted-foreground">{{ module.description|slice(0,120) }}{% if module.description|length > 120 %}...{% endif %}</div>{% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-muted-foreground">Aucun résultat.</div>
+                    {% endif %}
+                </section>
+            {% endif %}
+
+            {% if type in ['all', 'cours'] %}
+                <section class="bg-white rounded-2xl shadow-sm border border-border p-6">
+                    <h2 class="text-xl font-bold mb-4">Cours ({{ cours|length }})</h2>
+                    {% if cours|length > 0 %}
+                        <div class="space-y-3">
+                            {% for cour in cours %}
+                                <a href="{{ path('app_cours_show', {'id': cour.id}) }}" class="p-4 rounded-xl border border-border hover:bg-muted/30 transition block">
+                                    <div class="font-semibold">{{ cour.titre }}</div>
+                                    <div class="text-sm text-muted-foreground">Module: {{ cour.module.titre }}</div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-muted-foreground">Aucun résultat.</div>
+                    {% endif %}
+                </section>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

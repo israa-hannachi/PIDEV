@@ -1,0 +1,24 @@
+{% extends 'naja7ni/base.html.twig' %}
+
+{% block title %}Naja7ni - Nouveau cours{% endblock %}
+
+{% block body %}
+    <div class="mb-8 flex items-start justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                    <i data-lucide="book-open" class="w-6 h-6"></i>
+                </div>
+                <h1 class="text-3xl font-bold">Nouveau cours</h1>
+            </div>
+            <p class="text-muted-foreground">Créer un cours dans le module <span class="font-semibold">{{ cour.module.titre }}</span>.</p>
+        </div>
+
+        <a href="{{ path('app_module_show', {'id': cour.module.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Retour au module
+        </a>
+    </div>
+
+    {{ include('cours/_form.html.twig', {'button_label': 'Créer'}) }}
+{% endblock %}
