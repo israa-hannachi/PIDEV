@@ -11,13 +11,13 @@
 {% block body %}
     <div class="main-content">
         <div class="row">
-            <!-- Total Events -->
+            <!-- Total Events Card (Original Style) -->
             <div class="col-xxl-12 col-md-12">
-                <div class="card stretch stretch-full">
+                <div class="card stretch stretch-full border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-start justify-content-between mb-4">
                             <div class="d-flex gap-4 align-items-center">
-                                <div class="avatar-text avatar-lg bg-gray-200">
+                                <div class="avatar-text avatar-lg bg-gray-100">
                                     <i class="feather-calendar"></i>
                                 </div>
                                 <div>
@@ -45,7 +45,7 @@
 
             <!-- Quick Stats Section -->
             <div class="col-lg-4">
-                <div class="card mb-4 stretch stretch-full">
+                <div class="card mb-4 stretch stretch-full border-0 shadow-sm">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="d-flex gap-3 align-items-center">
                             <div class="avatar-text">
@@ -62,7 +62,7 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card mb-4 stretch stretch-full">
+                <div class="card mb-4 stretch stretch-full border-0 shadow-sm">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="d-flex gap-3 align-items-center">
                             <div class="avatar-text">
@@ -79,7 +79,7 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card mb-4 stretch stretch-full">
+                <div class="card mb-4 stretch stretch-full border-0 shadow-sm">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="d-flex gap-3 align-items-center">
                             <div class="avatar-text">
@@ -95,27 +95,27 @@
                 </div>
             </div>
 
-            <!-- Quick Links -->
+            <!-- Quick Action Links (Restored) -->
             <div class="col-12">
-                <div class="card stretch stretch-full mt-4">
+                <div class="card stretch stretch-full mt-4 border-0 shadow-sm">
                     <div class="card-header">
                         <h5 class="card-title">Quick Actions</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <a href="{{ path('admin_event_index') }}" class="btn btn-primary w-100">
-                                    <i class="feather-calendar me-2"></i>Manage Events
+                                <a href="{{ path('admin_event_index') }}" class="btn btn-outline-primary w-100">
+                                    <i class="feather-calendar me-2"></i>Manage Events Section
                                 </a>
                             </div>
                             <div class="col-md-4">
-                                <a href="{{ path('admin_registration_index') }}" class="btn btn-info w-100">
+                                <a href="{{ path('admin_registration_index') }}" class="btn btn-outline-info w-100">
                                     <i class="feather-users me-2"></i>Registrations
                                 </a>
                             </div>
                             <div class="col-md-4">
-                                <a href="{{ path('admin_sponsor_index') }}" class="btn btn-success w-100">
-                                    <i class="feather-award me-2"></i>Sponsors
+                                <a href="{{ path('admin_sponsor_index') }}" class="btn btn-outline-success w-100">
+                                    <i class="feather-award me-2"></i>Sponsor Reports
                                 </a>
                             </div>
                         </div>

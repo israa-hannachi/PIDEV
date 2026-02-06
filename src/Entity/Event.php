@@ -10,9 +10,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: 'events')]
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['titre'], message: 'Un événement avec ce titre existe déjà.')]
 class Event
 {
     #[ORM\Id]

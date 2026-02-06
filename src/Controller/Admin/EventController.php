@@ -16,10 +16,46 @@ use Symfony\Component\Routing\Annotation\Route;
 class EventController extends AbstractController
 {
     #[Route('/', name: 'admin_event_index', methods: ['GET'])]
-    public function index(EventRepository $eventRepository): Response
-    {
+    public function index(
+        EventRepository $eventRepository,
+        \App\Repository\RegistrationRepository $registrationRepository,
+        \App\Repository\SponsorRepository $sponsorRepository,
+        \App\Service\NotificationService $notificationService
+    ): Response {
+        $events = $eventRepository->findAll();
+        $registrations = $registrationRepository->findAll();
+        $sponsors = $sponsorRepository->findAll();
+
+        // Financial stats
+        $totalRevenue = 0;
+        foreach ($registrations as $reg) {
+            if ($reg->getPaiementStatut() === 'payé' || $reg->getStatut() === 'confirmé') {
+                $totalRevenue += (float)$reg->getMontantPaye();
+            }
+        }
+
+        $totalSponsorship = 0;
+        foreach ($sponsors as $sponsor) {
+            $totalSponsorship += (float)$sponsor->getMontant();
+        }
+
+        // Stats by category
+        $statsByCategory = [];
+        foreach ($events as $event) {
+            $cat = $event->getCategorie();
+            $statsByCategory[$cat] = ($statsByCategory[$cat] ?? 0) + 1;
+        }
+
         return $this->render('admin/event/index.html.twig', [
-            'events' => $eventRepository->findAll(),
+            'events' => $events,
+            'total_events' => count($events),
+            'total_registrations' => count($registrations),
+            'total_sponsors' => count($sponsors),
+            'total_revenue' => $totalRevenue,
+            'total_sponsorship' => $totalSponsorship,
+            'stats_category_labels' => array_keys($statsByCategory),
+            'stats_category_data' => array_values($statsByCategory),
+            'admin_notifications' => $notificationService->getAdminNotifications(),
         ]);
     }
 

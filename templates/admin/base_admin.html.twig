@@ -114,6 +114,55 @@
                             </div>
                         </div>
 
+                        <!-- Admin Notifications -->
+                        <div class="dropdown nxl-h-item nxl-header-notifications">
+                            <a href="javascript:void(0);" class="nxl-head-link me-0" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="feather-bell"></i>
+                                {% set notifications = admin_notifications|default([]) %}
+                                {% if notifications|length > 0 %}
+                                    <span class="badge bg-danger nxl-h-badge">{{ notifications|length }}</span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-notifications-dropdown">
+                                <div class="d-flex justify-content-between align-items-center notifications-head">
+                                    <h6 class="fw-bold text-dark mb-0">Notifications</h6>
+                                    {% if notifications|length > 0 %}
+                                        <a href="{{ path('admin_clear_notifications') }}" class="fs-11 text-success text-end ms-auto">Clear All</a>
+                                    {% endif %}
+                                </div>
+                                <div class="notifications-item">
+                                    {% if notifications|length > 0 %}
+                                        {% for notification in notifications|reverse %}
+                                            <div class="notifications-desc">
+                                                <a href="javascript:void(0);" class="font-body text-truncate-2-line">
+                                                    <span class="fw-semibold text-dark">
+                                                        {% if notification.level == 'warning' %}
+                                                            <i class="feather-alert-triangle text-warning me-2"></i>
+                                                        {% elseif notification.level == 'info' %}
+                                                            <i class="feather-info text-info me-2"></i>
+                                                        {% else %}
+                                                            <i class="feather-bell text-primary me-2"></i>
+                                                        {% endif %}
+                                                        {{ notification.message }}
+                                                    </span>
+                                                </a>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="notifications-date text-muted border-bottom border-bottom-dashed">
+                                                        {{ notification.timestamp|date('d/m/Y H:i') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="feather-bell fs-4 text-muted"></i>
+                                            <p class="text-muted mb-0 mt-2">Aucune notification</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Language Selector -->
                         <div class="dropdown nxl-h-item nxl-header-language d-none d-sm-flex">
                             <a href="javascript:void(0);" class="nxl-head-link me-0 nxl-language-link" data-bs-toggle="dropdown" data-bs-auto-close="outside">

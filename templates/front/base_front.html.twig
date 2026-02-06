@@ -153,6 +153,38 @@
     <!-- Application Scripts -->
     <script>
         lucide.createIcons();
+
+        {% if new_events_count is defined and new_events_count > 0 %}
+            // Show new events notification
+            document.addEventListener('DOMContentLoaded', function() {
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-8 right-8 bg-white rounded-2xl shadow-2xl border border-primary/20 p-6 z-50 transform translate-y-20 transition-all duration-500 opacity-0 flex items-center gap-4 max-w-sm';
+                notification.id = 'new-events-toast';
+                notification.innerHTML = `
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                        <i data-lucide="bell-ring" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-foreground">Nouveaux événements !</h4>
+                        <p class="text-xs text-muted-foreground">${ {{ new_events_count }} } nouvel événement(s) ajouté(s) ces dernières 24h. Allez les voir !</p>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="p-1 hover:bg-muted rounded-lg transition-colors ml-2">
+                        <i data-lucide="x" class="w-4 h-4 text-muted-foreground"></i>
+                    </button>
+                `;
+                document.body.appendChild(notification);
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    notification.classList.remove('translate-y-20', 'opacity-0');
+                }, 100);
+
+                setTimeout(() => {
+                    notification.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(() => notification.remove(), 500);
+                }, 8000);
+            });
+        {% endif %}
     </script>
     {% block javascripts %}{% endblock %}
 </body>
