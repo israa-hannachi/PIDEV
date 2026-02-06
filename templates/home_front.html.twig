@@ -1,0 +1,100 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<div class="p-8 min-h-full">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Bienvenue sur Naja7ni</h1>
+            <p class="text-xl text-muted-foreground">Plateforme de gestion des réunions virtuelles</p>
+        </div>
+
+        <!-- Cartes principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <a href="{{ path('app_user_index') }}" 
+               class="bg-white rounded-2xl shadow-sm border border-border p-8 hover:shadow-lg transition-all hover:border-primary/30 group">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                        <i data-lucide="users" class="w-8 h-8 text-primary"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Participants</h3>
+                    <p class="text-sm text-muted-foreground">Gérez les participants</p>
+                </div>
+            </a>
+
+            <a href="{{ path('app_meet_index') }}" 
+               class="bg-white rounded-2xl shadow-sm border border-border p-8 hover:shadow-lg transition-all hover:border-primary/30 group">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
+                        <i data-lucide="video" class="w-8 h-8 text-secondary"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Réunions</h3>
+                    <p class="text-sm text-muted-foreground">Organisez des sessions</p>
+                </div>
+            </a>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-border p-8 opacity-75">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="folder-open" class="w-8 h-8 text-muted-foreground"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Catégories</h3>
+                    <p class="text-sm text-muted-foreground">Bientôt disponible</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-border p-8 opacity-75">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="gamepad-2" class="w-8 h-8 text-muted-foreground"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Jeux</h3>
+                    <p class="text-sm text-muted-foreground">Bientôt disponible</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <a href="{{ path('app_user_new') }}" 
+               class="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 text-white hover:shadow-lg transition-all">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-2">Créer un participant</h3>
+                        <p class="text-white/90">Ajoutez un nouveau participant à la plateforme</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ path('app_meet_new') }}" 
+               class="bg-gradient-to-r from-secondary to-secondary/80 rounded-2xl p-8 text-white hover:shadow-lg transition-all">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <i data-lucide="video-plus" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-2">Créer une réunion</h3>
+                        <p class="text-white/90">Organisez une nouvelle session virtuelle</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+{% endblock %}

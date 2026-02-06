@@ -1,0 +1,104 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Salle - {{ meet.titre }}{% endblock %}
+
+{% block body %}
+<div class="p-6 min-h-full">
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-xl mb-5">
+            <div class="flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 mt-0.5"></i>
+                <div class="flex-1">
+                    <div class="font-semibold">Démarrage de la réunion</div>
+                    <div class="text-sm">Avec <span class="font-medium">meet.jit.si</span>, l’enseignant doit entrer en premier et cliquer sur <span class="font-medium">“Je suis l’hôte”</span> pour démarrer la salle. Les étudiants peuvent ensuite rejoindre.</div>
+                </div>
+                <button type="button" id="copyRoomLink" class="shrink-0 bg-white border border-amber-300 px-3 py-2 rounded-lg hover:bg-amber-100 transition-all text-sm font-medium">Copier le lien</button>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">{{ meet.titre }}</h1>
+                <p class="text-muted-foreground">Prof. {{ meet.participant.nom }} {{ meet.participant.prenom }} • {{ meet.dateDebut|date('d/m/Y H:i') }} - {{ meet.dateFin|date('H:i') }}</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ path('app_meet_show', {'id': meet.id}) }}" class="bg-white text-primary border border-primary px-5 py-2.5 rounded-xl hover:bg-primary/5 transition-all flex items-center gap-2 font-medium">
+                    <i data-lucide="info" class="w-5 h-5"></i>
+                    Détails
+                </a>
+                <a href="{{ path('app_meet_index') }}" class="bg-white text-secondary border border-secondary px-5 py-2.5 rounded-xl hover:bg-secondary/5 transition-all flex items-center gap-2 font-medium">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    Retour
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
+            <div id="jitsi" class="w-full" style="height: calc(100vh - 220px);"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://{{ jitsiDomain }}/external_api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            const roomLink = window.location.href;
+            const copyBtn = document.getElementById('copyRoomLink');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', async () => {
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(roomLink);
+                        } else {
+                            const el = document.createElement('textarea');
+                            el.value = roomLink;
+                            el.setAttribute('readonly', '');
+                            el.style.position = 'absolute';
+                            el.style.left = '-9999px';
+                            document.body.appendChild(el);
+                            el.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(el);
+                        }
+                        copyBtn.textContent = 'Copié';
+                        setTimeout(() => (copyBtn.textContent = 'Copier le lien'), 1500);
+                    } catch (e) {
+                        alert('Impossible de copier le lien automatiquement. Copiez-le manuellement depuis la barre d’adresse.');
+                    }
+                });
+            }
+
+            const domain = {{ jitsiDomain|json_encode|raw }};
+            const roomName = {{ roomName|json_encode|raw }};
+            const parentNode = document.querySelector('#jitsi');
+
+            const options = {
+                roomName: roomName,
+                parentNode: parentNode,
+                width: '100%',
+                height: '100%',
+                configOverwrite: {
+                    prejoinPageEnabled: true,
+                    startWithAudioMuted: true,
+                    startWithVideoMuted: true,
+                },
+                interfaceConfigOverwrite: {
+                    DEFAULT_REMOTE_DISPLAY_NAME: 'Participant',
+                },
+            };
+
+            const api = new JitsiMeetExternalAPI(domain, options);
+
+            api.addEventListener('readyToClose', () => {
+                window.location.href = {{ path('app_meet_index')|json_encode|raw }};
+            });
+        });
+    </script>
+{% endblock %}

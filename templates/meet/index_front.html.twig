@@ -1,0 +1,205 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Liste des réunions{% endblock %}
+
+{% block body %}
+<div class="p-8 min-h-full">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Réunions Virtuelles</h1>
+                <p class="text-muted-foreground">Participez à vos cours en direct</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ path('app_meet_new') }}" class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary/90 transition-all hover:shadow-lg flex items-center gap-2 font-medium">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                    Nouvelle réunion
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages Flash -->
+        {% for message in app.flashes('success') %}
+            <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <!-- Quick Join -->
+        <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h2 class="text-2xl font-bold mb-2">Rejoindre une réunion</h2>
+                    <p class="text-white/90">Entrez le code de la réunion pour participer</p>
+                </div>
+                <form method="get" action="{{ path('app_meet_join_code') }}" class="flex gap-3 w-full md:w-auto">
+                    <input name="code" type="text" placeholder="Entrer le code (ex: 1)"
+                        class="flex-1 md:w-64 px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all" />
+                    <button type="submit" class="bg-white text-primary px-6 py-3 rounded-xl hover:bg-white/90 transition-colors font-bold shadow-lg">Rejoindre</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section pour créer une réunion (visible seulement pour les enseignants) -->
+        <div id="teacherSection" class="hidden mb-8">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="video" class="w-6 h-6"></i>
+                            Créer une réunion
+                        </h2>
+                        <p class="text-white/90">En tant qu'enseignant, vous pouvez créer des réunions virtuelles pour vos étudiants</p>
+                    </div>
+                    <button id="createMeetingBtn" class="bg-white text-green-600 px-6 py-3 rounded-xl hover:bg-white/90 transition-colors font-bold shadow-lg flex items-center gap-2">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        Créer une réunion
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message pour les non-enseignants -->
+        <div id="nonTeacherSection" class="hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
+                <div class="relative z-10 flex items-center gap-4">
+                    <i data-lucide="info" class="w-8 h-8"></i>
+                    <div>
+                        <h2 class="text-xl font-bold mb-2">Accès limité aux enseignants</h2>
+                        <p class="text-white/90">Seuls les enseignants peuvent créer des réunions. Contactez un enseignant si vous avez besoin d'une session.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Meetings -->
+        <h2 class="text-2xl font-bold mb-6">Réunions à venir</h2>
+        <div class="space-y-4">
+            {% for meet in meets %}
+                <div class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-md transition-all hover:border-primary/30 group">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                                {{ meet.titre }}
+                            </h3>
+                            <p class="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold">
+                                    {{ meet.participant.nom|first|upper }}
+                                </span>
+                                Prof. {{ meet.participant.nom }} {{ meet.participant.prenom }}
+                            </p>
+                            <div class="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                <div class="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-lg">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-primary"></i>
+                                    {{ meet.dateDebut|date('d/m/Y H:i') }}
+                                </div>
+                                <div class="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-lg">
+                                    <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
+                                    {% set diff = meet.dateFin.timestamp - meet.dateDebut.timestamp %}
+                                    {% set hours = (diff // 3600) %}
+                                    {% set minutes = ((diff % 3600) // 60) %}
+                                    {% if hours > 0 %}
+                                        {{ hours }}h{{ minutes > 0 ? minutes ~ 'min' : '' }}
+                                    {% else %}
+                                        {{ minutes }}min
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-lg">
+                                    <i data-lucide="users" class="w-4 h-4 text-primary"></i>
+                                    Participants
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            {% if meet.lienMeet %}
+                                <a href="{{ path('app_meet_room', {'id': meet.id}) }}" 
+                                   class="w-full md:w-auto bg-primary text-white px-8 py-3 rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-medium">
+                                    <i data-lucide="video" class="w-5 h-5"></i>
+                                    Rejoindre la réunion
+                                </a>
+                            {% endif %}
+                            <a href="{{ path('app_meet_show', {'id': meet.id}) }}" 
+                               class="w-full md:w-auto bg-white text-primary border border-primary px-8 py-3 rounded-xl hover:bg-primary/5 transition-all flex items-center justify-center gap-2 font-medium">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                                Voir les détails
+                            </a>
+                            {% if meet.participant.role == 'enseignant' %}
+                                <a href="{{ path('app_meet_edit', {'id': meet.id}) }}" 
+                                   class="w-full md:w-auto bg-white text-secondary border border-secondary px-8 py-3 rounded-xl hover:bg-secondary/5 transition-all flex items-center justify-center gap-2 font-medium">
+                                    <i data-lucide="edit" class="w-5 h-5"></i>
+                                    Modifier
+                                </a>
+                                <form method="post" action="{{ path('app_meet_delete', {'id': meet.id}) }}" 
+                                      style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réunion?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ meet.id) }}">
+                                    <button type="submit" class="w-full md:w-auto bg-white text-red-600 border border-red-600 px-8 py-3 rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2 font-medium">
+                                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                        Supprimer
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i data-lucide="video" class="w-12 h-12 text-muted-foreground mx-auto mb-4"></i>
+                    <h3 class="text-lg font-medium text-muted-foreground mb-2">Aucune réunion trouvée</h3>
+                    <p class="text-muted-foreground mb-4">Commencez par créer votre première réunion</p>
+                    <a href="{{ path('app_meet_new') }}" class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary/90 transition-all inline-flex items-center gap-2 font-medium">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        Créer une réunion
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Vérifier le rôle de l'utilisateur connecté
+        document.addEventListener('DOMContentLoaded', function() {
+            const userRole = localStorage.getItem('userRole') || 'etudiant';
+            const teacherSection = document.getElementById('teacherSection');
+            const nonTeacherSection = document.getElementById('nonTeacherSection');
+            
+            if (teacherSection && nonTeacherSection) {
+                if (userRole === 'enseignant') {
+                    teacherSection.classList.remove('hidden');
+                    nonTeacherSection.classList.add('hidden');
+                } else {
+                    teacherSection.classList.add('hidden');
+                    nonTeacherSection.classList.remove('hidden');
+                }
+            }
+            
+            // Gestion du bouton créer une réunion
+            const createMeetingBtn = document.getElementById('createMeetingBtn');
+            if (createMeetingBtn) {
+                createMeetingBtn.addEventListener('click', function() {
+                    window.location.href = '{{ path('app_meet_new') }}';
+                });
+            }
+            
+            // Initialiser Lucide icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+{% endblock %}
