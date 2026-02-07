@@ -29,11 +29,5 @@ class MainController extends AbstractController
         ]);
     }
 
-    #[Route('/event/{id}', name: 'app_front_event_show')]
-    public function show(Event $event): Response
-    {
-        return $this->render('front/show.html.twig', [
-            'event' => $event,
-        ]);
-    }
+
 }

@@ -89,10 +89,14 @@ class Event
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: Sponsor::class)]
     private Collection $sponsors;
 
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Rating::class, orphanRemoval: true)]
+    private Collection $ratings;
+
     public function __construct()
     {
         $this->registrations = new ArrayCollection();
         $this->sponsors = new ArrayCollection();
+        $this->ratings = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -325,6 +329,36 @@ public function setStatut(string $statut): static
     public function setLongitude(?string $longitude): static
     {
         $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rating>
+     */
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function addRating(Rating $rating): static
+    {
+        if (!$this->ratings->contains($rating)) {
+            $this->ratings->add($rating);
+            $rating->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRating(Rating $rating): static
+    {
+        if ($this->ratings->removeElement($rating)) {
+            // set the owning side to null (unless already changed)
+            if ($rating->getEvent() === $this) {
+                $rating->setEvent(null);
+            }
+        }
 
         return $this;
     }

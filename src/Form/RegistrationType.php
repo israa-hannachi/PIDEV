@@ -28,11 +28,7 @@ class RegistrationType extends AbstractType
             ])
             ->add('montantPaye', null, ['label' => 'Montant à payer'])
             ->add('notes', null, ['required' => false])
-            ->add('evenement', EntityType::class, [
-                'class' => Event::class,
-                'choice_label' => 'titre',
-                'label' => 'Événement'
-            ])
+
         ;
     }
 

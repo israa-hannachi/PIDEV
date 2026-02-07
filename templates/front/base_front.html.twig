@@ -84,7 +84,7 @@
                     <i data-lucide="gamepad-2" class="w-6 h-6 transition-colors"></i>
                     <span class="text-[11px] font-medium">Jeux</span>
                 </a>
-                <a href="{{ path('app_front_home') }}"
+                <a href="{{ path('app_front_home') }}#events"
                     class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') starts with 'app_front_event' ? 'active' : '' }}">
                     <i data-lucide="calendar" class="w-6 h-6 transition-colors"></i>
                     <span class="text-[11px] font-medium">Events</span>

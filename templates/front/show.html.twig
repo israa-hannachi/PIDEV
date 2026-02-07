@@ -88,6 +88,92 @@
                     <p class="text-muted-foreground leading-relaxed whitespace-pre-line">{{ event.description }}</p>
                 </div>
 
+                <!-- Rating Section -->
+                <div class="border-t border-border pt-8 mb-10">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="star" class="w-6 h-6 text-yellow-400 fill-yellow-400"></i>
+                        Avis et Notes
+                    </h3>
+                    
+                    <div class="bg-muted/30 rounded-2xl p-6 mb-8 flex items-center gap-8">
+                        <div class="text-center">
+                            <span class="block text-4xl font-extrabold text-foreground">
+                                {% set avgRating = 0 %}
+                                {% set totalRatings = event.ratings|length %}
+                                {% if totalRatings > 0 %}
+                                    {% set sum = 0 %}
+                                    {% for rating in event.ratings %}
+                                        {% set sum = sum + rating.stars %}
+                                    {% endfor %}
+                                    {% set avgRating = sum / totalRatings %}
+                                {% endif %}
+                                {{ avgRating|number_format(1) }}
+                            </span>
+                            <div class="flex gap-1 justify-center my-1 text-yellow-400">
+                                {% for i in 1..5 %}
+                                    <i data-lucide="star" class="w-4 h-4 {{ i <= avgRating|round ? 'fill-yellow-400' : 'text-gray-300' }}"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="text-xs text-muted-foreground font-medium">{{ totalRatings }} avis</span>
+                        </div>
+                        <div class="flex-1 border-l border-border pl-8">
+                            <p class="text-sm text-foreground font-bold mb-2">Partagez votre expérience</p>
+                            <p class="text-xs text-muted-foreground mb-4">Aidez les autres à choisir leurs événements.</p>
+                            <button onclick="document.getElementById('ratingForm').classList.toggle('hidden')" class="px-4 py-2 bg-white border border-border rounded-xl text-sm font-semibold hover:bg-muted transition-colors">
+                                Écrire un avis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Rating Form -->
+                    <div id="ratingForm" class="hidden bg-white border border-border rounded-2xl p-6 mb-8 shadow-sm">
+                        <h4 class="font-bold text-lg mb-4">Noter cet événement</h4>
+                        <form action="{{ path('app_front_event_rate', {id: event.id}) }}" method="post" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Votre note</label>
+                                <div class="flex gap-2">
+                                    {% for i in 1..5 %}
+                                        <label class="cursor-pointer hover:scale-110 transition-transform">
+                                            <input type="radio" name="rating[stars]" value="{{ i }}" class="sr-only peer" required>
+                                            <i data-lucide="star" class="w-8 h-8 text-gray-300 peer-checked:text-yellow-400 peer-checked:fill-yellow-400 hover:text-yellow-400 hover:fill-yellow-400 transition-colors"></i>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Votre avis</label>
+                                <textarea name="rating[comment]" rows="3" class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Qu'avez-vous pensé de l'événement ?"></textarea>
+                            </div>
+                            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-md hover:bg-primary/90 transition-all">Publier mon avis</button>
+                        </form>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="space-y-4">
+                        {% for rating in event.ratings %}
+                            <div class="bg-white border border-border rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-xs">U</div>
+                                        <span class="text-sm font-bold">Utilisateur</span>
+                                    </div>
+                                    <span class="text-xs text-muted-foreground">{{ rating.createdAt|date('d M Y') }}</span>
+                                </div>
+                                <div class="flex gap-1 text-yellow-400 mb-2">
+                                    {% for i in 1..5 %}
+                                        <i data-lucide="star" class="w-3 h-3 {{ i <= rating.stars ? 'fill-yellow-400' : 'text-gray-300' }}"></i>
+                                    {% endfor %}
+                                </div>
+                                <p class="text-sm text-muted-foreground">{{ rating.comment }}</p>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8 text-muted-foreground bg-muted/20 rounded-xl">
+                                Soyez le premier à donner votre avis !
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 {% if event.latitude and event.longitude %}
                     <div class="space-y-4">
                         <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -173,44 +259,46 @@
                 Formulaire d'inscription
             </h3>
             
-            <form action="{{ path('app_front_event_register', {id: event.id}) }}" method="post" class="space-y-6">
+            {{ form_start(form, {'attr': {'class': 'space-y-6', 'id': 'registrationFormElement'}}) }}
                 <div class="space-y-4">
                     <div>
-                        <label for="registration_visitorName" class="block text-sm font-bold text-foreground mb-2">Nom complet</label>
-                        <input type="text" id="registration_visitorName" name="registration[visitorName]" required class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        {{ form_label(form.visitorName, 'Nom complet', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                        {{ form_widget(form.visitorName, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all', 'placeholder': 'Votre nom'}}) }}
+                        {{ form_errors(form.visitorName, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
                     </div>
 
                     <div>
-                        <label for="registration_visitorEmail" class="block text-sm font-bold text-foreground mb-2">Email</label>
-                        <input type="email" id="registration_visitorEmail" name="registration[visitorEmail]" required class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        {{ form_label(form.visitorEmail, 'Email', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                        {{ form_widget(form.visitorEmail, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all', 'placeholder': 'votre@email.com'}}) }}
+                        {{ form_errors(form.visitorEmail, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
                     </div>
 
-                    {% if event.prix > 0 %}
+                    {% if form.modePaiement is defined %}
                         <div>
-                            <label for="registration_modePaiement" class="block text-sm font-bold text-foreground mb-2">Mode de paiement</label>
-                            <select id="registration_modePaiement" name="registration[modePaiement]" required class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
-                                <option value="">Sélectionnez...</option>
-                                <option value="gratuit">Gratuit</option>
-                                <option value="carte">Carte Bancaire</option>
-                                <option value="espèces">Espèces</option>
-                                <option value="virement">Virement</option>
-                                <option value="paypal">PayPal</option>
-                            </select>
+                            {{ form_label(form.modePaiement, 'Mode de paiement', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                            {{ form_widget(form.modePaiement, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all'}}) }}
+                            {{ form_errors(form.modePaiement, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
                         </div>
-
-                        <div>
-                            <label for="registration_montantPaye" class="block text-sm font-bold text-foreground mb-2">Montant à payer</label>
-                            <input type="number" step="0.01" id="registration_montantPaye" name="registration[montantPaye]" value="{{ event.prix }}" required class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                    {% endif %}
+                    
+                    {% if form.montantPaye is defined %}
+                        <div class="hidden">
+                             {{ form_widget(form.montantPaye, {'attr': {'value': event.prix }}) }}
                         </div>
+                         {% if event.prix > 0 %}
+                            <div class="p-4 bg-muted/30 rounded-xl border border-border flex justify-between items-center">
+                                <span class="font-bold text-sm text-foreground">Montant à régler</span>
+                                <span class="font-extrabold text-xl text-primary">{{ event.prix }} €</span>
+                            </div>
+                         {% endif %}
                     {% endif %}
 
                     <div>
-                        <label for="registration_notes" class="block text-sm font-bold text-foreground mb-2">Notes (optionnel)</label>
-                        <textarea id="registration_notes" name="registration[notes]" rows="3" class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"></textarea>
+                        {{ form_label(form.notes, 'Notes (optionnel)', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                        {{ form_widget(form.notes, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all', 'rows': '3'}}) }}
                     </div>
 
-                    <input type="hidden" name="registration[evenement]" value="{{ event.id }}">
-                    <input type="hidden" name="registration[_token]" value="{{ csrf_token('registration') }}">
+                    {# Hidden CSRF token is automatically rendered by form_end #}
                 </div>
 
                 <div class="flex gap-4 pt-4">
@@ -222,7 +310,7 @@
                         Annuler
                     </button>
                 </div>
-            </form>
+            {{ form_end(form) }}
         </div>
     </div>
 </div>
