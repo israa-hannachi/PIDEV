@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un forum{% endblock %}
+
+{% block body %}
+<h1>Créer un forum</h1>
+
+{# Affichage des messages flash #}
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} mt-2">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{# Formulaire Symfony avec CSRF intégré #}
+{{ form_start(form) }}
+
+    <div class="mb-3">
+        {{ form_label(form.titre, 'Titre du forum') }}
+        {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre du forum'}}) }}
+        {{ form_errors(form.titre) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.description, 'Description') }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Entrez une description (optionnel)'}}) }}
+        {{ form_errors(form.description) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.created_by, 'Créé par') }}
+        {{ form_widget(form.created_by, {'attr': {'class': 'form-control', 'placeholder': 'Nom de l’auteur'}}) }}
+        {{ form_errors(form.created_by) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.created_at, 'Date de création') }}
+        {{ form_widget(form.created_at, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.created_at) }}
+    </div>
+
+    <button type="submit" class="btn btn-success">Créer le forum</button>
+
+{{ form_end(form) }}
+
+<a href="{{ path('app_forum_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+
+{% endblock %}

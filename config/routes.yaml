@@ -1,11 +1,8 @@
-# yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
+# config/routes.yaml
 
-# This file is the entry point to configure the routes of your app.
-# Methods with the #[Route] attribute are automatically imported.
-# See also https://symfony.com/doc/current/routing.html
-
-# To list all registered routes, run the following command:
-#   bin/console debug:router
-
+# Import all controllers with PHP attributes
 controllers:
-    resource: routing.controllers
+    resource: '../src/Controller/'
+    type: attribute
+    # Permet à Symfony de gérer les trailing slash automatiquement
+    trailing_slash_on_root: false

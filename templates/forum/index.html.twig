@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des forums{% endblock %}
+
+{% block body %}
+<div style="display:flex; align-items:center; margin-bottom:20px;"> 
+  <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height:70px; margin-right:200px;"> 
+  <h1 style="margin:0; margin-left:20px;">Liste des forums</h1> 
+</div>
+<a href="{{ path('forum_new') }}" class="btn btn-success mb-3">Créer un nouveau forum</a>
+
+{# Formulaire de recherche et filtres #}
+<form id="filter-form" class="d-flex mb-3">
+    <input type="text" name="search" class="form-control me-2"
+           placeholder="Rechercher par titre"
+           value="{{ app.request.get('search') }}">
+
+    <select name="creator" class="form-select me-2">
+        <option value="">-- Créateur --</option>
+        <option value="Farah" {% if app.request.get('creator') == 'Farah' %}selected{% endif %}>Farah</option>
+        <option value="Isra" {% if app.request.get('creator') == 'Isra' %}selected{% endif %}>Isra</option>
+        <option value="Miriam" {% if app.request.get('creator') == 'Miriam' %}selected{% endif %}>Miriam</option>
+    </select>
+
+    <select name="date" class="form-select me-2">
+        <option value="">-- Date --</option>
+        <option value="today" {% if app.request.get('date') == 'today' %}selected{% endif %}>Aujourd'hui</option>
+        <option value="week" {% if app.request.get('date') == 'week' %}selected{% endif %}>Cette semaine</option>
+    </select>
+
+    <select name="direction" class="form-select me-2">
+        <option value="asc" {% if app.request.get('direction') == 'asc' %}selected{% endif %}>Date croissante</option>
+        <option value="desc" {% if app.request.get('direction') == 'desc' %}selected{% endif %}>Date décroissante</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Appliquer</button>
+</form>
+
+{# Conteneur qui sera rechargé par Ajax #}
+<div id="forum-list">
+    {% include 'forum/partials/_forum_list.html.twig' with { forums: forums } %}
+</div>
+
+{# Script Ajax pour recharger la liste #}
+<script>
+document.getElementById('filter-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const params = new URLSearchParams(new FormData(this));
+
+    fetch('{{ path("app_forum_index") }}?' + params.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('forum-list').innerHTML = html;
+    });
+});
+</script>
+{% endblock %}

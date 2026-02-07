@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <h1>{{ message }}</h1>
+    <p>Ceci est la page d’accueil de votre application Symfony.</p>
+    <a href="{{ path('app_forum_index') }}" class="btn btn-primary">Voir les forums</a>
+{% endblock %}

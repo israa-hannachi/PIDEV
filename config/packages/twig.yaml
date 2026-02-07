@@ -1,0 +1,5 @@
+twig:
+    file_name_pattern: '*.twig'
+    debug: '%kernel.debug%'
+    strict_variables: false
+    cache: '%kernel.cache_dir%/twig'

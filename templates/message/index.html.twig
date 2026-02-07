@@ -1,0 +1,78 @@
+{{% extends 'base.html.twig' %}
+
+{% block title %}Liste des forums{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center mb-3"> 
+  <img src="{{ asset('uploads/gestionforums/Forums.png') }}" 
+       alt="Liste des forums" class="img-fluid shadow me-5"> 
+  <h1 class="mb-0">Liste des forums</h1> 
+</div>
+
+<a href="{{ path('forum_new') }}" class="btn btn-success mb-3">Créer un nouveau forum</a>
+
+{# Formulaire de recherche et tri #}
+<form method="get" class="d-flex mb-3">
+    <input type="text" name="search" class="form-control me-2"
+           placeholder="Rechercher par titre"
+           value="{{ app.request.get('search') }}">
+
+    <select name="direction" class="form-select me-2">
+        <option value="asc" {% if app.request.get('direction') == 'asc' %}selected{% endif %}>Date croissante</option>
+        <option value="desc" {% if app.request.get('direction') == 'desc' %}selected{% endif %}>Date décroissante</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Appliquer</button>
+</form>
+
+<div class="table-responsive">
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Titre</th>
+            <th>Créé par</th>
+            <th>Date de création</th>
+            <th>État</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for forum in forums %}
+        <tr>
+            <td>{{ forum.id }}</td>
+            <td>{{ forum.titre }}</td>
+            <td>{{ forum.createdBy ?? 'Inconnu' }}</td>
+            <td>{{ forum.createdAt ? forum.createdAt|date('d/m/Y H:i') : '' }}</td>
+            <td>
+                {% if forum.isBlocked %}
+                    <span class="badge bg-danger">Bloqué</span>
+                {% else %}
+                    <span class="badge bg-success">Actif</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ path('forum_show', {id: forum.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                <a href="{{ path('forum_edit', {id: forum.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+
+                <form method="post" action="{{ path('forum_delete', {'id': forum.id}) }}" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce forum ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ forum.id) }}">
+                    <button class="btn btn-danger btn-sm">Supprimer</button>
+                </form>
+
+                {% if forum.isBlocked %}
+                    <a href="{{ path('forum_unblock', {id: forum.id}) }}" class="btn btn-success btn-sm">Débloquer</a>
+                {% else %}
+                    <a href="{{ path('forum_block', {id: forum.id}) }}" class="btn btn-dark btn-sm">Bloquer</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="6" class="text-center">Aucun forum trouvé.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forum - {{ forum.titre }}{% endblock %}
+
+{% block body %}
+<h1>{{ forum.titre }}</h1>
+
+<div class="mb-3">
+    <p><strong>Créé par :</strong> {{ forum.createdBy ?? 'Inconnu' }}</p>
+    <p><strong>Date de création :</strong> {{ forum.createdAt ? forum.createdAt|date('d/m/Y H:i') : '' }}</p>
+</div>
+
+{# Description placée avant les boutons #}
+<p><strong>Description :</strong></p>
+<p>{{ forum.description ?? 'Pas de description disponible.' }}</p>
+
+<div class="mt-3">
+    <a href="{{ path('forum_edit', {'id': forum.id}) }}" class="btn btn-warning">Modifier</a>
+    <a href="{{ path('app_forum_index') }}" class="btn btn-secondary">Retour à la liste</a>
+
+    <form method="post" action="{{ path('forum_delete', {'id': forum.id}) }}" style="display:inline;"
+          onsubmit="return confirm('Voulez-vous vraiment supprimer ce forum ?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ forum.id) }}">
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+    </form>
+</div>
+
+{% if forum.isBlocked %}
+    <div class="alert alert-warning mt-3">
+        Ce forum est actuellement bloqué.
+    </div>
+{% endif %}
+{% endblock %}

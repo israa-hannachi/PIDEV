@@ -1,0 +1,6 @@
+<h1>Test suppression forum</h1>
+
+<form method="post" action="{{ path('forum_delete', {'id': forum.id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ forum.id) }}">
+    <button type="submit" class="btn btn-danger">Supprimer</button>
+</form>

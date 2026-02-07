@@ -1,0 +1,10 @@
+doctrine_migrations:
+    migrations_paths:
+        'DoctrineMigrations': '%kernel.project_dir%/migrations'
+    storage:
+        table_storage:
+            table_name: 'migration_versions'  # 确保这里是正确的表名
+            version_column_name: 'version'
+            version_column_length: 191
+            executed_at_column_name: 'executed_at'
+    enable_profiler: false
