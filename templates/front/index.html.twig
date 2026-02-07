@@ -50,16 +50,7 @@
         </div>
     </div>
 
-    <!-- Map Section -->
-    {% if events|length > 0 and events|first.latitude and events|first.longitude %}
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-border overflow-hidden">
-        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-            <i data-lucide="map-pin" class="w-5 h-5 text-primary"></i>
-            Carte des Événements
-        </h3>
-        <div id="eventsMap" class="w-full h-80 rounded-xl border border-border"></div>
-    </div>
-    {% endif %}
+
 
     <!-- Events List -->
     <div>
@@ -69,7 +60,7 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-all group cursor-pointer flex flex-col">
                     <div class="h-40 bg-muted relative overflow-hidden">
                         {% if event.image %}
-                            <img src="{{ event.image }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="{{ event.titre }}">
+                            <img src="{{ asset(event.image) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="{{ event.titre }}">
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center bg-primary/5">
                                 <i data-lucide="image" class="w-12 h-12 text-primary/20"></i>

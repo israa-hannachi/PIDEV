@@ -1,4 +1,72 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_label(form.nom, 'Sponsor Name', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Enter sponsor name'}}) }}
+                {{ form_errors(form.nom) }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_label(form.type, 'Type', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.type, {'attr': {'class': 'form-control', 'placeholder': 'e.g. Gold, Silver'}}) }}
+                {{ form_errors(form.type) }}
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_label(form.contactPersonne, 'Contact Person', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.contactPersonne, {'attr': {'class': 'form-control', 'placeholder': 'Full Name'}}) }}
+                {{ form_errors(form.contactPersonne) }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_label(form.contactEmail, 'Contact Email', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.contactEmail, {'attr': {'class': 'form-control', 'placeholder': 'email@example.com'}}) }}
+                {{ form_errors(form.contactEmail) }}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_label(form.montant, 'Amount (€)', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.montant, {'attr': {'class': 'form-control', 'placeholder': '0.00'}}) }}
+                {{ form_errors(form.montant) }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form_label(form.statut, 'Status', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.statut, {'attr': {'class': 'form-select'}}) }}
+                {{ form_errors(form.statut) }}
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="mb-3">
+                {{ form_label(form.siteWeb, 'Website URL', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.siteWeb, {'attr': {'class': 'form-control', 'placeholder': 'https://...'}}) }}
+                {{ form_errors(form.siteWeb) }}
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="mb-3">
+                {{ form_label(form.logo, 'Logo URL', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.logo, {'attr': {'class': 'form-control', 'placeholder': 'https://... or /assets/...'}}) }}
+                <div class="form-text">Enter the URL of the logo image.</div>
+                {{ form_errors(form.logo) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a href="{{ path('admin_sponsor_index') }}" class="btn btn-light">Cancel</a>
+        <button class="btn btn-primary px-4">
+            <i class="feather-save me-1"></i> {{ button_label|default('Save Sponsor') }}
+        </button>
+    </div>
 {{ form_end(form) }}

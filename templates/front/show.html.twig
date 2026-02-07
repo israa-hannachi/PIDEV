@@ -44,9 +44,7 @@
     <div class="lg:col-span-8 space-y-8">
         <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
             {% if event.image %}
-                <div class="h-96 w-full">
-                    <img src="{{ event.image }}" class="w-full h-full object-cover" alt="{{ event.titre }}">
-                </div>
+                <img src="{{ asset(event.image) }}" alt="{{ event.titre }}" class="w-full h-96 object-cover transition-transform duration-700 hover:scale-105">
             {% endif %}
             
             <div class="p-8">
@@ -174,26 +172,38 @@
                     </div>
                 </div>
 
-                {% if event.latitude and event.longitude %}
-                    <div class="space-y-4">
-                        <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
-                            <i data-lucide="map" class="w-6 h-6"></i>
-                            Emplacement
-                        </h3>
+                <!-- Event Location Map -->
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="map" class="w-6 h-6"></i>
+                        Emplacement
+                    </h3>
+                    
+                    {% if event.latitude and event.longitude %}
                         <div id="eventMap" class="w-full h-80 rounded-2xl border border-border"></div>
                         <div class="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-4 rounded-xl">
                             <i data-lucide="info" class="w-4 h-4"></i>
                             <span>Coordonnées: {{ event.latitude|round(4) }}, {{ event.longitude|round(4) }}</span>
                         </div>
+                    {% else %}
+                        <div class="w-full h-40 rounded-2xl border border-border bg-muted/20 flex flex-col items-center justify-center text-muted-foreground">
+                            <i data-lucide="map-off" class="w-10 h-10 mb-2 opacity-50"></i>
+                            <span class="font-medium">Carte non disponible</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center gap-2 text-foreground font-medium p-2">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-primary"></i>
+                        <span>{{ event.lieu }}</span>
                     </div>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Sidebar / Registration -->
     <div class="lg:col-span-4 space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-border p-8 sticky top-8">
+        <div id="registrationSummary" class="bg-white rounded-2xl shadow-sm border border-border p-8 sticky top-8" style="{{ form.vars.submitted and not form.vars.valid ? 'display: none;' : '' }}">
             <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <i data-lucide="user-plus" class="w-5 h-5 text-primary"></i>
                 Inscription
@@ -253,7 +263,7 @@
         </div>
 
         <!-- Registration Form (Hidden by default) -->
-        <div id="registrationForm" class="bg-white rounded-2xl shadow-sm border border-border p-8" style="display: none;">
+        <div id="registrationForm" class="bg-white rounded-2xl shadow-sm border border-border p-8" style="{{ form.vars.submitted and not form.vars.valid ? 'display: block;' : 'display: none;' }}">
             <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <i data-lucide="clipboard-list" class="w-5 h-5 text-primary"></i>
                 Formulaire d'inscription
@@ -322,13 +332,18 @@
     <script>
         function showRegistrationForm() {
             const form = document.getElementById('registrationForm');
+            const summary = document.getElementById('registrationSummary');
+            
             form.style.display = 'block';
+            summary.style.display = 'none';
+            
             form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             setTimeout(() => lucide.createIcons(), 100);
         }
 
         function hideRegistrationForm() {
             document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('registrationSummary').style.display = 'block';
         }
 
         document.addEventListener('DOMContentLoaded', function() {

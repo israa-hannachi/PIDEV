@@ -17,7 +17,23 @@ class EventType extends AbstractType
             ->add('dateDebut')
             ->add('dateFin')
             ->add('capacite')
-            ->add('image')
+            ->add('image', \Symfony\Component\Form\Extension\Core\Type\FileType::class, [
+                'label' => 'Image (fichier image)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\File([
+                        'maxSize' => '2048k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG, PNG, WEBP)',
+                    ])
+                ],
+                'attr' => ['class' => 'form-control'],
+            ])
             ->add('categorie')
             ->add('prix')
             ->add('lieu')

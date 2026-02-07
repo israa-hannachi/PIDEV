@@ -25,7 +25,7 @@
         <nav class="nxl-navigation">
             <div class="navbar-wrapper">
                 <div class="m-header">
-                    <a href="{{ path('admin_dashboard') }}" class="b-brand">
+                    <a href="{{ path('admin_event_index') }}" class="b-brand">
                         <img src="{{ asset('assets/back/images/long logo.png') }}" alt="" class="logo logo-lg" style="max-width:160px;height:auto;" />
                         <img src="{{ asset('assets/back/images/small.png') }}" alt="" class="logo logo-sm" />
                     </a>
@@ -35,8 +35,8 @@
                         <li class="nxl-item nxl-caption">
                             <label>Navigation</label>
                         </li>
-                        <li class="nxl-item {{ app.request.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
-                            <a href="{{ path('admin_dashboard') }}" class="nxl-link">
+                        <li class="nxl-item {{ app.request.get('_route') == 'admin_event_index' ? 'active' : '' }}">
+                            <a href="{{ path('admin_event_index') }}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-airplay"></i></span>
                                 <span class="nxl-mtext">Dashboards</span>
                             </a>
@@ -293,7 +293,7 @@
                             <h5 class="m-b-10">{% block header_title %}Dashboard{% endblock %}</h5>
                         </div>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Home</a></li>
+            
                             {% block breadcrumb %}{% endblock %}
                         </ul>
                     </div>
