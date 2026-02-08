@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;"> 
+    <div class="card shadow-lg p-4" style="width: 600px; border-radius: 12px; background-color: #ffffff;">
+        
+        <!-- Titre -->
+        <h2 class="text-center mb-4 text-dark fw-bold">
+            <i class="feather-edit"></i> Modifier le jeu
+        </h2>
+
+        <style>
+            label {
+                color: #333; /* gris foncé minimaliste */
+                font-weight: 500;
+            }
+            table td {
+                padding: 8px 12px;
+                vertical-align: middle;
+            }
+            .btn-marine {
+                background-color: #001f3f; /* bleu marine */
+                color: #fff;
+                border: none;
+            }
+            .btn-marine:hover {
+                background-color: #000c1a; /* bleu marine plus foncé au survol */
+            }
+        </style>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        <table class="w-100">
+            <tr>
+                <td>{{ form_label(form.titre, "Titre du jeu") }}</td>
+                <td>{{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}</td>
+                <td>{{ form_errors(form.titre) }}</td>
+            </tr>
+            <tr>
+                <td>{{ form_label(form.type, "Type du jeu") }}</td>
+                <td>{{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}</td>
+                <td>{{ form_errors(form.type) }}</td>
+            </tr>
+            <tr>
+                <td>{{ form_label(form.niveau, "Niveau") }}</td>
+                <td>{{ form_widget(form.niveau, {'attr': {'class': 'form-control'}}) }}</td>
+                <td>{{ form_errors(form.niveau) }}</td>
+            </tr>
+            <tr>
+                <td>{{ form_label(form.scoreMax, "Score maximum") }}</td>
+                <td>{{ form_widget(form.scoreMax, {'attr': {'class': 'form-control'}}) }}</td>
+                <td>{{ form_errors(form.scoreMax) }}</td>
+            </tr>
+            <tr>
+                <td>{{ form_label(form.attemptNumber, "Nombre de tentatives") }}</td>
+                <td>{{ form_widget(form.attemptNumber, {'attr': {'class': 'form-control'}}) }}</td>
+                <td>{{ form_errors(form.attemptNumber) }}</td>
+            </tr>
+            <tr>
+    <td>{{ form_label(form.duration, "Durée (en secondes)") }}</td>
+    <td>{{ form_widget(form.duration, {'attr': {'class': 'form-control'}}) }}</td>
+    <td>{{ form_errors(form.duration) }}</td>
+</tr>
+
+        </table>
+
+        <!-- Bouton Sauvegarder -->
+        <div class="text-center mt-4">
+            {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary w-100'}}) }}
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

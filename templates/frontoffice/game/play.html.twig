@@ -1,0 +1,210 @@
+{% extends 'frontoffice/game/base_front.html.twig' %}
+
+{% block title %}Jouer : {{ game.titre }}{% endblock %}
+
+{% block body %}
+<div class="space-y-8">
+    <!-- Titre du jeu -->
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-primary mb-2">🎮 Jouer : {{ game.titre }}</h1>
+        <p class="text-muted-foreground">Répondez aux questions et tentez d’améliorer votre score !</p>
+    </div>
+    <a href="{{ path('game_front_list') }}"
+   class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition">
+   retour
+</a>
+
+<div class="text-center mb-4">
+    <p id="timer" class="text-xl font-bold text-red-600"></p>
+</div>
+
+    <!-- Messages flash -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="p-4 rounded-xl mb-4 
+                        {% if label == 'success' %} bg-green-100 text-green-700 border border-green-300 
+                        {% elseif label == 'error' %} bg-red-100 text-red-700 border border-red-300 
+                        {% elseif label == 'info' %} bg-blue-100 text-blue-700 border border-blue-300 
+                        {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Scores -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <div class="bg-gradient-to-br from-primary to-primary/80 text-white rounded-2xl p-6 shadow-lg">
+            <p class="text-2xl font-bold">{{ game.lastScore }}</p>
+            <p class="text-sm">Dernier score</p>
+        </div>
+        <div class="bg-gradient-to-br from-secondary to-secondary/80 text-white rounded-2xl p-6 shadow-lg">
+            <p class="text-2xl font-bold">{{ game.avgScore }}</p>
+            <p class="text-sm">Moyenne des scores</p>
+        </div>
+        <div class="bg-gradient-to-br from-accent to-accent/80 text-white rounded-2xl p-6 shadow-lg">
+            <p class="text-2xl font-bold">{{ game.attemptNumber }}</p>
+            <p class="text-sm">Tentatives</p>
+        </div>
+    </div>
+
+    <!-- Formulaire -->
+    <form method="post" class="bg-white rounded-2xl shadow-md p-8 space-y-6">
+        {% for question in questions %}
+            <div class="mb-8">
+                <p class="text-lg font-semibold mb-4">{{ question.questionText }}</p>
+
+                {% if game.type == 'qcm' %}
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                            <input type="radio" name="q{{ question.id }}" value="{{ question.option1 }}" class="accent-primary">
+                            {{ question.option1 }}
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                            <input type="radio" name="q{{ question.id }}" value="{{ question.option2 }}" class="accent-primary">
+                            {{ question.option2 }}
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                            <input type="radio" name="q{{ question.id }}" value="{{ question.option3 }}" class="accent-primary">
+                            {{ question.option3 }}
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer">
+                            <input type="radio" name="q{{ question.id }}" value="{{ question.option4 }}" class="accent-primary">
+                            {{ question.option4 }}
+                        </label>
+                    </div>
+                {% elseif game.type == 'vraie ou faux' %}
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-green-50 cursor-pointer">
+                            <input type="radio" name="q{{ question.id }}" value="vraie" class="accent-green-500">
+                            Vraie
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-red-50 cursor-pointer">
+                            <input type="radio" name="q{{ question.id }}" value="faux" class="accent-red-500">
+                            Faux
+                        </label>
+                    </div>
+                {% elseif game.type == 'libre' %}
+                    <div>
+                        <textarea name="q{{ question.id }}" rows="4" cols="40"
+                                  class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-primary focus:outline-none"
+                                  placeholder="Écris ta réponse ici..."></textarea>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit"
+                class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+            🚀 Valider mes réponses
+        </button>
+    </form>
+
+    <!-- Bouton Calculatrice -->
+    <div class="text-center mt-6">
+        <button type="button" onclick="openCalculator()" class="btn btn-secondary px-4 py-2 rounded-lg shadow">
+            🧮 Calculatrice
+        </button>
+    </div>
+</div>
+
+<!-- Popup Calculatrice -->
+<div id="calculatorModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80">
+        <h2 class="text-lg font-bold mb-4">Calculatrice</h2>
+        
+        <input type="text" id="calcInput" class="form-control mb-3" readonly>
+        
+        <div class="grid grid-cols-4 gap-2">
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button onclick="appendValue('/')">÷</button>
+            
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="appendValue('*')">×</button>
+            
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('-')">-</button>
+            
+            <button onclick="appendValue('0')">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button onclick="appendValue('+')">+</button>
+            <button onclick="calculate()">=</button>
+            
+            <button onclick="appendValue('sqrt(')">√</button>
+            <button onclick="appendValue('^2')">x²</button>
+            <button onclick="clearCalc()">C</button>
+            <button onclick="closeCalculator()">Fermer</button>
+        </div>
+        
+        <p id="calcResult" class="mt-3 text-primary font-bold"></p>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<script>
+    function openCalculator() {
+        const modal = document.getElementById('calculatorModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeCalculator() {
+        const modal = document.getElementById('calculatorModal');
+        modal.style.display = 'none';
+    }
+
+    function appendValue(val) {
+        document.getElementById('calcInput').value += val;
+    }
+
+    function clearCalc() {
+        document.getElementById('calcInput').value = '';
+        document.getElementById('calcResult').innerText = '';
+    }
+
+    function calculate() {
+        try {
+            const expr = document.getElementById('calcInput').value;
+            const result = math.evaluate(expr);
+            document.getElementById('calcResult').innerText = "Résultat : " + result;
+        } catch (e) {
+            document.getElementById('calcResult').innerText = "Erreur de calcul";
+        }
+    }
+</script>
+<script>
+    let timeLeft = {{ game.duration }}; // durée en secondes depuis ta base
+    let timerDisplay = document.getElementById("timer");
+
+    // 🔹 Son intégré (pas besoin de fichier audio)
+    function playBeep() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(1000, ctx.currentTime); // 1000 Hz
+        oscillator.connect(ctx.destination);
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 1); // bip d'une seconde
+    }
+
+    let timer = setInterval(function() {
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            timerDisplay.innerHTML = "⏰ Temps écoulé !";
+            playBeep(); // jouer le son
+            // Optionnel : désactiver le formulaire
+            document.querySelector("form").querySelectorAll("input,button")
+                .forEach(el => el.disabled = true);
+        } else {
+            timerDisplay.innerHTML = timeLeft + " secondes restantes";
+        }
+        timeLeft -= 1;
+    }, 1000);
+</script>
+
+{% endblock %}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Naja7ni - Accueil{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#f8fafc',
+                        foreground: '#0f172a',
+                        sidebar: '#ffffff',
+                        'sidebar-border': '#e2e8f0',
+                        primary: '#6366f1',
+                        secondary: '#ec4899',
+                        accent: '#f59e0b',
+                        muted: '#f1f5f9',
+                        'muted-foreground': '#64748b',
+                        border: '#e1e7ef',
+                        'input-background': '#f1f5f9',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block stylesheets %}{% endblock %}
+
+    <style>
+        .nav-item.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .nav-item:not(.active):hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-24 bg-sidebar border-r border-sidebar-border h-screen flex flex-col items-center py-8 gap-8 z-20">
+            <!-- Logo -->
+            <div class="flex items-center justify-center mb-2">
+                <a href="{{ path('game_front_list') }}">
+                    <img src="{{ asset('assets/images/small.png') }}" alt="Naja7ni" class="w-12 h-12 object-contain filter drop-shadow-md">
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex flex-col gap-4 w-full px-2">
+                <a href="{{ path('game_front_list') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') == 'app_front_list' ? 'active' : '' }}">
+                    <i data-lucide="home" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Accueil</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="user" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Profil</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="folder-open" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Catégories</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Meet</span>
+                </a>
+                <a href="#"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="gamepad-2" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Jeux</span>
+                </a>
+                <a href="{{ path('game_front_list') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') starts with 'app_front_event' ? 'active' : '' }}">
+                    <i data-lucide="calendar" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Events</span>
+                </a>
+                <a href="{{ path('game_front_list') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group {{ app.request.get('_route') == 'app_front_chat' ? 'active' : '' }}">
+                    <i data-lucide="messages-square" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Chat</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navbar -->
+            <nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+                <div class="flex items-center gap-8">
+                    <a href="{{ path('game_front_list') }}">
+                        <img src="{{ asset('assets/images/long logo.png') }}" alt="Naja7ni" class="h-10 object-contain">
+                    </a>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-xl mx-8">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+                        <input type="text" placeholder="Rechercher des cours, modules..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center gap-4">
+                    <a href="{{ path('game_front_list') }}" class="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl font-semibold hover:bg-primary/20 transition-colors">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span class="hidden md:block">Admin</span>
+                    </a>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
+                        <i data-lucide="bell"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                    </button>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+                        <i data-lucide="settings"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </button>
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105">
+                        A
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-7xl mx-auto space-y-8">
+                        {% block body %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;"> 
+    <div class="card shadow-lg p-4" style="width: 600px; border-radius: 12px; background-color: #ffffff;">
+        
+        <!-- Titre -->
+        <h2 class="text-center mb-4 text-dark fw-bold">
+            <i class="feather-edit"></i> Modifier la question
+        </h2>
+
+        <style>
+            label {
+                color: #333; /* gris foncé minimaliste */
+                font-weight: 500;
+            }
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            /* Style du popup calculatrice */
+            #calculatorModal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5); /* fond gris transparent */
+                display: none; /* caché par défaut */
+                align-items: center;
+                justify-content: center;
+                z-index: 9999; /* au-dessus de tout */
+            }
+            #calculatorModal .modal-content {
+                background: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                width: 300px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
+            #calculatorModal button {
+                background-color: #f0f0f0;
+                border: 1px solid #ccc;
+                padding: 12px;
+                font-size: 16px;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+            #calculatorModal button:hover {
+                background-color: #ddd;
+            }
+        </style>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+        <div class="form-group">
+            {{ form_label(form.questionText, "Texte de la question", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.questionText, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.questionText) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.option1, "Option 1", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.option1, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.option1) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.option2, "Option 2", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.option2, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.option2) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.option3, "Option 3", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.option3, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.option3) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.option4, "Option 4", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.option4, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.option4) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.correctAnswer, "Réponse correcte", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.correctAnswer, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.correctAnswer) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.game, "Jeu associé", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.game, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.game) }}
+        </div>
+
+        <!-- Bouton Mettre à jour -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="feather-save"></i> Mettre à jour
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+
+        <!-- Bouton Calculatrice -->
+        <div class="text-center mt-3">
+            <button type="button" onclick="openCalculator()" class="btn btn-secondary">
+                🧮 Calculatrice
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Popup Calculatrice -->
+<div id="calculatorModal">
+    <div class="modal-content">
+        <h2 class="text-lg font-bold mb-4">Calculatrice</h2>
+        
+        <input type="text" id="calcInput" class="form-control mb-3" readonly>
+        
+        <div class="grid grid-cols-4 gap-2">
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button onclick="appendValue('/')">÷</button>
+            
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="appendValue('*')">×</button>
+            
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('-')">-</button>
+            
+            <button onclick="appendValue('0')">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button onclick="appendValue('+')">+</button>
+            <button onclick="calculate()">=</button>
+            
+            <button onclick="appendValue('sqrt(')">√</button>
+            <button onclick="appendValue('^2')">x²</button>
+            <button onclick="clearCalc()">C</button>
+            <button onclick="closeCalculator()">Fermer</button>
+        </div>
+        
+        <p id="calcResult" class="mt-3 text-primary fw-bold"></p>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<script>
+    function openCalculator() {
+        document.getElementById('calculatorModal').style.display = 'flex';
+    }
+
+    function closeCalculator() {
+        document.getElementById('calculatorModal').style.display = 'none';
+    }
+
+    function appendValue(val) {
+        document.getElementById('calcInput').value += val;
+    }
+
+    function clearCalc() {
+        document.getElementById('calcInput').value = '';
+        document.getElementById('calcResult').innerText = '';
+    }
+
+    function calculate() {
+        try {
+            const expr = document.getElementById('calcInput').value;
+            const result = math.evaluate(expr);
+            document.getElementById('calcResult').innerText = "Résultat : " + result;
+        } catch (e) {
+            document.getElementById('calcResult').innerText = "Erreur de calcul";
+        }
+    }
+</script>
+{% endblock %}
