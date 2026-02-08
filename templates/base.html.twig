@@ -75,6 +75,7 @@
             </a>
         </li>
         <!-- 🔹 Ajout du lien Statistiques --> <li class="nxl-item"> <a class="nxl-link {% if app.request.attributes.get('_route') == 'statistique' %}active{% endif %}" href="{{ path('statistique') }}"> Statistiques </a> </li>
+                                <li class="nxl-item"> <a class="nxl-link {% if app.request.attributes.get('_route') == 'app_ques' %}active{% endif %}" href="{{ path('app_ques') }}"> systeme de recommendation</a> </li>
     </ul>
   
 

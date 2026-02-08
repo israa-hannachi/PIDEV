@@ -46,6 +46,19 @@
             <p class="text-sm">Tentatives</p>
         </div>
     </div>
+    <!-- Gamification : Progression -->
+<div class="mt-8">
+    <div class="bg-gradient-to-br from-green-400 to-green-600 text-white rounded-2xl p-6 shadow-lg">
+        <h2 class="text-xl font-bold mb-4">🎯 Progression de l'étudiant</h2>
+        <p>Points : <span id="points">0</span></p>
+        <div class="w-full bg-gray-200 rounded-full h-6 mt-2">
+            <div id="progressBar" class="bg-blue-500 h-6 rounded-full text-center text-sm font-bold"
+                 style="width:0%">0%</div>
+        </div>
+        <p id="badge" class="mt-4 text-lg font-semibold"></p>
+    </div>
+</div>
+
 
     <!-- Formulaire -->
     <form method="post" class="bg-white rounded-2xl shadow-md p-8 space-y-6">
@@ -206,5 +219,45 @@
         timeLeft -= 1;
     }, 1000);
 </script>
+<script>
+    const scoreFromBackend = {{ score|default(0) }};
+</script>
+
+<script>
+  let points = scoreFromBackend;
+updateUI();
+
+
+  function addPoints(value) {
+    points = parseInt(points) + value;
+    localStorage.setItem('points', points);
+    updateUI();
+  }
+
+  function resetPoints() {
+    points = 0;
+    localStorage.setItem('points', points);
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById('points').innerText = points;
+    let percent = Math.min(points, 100);
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressBar').innerText = percent + '%';
+
+    // 🔹 Système de badges
+    let badgeText = '';
+    if (points >= 100) {
+      badgeText = "🏆 Expert";
+    } else if (points >= 50) {
+      badgeText = "🥈 Intermédiaire";
+    } else if (points >= 20) {
+      badgeText = "🥉 Débutant";
+    }
+    document.getElementById('badge').innerText = badgeText;
+  }
+</script>
+
 
 {% endblock %}

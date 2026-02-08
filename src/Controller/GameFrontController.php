@@ -35,7 +35,7 @@ public function play(Game $game, Request $request, EntityManagerInterface $em): 
         foreach ($questions as $question) {
             $userAnswer = $request->request->get('q' . $question->getId());
             if ($userAnswer !== null && $userAnswer === $question->getCorrectAnswer()) {
-                $score++;
+                $score += 10;
             }
         }
 
