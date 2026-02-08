@@ -1,0 +1,371 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}{{ event.titre }} - Naja7ni{% endblock %}
+
+{% block body %}
+<!-- Breadcrumbs -->
+<nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ path('app_front_home') }}" class="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                Événements
+            </a>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground"></i>
+                <span class="ml-1 text-sm font-bold text-foreground md:ml-2">{{ event.titre|length > 30 ? event.titre|slice(0, 30) ~ '...' : event.titre }}</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+{% for registration_id in app.flashes('registration_id') %}
+    <div class="mb-8 p-6 bg-green-50 border border-green-100 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-green-500/10 text-green-600 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-green-900">Inscription Réussie !</h4>
+                <p class="text-xs text-green-700">Votre place est réservée. Téléchargez votre ticket ci-dessous.</p>
+            </div>
+        </div>
+        <a href="{{ path('app_front_registration_ticket', {id: registration_id}) }}" class="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-2xl font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 active:scale-95">
+            <i data-lucide="download" class="w-5 h-5"></i>
+            Télécharger mon Ticket (PDF)
+        </a>
+    </div>
+{% endfor %}
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Main Content -->
+    <div class="lg:col-span-8 space-y-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
+            {% if event.image %}
+                <img src="{{ asset(event.image) }}" alt="{{ event.titre }}" class="w-full h-96 object-cover transition-transform duration-700 hover:scale-105">
+            {% endif %}
+            
+            <div class="p-8">
+                <span class="text-sm font-bold text-primary bg-primary/5 px-3 py-1.5 rounded-lg mb-6 inline-block">{{ event.categorie }}</span>
+                <h1 class="text-4xl font-extrabold text-foreground mb-8">{{ event.titre }}</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 pb-8 border-b border-border">
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-primary/5 rounded-2xl text-primary">
+                            <i data-lucide="calendar" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Date & Heure</p>
+                            <p class="font-bold text-foreground text-sm">{{ event.dateDebut|date('d F, Y @ H:i') }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-primary/5 rounded-2xl text-primary">
+                            <i data-lucide="map-pin" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Lieu</p>
+                            <p class="font-bold text-foreground text-sm line-clamp-1">{{ event.lieu }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="p-4 bg-primary/5 rounded-2xl text-primary">
+                            <i data-lucide="ticket" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Prix</p>
+                            <p class="font-bold text-foreground text-sm">{{ event.prix > 0 ? event.prix ~ ' €' : 'Gratuit' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prose prose-slate max-w-none mb-10">
+                    <h3 class="text-2xl font-bold mb-4">À propos de cet événement</h3>
+                    <p class="text-muted-foreground leading-relaxed whitespace-pre-line">{{ event.description }}</p>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="border-t border-border pt-8 mb-10">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="star" class="w-6 h-6 text-yellow-400 fill-yellow-400"></i>
+                        Avis et Notes
+                    </h3>
+                    
+                    <div class="bg-muted/30 rounded-2xl p-6 mb-8 flex items-center gap-8">
+                        <div class="text-center">
+                            <span class="block text-4xl font-extrabold text-foreground">
+                                {% set avgRating = 0 %}
+                                {% set totalRatings = event.ratings|length %}
+                                {% if totalRatings > 0 %}
+                                    {% set sum = 0 %}
+                                    {% for rating in event.ratings %}
+                                        {% set sum = sum + rating.stars %}
+                                    {% endfor %}
+                                    {% set avgRating = sum / totalRatings %}
+                                {% endif %}
+                                {{ avgRating|number_format(1) }}
+                            </span>
+                            <div class="flex gap-1 justify-center my-1 text-yellow-400">
+                                {% for i in 1..5 %}
+                                    <i data-lucide="star" class="w-4 h-4 {{ i <= avgRating|round ? 'fill-yellow-400' : 'text-gray-300' }}"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="text-xs text-muted-foreground font-medium">{{ totalRatings }} avis</span>
+                        </div>
+                        <div class="flex-1 border-l border-border pl-8">
+                            <p class="text-sm text-foreground font-bold mb-2">Partagez votre expérience</p>
+                            <p class="text-xs text-muted-foreground mb-4">Aidez les autres à choisir leurs événements.</p>
+                            <button onclick="document.getElementById('ratingForm').classList.toggle('hidden')" class="px-4 py-2 bg-white border border-border rounded-xl text-sm font-semibold hover:bg-muted transition-colors">
+                                Écrire un avis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Rating Form -->
+                    <div id="ratingForm" class="hidden bg-white border border-border rounded-2xl p-6 mb-8 shadow-sm">
+                        <h4 class="font-bold text-lg mb-4">Noter cet événement</h4>
+                        <form action="{{ path('app_front_event_rate', {id: event.id}) }}" method="post" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Votre note</label>
+                                <div class="flex gap-2">
+                                    {% for i in 1..5 %}
+                                        <label class="cursor-pointer hover:scale-110 transition-transform">
+                                            <input type="radio" name="rating[stars]" value="{{ i }}" class="sr-only peer" required>
+                                            <i data-lucide="star" class="w-8 h-8 text-gray-300 peer-checked:text-yellow-400 peer-checked:fill-yellow-400 hover:text-yellow-400 hover:fill-yellow-400 transition-colors"></i>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Votre avis</label>
+                                <textarea name="rating[comment]" rows="3" class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Qu'avez-vous pensé de l'événement ?"></textarea>
+                            </div>
+                            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-md hover:bg-primary/90 transition-all">Publier mon avis</button>
+                        </form>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="space-y-4">
+                        {% for rating in event.ratings %}
+                            <div class="bg-white border border-border rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-xs">U</div>
+                                        <span class="text-sm font-bold">Utilisateur</span>
+                                    </div>
+                                    <span class="text-xs text-muted-foreground">{{ rating.createdAt|date('d M Y') }}</span>
+                                </div>
+                                <div class="flex gap-1 text-yellow-400 mb-2">
+                                    {% for i in 1..5 %}
+                                        <i data-lucide="star" class="w-3 h-3 {{ i <= rating.stars ? 'fill-yellow-400' : 'text-gray-300' }}"></i>
+                                    {% endfor %}
+                                </div>
+                                <p class="text-sm text-muted-foreground">{{ rating.comment }}</p>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8 text-muted-foreground bg-muted/20 rounded-xl">
+                                Soyez le premier à donner votre avis !
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Event Location Map -->
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="map" class="w-6 h-6"></i>
+                        Emplacement
+                    </h3>
+                    
+                    {% if event.latitude and event.longitude %}
+                        <div id="eventMap" class="w-full h-80 rounded-2xl border border-border"></div>
+                        <div class="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-4 rounded-xl">
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                            <span>Coordonnées: {{ event.latitude|round(4) }}, {{ event.longitude|round(4) }}</span>
+                        </div>
+                    {% else %}
+                        <div class="w-full h-40 rounded-2xl border border-border bg-muted/20 flex flex-col items-center justify-center text-muted-foreground">
+                            <i data-lucide="map-off" class="w-10 h-10 mb-2 opacity-50"></i>
+                            <span class="font-medium">Carte non disponible</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center gap-2 text-foreground font-medium p-2">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-primary"></i>
+                        <span>{{ event.lieu }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar / Registration -->
+    <div class="lg:col-span-4 space-y-6">
+        <div id="registrationSummary" class="bg-white rounded-2xl shadow-sm border border-border p-8 sticky top-8" style="{{ form.vars.submitted and not form.vars.valid ? 'display: none;' : '' }}">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-5 h-5 text-primary"></i>
+                Inscription
+            </h3>
+
+            <div class="space-y-6 mb-8">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-muted-foreground font-medium">Capacité totale</span>
+                    <span class="font-bold text-foreground">{{ event.capacite }} places</span>
+                </div>
+                
+                {% set availability = event.capacite - event.inscrits %}
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-muted-foreground font-medium">Disponibilité</span>
+                    <span class="font-bold {{ availability > 0 ? 'text-green-600' : 'text-red-500' }}">
+                        {{ availability > 0 ? availability ~ ' restantes' : 'Complet' }}
+                    </span>
+                </div>
+
+                <div class="space-y-2">
+                    {% set progress = (event.inscrits / event.capacite * 100)|round %}
+                    <div class="flex justify-between text-[10px] items-center font-bold px-1">
+                        <span class="text-muted-foreground uppercase">Taux de remplissage</span>
+                        <span class="text-primary">{{ progress }}%</span>
+                    </div>
+                    <div class="h-3 bg-muted rounded-full overflow-hidden">
+                        <div class="h-full bg-primary transition-all duration-700 w-[{{ progress }}%]"></div>
+                    </div>
+                </div>
+            </div>
+
+            {% if event.inscrits < event.capacite %}
+                <button onclick="showRegistrationForm()" class="block w-full py-4 bg-primary text-white text-center rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transform transition-all active:scale-95">
+                    S'inscrire maintenant
+                </button>
+            {% else %}
+                <button class="w-full py-4 bg-muted text-muted-foreground rounded-2xl font-bold cursor-not-allowed" disabled>
+                    Événement complet
+                </button>
+            {% endif %}
+            
+            <p class="text-center text-[11px] text-muted-foreground mt-4 px-4 leading-tight">
+                <i data-lucide="shield-check" class="w-3 h-3 inline mr-1 opacity-70"></i>
+                Inscription sécurisée. Une confirmation vous sera envoyée par email.
+            </p>
+
+            {% if event.sponsors|length > 0 %}
+                <div class="mt-10 pt-8 border-t border-border">
+                    <h4 class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Sponsors de l'événement</h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for sponsor in event.sponsors %}
+                            <span class="px-3 py-1 bg-muted/50 text-muted-foreground rounded-lg text-xs font-semibold border border-border/50">{{ sponsor.nom }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Registration Form (Hidden by default) -->
+        <div id="registrationForm" class="bg-white rounded-2xl shadow-sm border border-border p-8" style="{{ form.vars.submitted and not form.vars.valid ? 'display: block;' : 'display: none;' }}">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i data-lucide="clipboard-list" class="w-5 h-5 text-primary"></i>
+                Formulaire d'inscription
+            </h3>
+            
+            {{ form_start(form, {'attr': {'class': 'space-y-6', 'id': 'registrationFormElement'}}) }}
+                <div class="space-y-4">
+                    <div>
+                        {{ form_label(form.visitorName, 'Nom complet', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                        {{ form_widget(form.visitorName, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all', 'placeholder': 'Votre nom'}}) }}
+                        {{ form_errors(form.visitorName, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.visitorEmail, 'Email', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                        {{ form_widget(form.visitorEmail, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all', 'placeholder': 'votre@email.com'}}) }}
+                        {{ form_errors(form.visitorEmail, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+                    </div>
+
+                    {% if form.modePaiement is defined %}
+                        <div>
+                            {{ form_label(form.modePaiement, 'Mode de paiement', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                            {{ form_widget(form.modePaiement, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all'}}) }}
+                            {{ form_errors(form.modePaiement, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if form.montantPaye is defined %}
+                        <div class="hidden">
+                             {{ form_widget(form.montantPaye, {'attr': {'value': event.prix }}) }}
+                        </div>
+                         {% if event.prix > 0 %}
+                            <div class="p-4 bg-muted/30 rounded-xl border border-border flex justify-between items-center">
+                                <span class="font-bold text-sm text-foreground">Montant à régler</span>
+                                <span class="font-extrabold text-xl text-primary">{{ event.prix }} €</span>
+                            </div>
+                         {% endif %}
+                    {% endif %}
+
+                    <div>
+                        {{ form_label(form.notes, 'Notes (optionnel)', {'label_attr': {'class': 'block text-sm font-bold text-foreground mb-2'}}) }}
+                        {{ form_widget(form.notes, {'attr': {'class': 'w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all', 'rows': '3'}}) }}
+                    </div>
+
+                    {# Hidden CSRF token is automatically rendered by form_end #}
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 py-4 bg-primary text-white text-center rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transform transition-all active:scale-95">
+                        <i data-lucide="check" class="w-5 h-5 inline mr-2"></i>
+                        Confirmer l'inscription
+                    </button>
+                    <button type="button" onclick="hideRegistrationForm()" class="px-6 py-4 bg-muted text-muted-foreground text-center rounded-2xl font-bold hover:bg-muted/80 transition-all">
+                        Annuler
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <script>
+        function showRegistrationForm() {
+            const form = document.getElementById('registrationForm');
+            const summary = document.getElementById('registrationSummary');
+            
+            form.style.display = 'block';
+            summary.style.display = 'none';
+            
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+
+        function hideRegistrationForm() {
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('registrationSummary').style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            {% if event.latitude and event.longitude %}
+                const lat = {{ event.latitude }};
+                const lng = {{ event.longitude }};
+                const eventMap = L.map('eventMap').setView([lat, lng], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(eventMap);
+                L.marker([lat, lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41]
+                    })
+                }).addTo(eventMap)
+                    .bindPopup(`<b>{{ event.titre }}</b><br>{{ event.lieu }}`)
+                    .openPopup();
+            {% endif %}
+        });
+    </script>
+{% endblock %}

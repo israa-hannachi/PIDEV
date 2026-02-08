@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Admin Dashboard" />
+    <meta name="author" content="flexilecode" />
+    
+    <title>{% block title %}NAJA7NI || Dashboard{% endblock %}</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/back/images/favicon.ico') }}" />
+    
+    {% block stylesheets %}
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/vendors/css/vendors.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/vendors/css/daterangepicker.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/css/theme.min.css') }}" />
+    {% endblock %}
+</head>
+
+<body>
+    {% block layout %}
+        <nav class="nxl-navigation">
+            <div class="navbar-wrapper">
+                <div class="m-header">
+                    <a href="{{ path('admin_event_index') }}" class="b-brand">
+                        <img src="{{ asset('assets/back/images/long logo.png') }}" alt="" class="logo logo-lg" style="max-width:160px;height:auto;" />
+                        <img src="{{ asset('assets/back/images/small.png') }}" alt="" class="logo logo-sm" />
+                    </a>
+                </div>
+                <div class="navbar-content">
+                    <ul class="nxl-navbar">
+                        <li class="nxl-item nxl-caption">
+                            <label>Navigation</label>
+                        </li>
+                        <li class="nxl-item {{ app.request.get('_route') == 'admin_event_index' ? 'active' : '' }}">
+                            <a href="{{ path('admin_event_index') }}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                                <span class="nxl-mtext">Dashboards</span>
+                            </a>
+                        </li>
+
+
+                        <li class="nxl-item nxl-hasmenu {{ (app.request.get('_route') starts with 'admin_event') or (app.request.get('_route') starts with 'admin_registration') or (app.request.get('_route') starts with 'admin_sponsor') ? 'active nxl-trigger' : '' }}">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-calendar"></i></span>
+                                <span class="nxl-mtext">Events</span>
+                                <span class="nxl-marrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item {{ app.request.get('_route') == 'admin_event_index' ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ path('admin_event_index') }}">All Events</a>
+                                </li>
+                                <li class="nxl-item {{ app.request.get('_route') starts with 'admin_registration' ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ path('admin_registration_index') }}">Registrations</a>
+                                </li>
+                                <li class="nxl-item {{ app.request.get('_route') starts with 'admin_sponsor' ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ path('admin_sponsor_index') }}">Sponsors</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <header class="nxl-header">
+            <div class="header-wrapper">
+                <!-- Header Left -->
+                <div class="header-left d-flex align-items-center gap-4">
+                    <a href="javascript:void(0);" class="nxl-head-mobile-toggler" id="mobile-collapse">
+                        <div class="hamburger hamburger--arrowturn">
+                            <div class="hamburger-box">
+                                <div class="hamburger-inner"></div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="nxl-navigation-toggle">
+                        <a href="javascript:void(0);" id="menu-mini-button">
+                            <i class="feather-align-left"></i>
+                        </a>
+                        <a href="javascript:void(0);" id="menu-expend-button" style="display: none">
+                            <i class="feather-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
+                        <a href="javascript:void(0);" id="nxl-lavel-mega-menu-open">
+                            <i class="feather-align-left"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Header Right -->
+                <div class="header-right ms-auto">
+                    <div class="d-flex align-items-center">
+                        <!-- Search -->
+                        <div class="dropdown nxl-h-item nxl-header-search">
+                            <a href="javascript:void(0);" class="nxl-head-link me-0" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="feather-search"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-search-dropdown">
+                                <div class="input-group search-form">
+                                    <span class="input-group-text">
+                                        <i class="feather-search fs-6 text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control search-input-field" placeholder="Search...." />
+                                    <span class="input-group-text">
+                                        <button type="button" class="btn-close"></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Notifications -->
+                        <div class="dropdown nxl-h-item nxl-header-notifications">
+                            <a href="javascript:void(0);" class="nxl-head-link me-0" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="feather-bell"></i>
+                                {% set notifications = admin_notifications|default([]) %}
+                                {% if notifications|length > 0 %}
+                                    <span class="badge bg-danger nxl-h-badge">{{ notifications|length }}</span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-notifications-dropdown">
+                                <div class="d-flex justify-content-between align-items-center notifications-head">
+                                    <h6 class="fw-bold text-dark mb-0">Notifications</h6>
+                                    {% if notifications|length > 0 %}
+                                        <a href="{{ path('admin_clear_notifications') }}" class="fs-11 text-success text-end ms-auto">Clear All</a>
+                                    {% endif %}
+                                </div>
+                                <div class="notifications-item">
+                                    {% if notifications|length > 0 %}
+                                        {% for notification in notifications|reverse %}
+                                            <div class="notifications-desc">
+                                                <a href="javascript:void(0);" class="font-body text-truncate-2-line">
+                                                    <span class="fw-semibold text-dark">
+                                                        {% if notification.level == 'warning' %}
+                                                            <i class="feather-alert-triangle text-warning me-2"></i>
+                                                        {% elseif notification.level == 'info' %}
+                                                            <i class="feather-info text-info me-2"></i>
+                                                        {% else %}
+                                                            <i class="feather-bell text-primary me-2"></i>
+                                                        {% endif %}
+                                                        {{ notification.message }}
+                                                    </span>
+                                                </a>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="notifications-date text-muted border-bottom border-bottom-dashed">
+                                                        {{ notification.timestamp|date('d/m/Y H:i') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="feather-bell fs-4 text-muted"></i>
+                                            <p class="text-muted mb-0 mt-2">Aucune notification</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Language Selector -->
+                        <div class="dropdown nxl-h-item nxl-header-language d-none d-sm-flex">
+                            <a href="javascript:void(0);" class="nxl-head-link me-0 nxl-language-link" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <img src="{{ asset('assets/back/vendors/img/flags/4x3/us.svg') }}" alt="" class="img-fluid wd-20" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-language-dropdown">
+                                <div class="dropdown-divider mt-0"></div>
+                                <div class="language-items-wrapper">
+                                    <div class="select-language px-4 py-2 hstack justify-content-between gap-4">
+                                        <div class="lh-lg">
+                                            <h6 class="mb-0">Select Language</h6>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="row px-4 pt-3">
+                                        <div class="col-sm-4 col-6 language_select">
+                                            <a href="javascript:void(0);" class="d-flex align-items-center gap-2">
+                                                <div class="avatar-image avatar-sm"><img src="{{ asset('assets/back/vendors/img/flags/1x1/us.svg') }}" alt="" class="img-fluid" /></div>
+                                                <span>English</span>
+                                            </a>
+                                        </div>
+                                        <div class="col-sm-4 col-6 language_select">
+                                            <a href="javascript:void(0);" class="d-flex align-items-center gap-2">
+                                                <div class="avatar-image avatar-sm"><img src="{{ asset('assets/back/vendors/img/flags/1x1/fr.svg') }}" alt="" class="img-fluid" /></div>
+                                                <span>French</span>
+                                            </a>
+                                        </div>
+                                        <div class="col-sm-4 col-6 language_select">
+                                            <a href="javascript:void(0);" class="d-flex align-items-center gap-2">
+                                                <div class="avatar-image avatar-sm"><img src="{{ asset('assets/back/vendors/img/flags/1x1/es.svg') }}" alt="" class="img-fluid" /></div>
+                                                <span>Spanish</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fullscreen -->
+                        <div class="nxl-h-item d-none d-sm-flex">
+                            <div class="full-screen-switcher">
+                                <a href="javascript:void(0);" class="nxl-head-link me-0" onclick="$('body').fullScreenHelper('toggle');">
+                                    <i class="feather-maximize maximize"></i>
+                                    <i class="feather-minimize minimize"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Theme Toggle -->
+                        <div class="nxl-h-item dark-light-theme">
+                            <a href="javascript:void(0);" class="nxl-head-link me-0 dark-button">
+                                <i class="feather-moon"></i>
+                            </a>
+                            <a href="javascript:void(0);" class="nxl-head-link me-0 light-button" style="display: none">
+                                <i class="feather-sun"></i>
+                            </a>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="dropdown nxl-h-item">
+                            <a class="nxl-head-link me-3" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
+                                <i class="feather-bell"></i>
+                                <span class="badge bg-danger nxl-h-badge">3</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-notifications-menu">
+                                <div class="d-flex justify-content-between align-items-center notifications-head">
+                                    <h6 class="fw-bold text-dark mb-0">Notifications</h6>
+                                </div>
+                                <div class="notifications-item">
+                                    <img src="{{ asset('assets/back/images/avatar/2.png') }}" alt="" class="rounded me-3 border" />
+                                    <div class="notifications-desc">
+                                        <a href="javascript:void(0);" class="font-body text-truncate-2-line"> <span class="fw-semibold text-dark">New Event</span> A new event has been created!</a>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="notifications-date text-muted border-bottom border-bottom-dashed">2 minutes ago</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center notifications-footer">
+                                    <a href="javascript:void(0);" class="fs-13 fw-semibold text-dark">All Notifications</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Menu -->
+                        <div class="dropdown nxl-h-item">
+                            <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
+                                <img src="{{ asset('assets/back/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar me-0" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown">
+                                <div class="dropdown-header">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ asset('assets/back/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar" />
+                                        <div>
+                                            <h6 class="text-dark mb-0">Admin <span class="badge bg-soft-success text-success ms-1">PRO</span></h6>
+                                            <span class="fs-12 fw-medium text-muted">admin@example.com</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="feather-user"></i>
+                                    <span>Profile Details</span>
+                                </a>
+                                <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="feather-settings"></i>
+                                    <span>Account Settings</span>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <form method="POST" action="/logout" class="d-none" id="logout-form">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('logout') }}">
+                                </form>
+                                <a href="javascript:void(0);" class="dropdown-item" onclick="document.getElementById('logout-form').submit();">
+                                    <i class="feather-log-out"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="nxl-container">
+            <div class="nxl-content">
+                <div class="page-header">
+                    <div class="page-header-left d-flex align-items-center">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">{% block header_title %}Dashboard{% endblock %}</h5>
+                        </div>
+                        <ul class="breadcrumb">
+            
+                            {% block breadcrumb %}{% endblock %}
+                        </ul>
+                    </div>
+                </div>
+                
+                {% block body %}{% endblock %}
+            </div>
+            
+            <footer class="footer">
+                <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                    <span>Copyright © {{ "now"|date("Y") }}</span>
+                    <span> - NAJA7NI</span>
+                </p>
+            </footer>
+        </main>
+    {% endblock %}
+
+    {% block javascripts %}
+        <script src="{{ asset('assets/back/vendors/js/vendors.min.js') }}"></script>
+        <script src="{{ asset('assets/back/vendors/js/daterangepicker.min.js') }}"></script>
+        <script src="{{ asset('assets/back/vendors/js/apexcharts.min.js') }}"></script>
+        <script src="{{ asset('assets/back/vendors/js/circle-progress.min.js') }}"></script>
+        <script src="{{ asset('assets/back/js/common-init.min.js') }}"></script>
+        <script src="{{ asset('assets/back/js/theme-customizer-init.min.js') }}"></script>
+    {% endblock %}
+</body>
+
+</html>

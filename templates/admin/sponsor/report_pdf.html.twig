@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sponsor Report - {{ sponsor.nom }}</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 50px; border-bottom: 2px solid #6366f1; padding-bottom: 20px; }
+        .logo { font-size: 28px; font-weight: bold; color: #6366f1; }
+        .title { font-size: 24px; color: #1e293b; margin-top: 10px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 18px; font-weight: bold; color: #6366f1; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; }
+        .grid { display: block; width: 100%; }
+        .item { margin-bottom: 10px; }
+        .label { font-weight: bold; color: #64748b; width: 150px; display: inline-block; }
+        .value { color: #1e293b; }
+        .collaboration { background-color: #f8fafc; padding: 20px; border-left: 4px solid #6366f1; border-radius: 4px; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #94a3b8; padding: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">NAJA7NI</div>
+        <div class="title">Rapport de Collaboration Sponsor</div>
+        <div style="font-size: 12px; color: #64748b;">Généré le {{ date|date('d/m/Y H:i') }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informations Générales</div>
+        <div class="item"><span class="label">Nom :</span> <span class="value">{{ sponsor.nom }}</span></div>
+        <div class="item"><span class="label">Type :</span> <span class="value">{{ sponsor.type }}</span></div>
+        <div class="item"><span class="label">Statut :</span> <span class="value">{{ sponsor.statut }}</span></div>
+        <div class="item"><span class="label">Site Web :</span> <span class="value">{{ sponsor.siteWeb }}</span></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Détails Financiers & Engagement</div>
+        <div class="item"><span class="label">Montant Investi :</span> <span class="value">{{ sponsor.montant }} €</span></div>
+        <div class="item"><span class="label">Période :</span> <span class="value">Du {{ sponsor.dateDebut|date('d/m/Y') }} au {{ sponsor.dateFin|date('d/m/Y') }}</span></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Contact Principal</div>
+        <div class="item"><span class="label">Personne :</span> <span class="value">{{ sponsor.contactPersonne }}</span></div>
+        <div class="item"><span class="label">Email :</span> <span class="value">{{ sponsor.contactEmail }}</span></div>
+        <div class="item"><span class="label">Téléphone :</span> <span class="value">{{ sponsor.contactTelephone }}</span></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Summary of Collaboration</div>
+        <div class="collaboration">
+            {{ sponsor.nom }} est un partenaire stratégique de NAJA7NI. Cette collaboration a permis de renforcer l'impact de nos événements et d'offrir une expérience enrichie à nos participants. Nous valorisons énormément leur soutien continu dans nos missions éducatives et professionnelles.
+        </div>
+    </div>
+
+    <div class="footer">
+        © {{ 'now'|date('Y') }} NAJA7NI Events Management. Tous droits réservés.
+    </div>
+</body>
+</html>

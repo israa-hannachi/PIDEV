@@ -1,0 +1,11 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}New Registration{% endblock %}
+
+{% block body %}
+    <h1>Create new Registration</h1>
+
+    {{ include('admin/registration/_form.html.twig') }}
+
+    <a href="{{ path('admin_registration_index') }}">back to list</a>
+{% endblock %}

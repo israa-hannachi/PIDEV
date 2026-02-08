@@ -1,0 +1,22 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}New Sponsor{% endblock %}
+
+{% block body %}
+    <h1>Create new Sponsor</h1>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">New Sponsor Details</h5>
+                </div>
+                <div class="card-body">
+                    {{ include('admin/sponsor/_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ path('admin_sponsor_index') }}">back to list</a>
+{% endblock %}

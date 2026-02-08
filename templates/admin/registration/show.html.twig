@@ -1,0 +1,55 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Registration{% endblock %}
+
+{% block body %}
+    <h1>Registration</h1>
+
+    <table class="table">
+        <tbody>
+
+            <tr>
+                <th>VisitorName</th>
+                <td>{{ registration.visitorName }}</td>
+            </tr>
+            <tr>
+                <th>VisitorEmail</th>
+                <td>{{ registration.visitorEmail }}</td>
+            </tr>
+            <tr>
+                <th>DateInscription</th>
+                <td>{{ registration.dateInscription ? registration.dateInscription|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ registration.statut }}</td>
+            </tr>
+            <tr>
+                <th>Presence</th>
+                <td>{{ registration.presence ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>ModePaiement</th>
+                <td>{{ registration.modePaiement }}</td>
+            </tr>
+            <tr>
+                <th>MontantPaye</th>
+                <td>{{ registration.montantPaye }}</td>
+            </tr>
+            <tr>
+                <th>PaiementStatut</th>
+                <td>{{ registration.paiementStatut }}</td>
+            </tr>
+            <tr>
+                <th>Notes</th>
+                <td>{{ registration.notes }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_registration_index') }}">back to list</a>
+
+    <a href="{{ path('admin_registration_edit', {'id': registration.id}) }}">edit</a>
+
+    {{ include('admin/registration/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}S'inscrire à {{ event.titre }} - Naja7ni{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{{ path('app_front_home') }}" class="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                    <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                    Événements
+                </a>
+            </li>
+            <li class="inline-flex items-center">
+                <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground"></i>
+                <a href="{{ path('app_front_event_show', {id: event.id}) }}" class="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors ml-1 md:ml-2">
+                    {{ event.titre|length > 20 ? event.titre|slice(0, 20) ~ '...' : event.titre }}
+                </a>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground"></i>
+                    <span class="ml-1 text-sm font-bold text-foreground md:ml-2">Inscription</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-3xl shadow-xl border border-border overflow-hidden">
+        <div class="p-8 md:p-12">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl text-primary mb-6">
+                    <i data-lucide="user-plus" class="w-10 h-10"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-foreground mb-3">Inscription</h1>
+                <p class="text-muted-foreground">Remplissez le formulaire pour réserver votre place pour <br><strong class="text-foreground">{{ event.titre }}</strong></p>
+            </div>
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-3 {{ label == 'error' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100' }}">
+                        <i data-lucide="{{ label == 'error' ? 'alert-circle' : 'check-circle' }}" class="w-5 h-5"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+                <div class="space-y-1">
+                    <label class="block text-[10px] items-center font-bold text-muted-foreground uppercase tracking-widest ml-1">Nom complet</label>
+                    {{ form_widget(form.visitorName, {'attr': {'class': 'w-full px-6 py-4 bg-input-background rounded-2xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium', 'placeholder': 'Votre nom'}}) }}
+                    <div class="text-red-500 text-xs font-bold mt-1 ml-1">{{ form_errors(form.visitorName) }}</div>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="block text-[10px] items-center font-bold text-muted-foreground uppercase tracking-widest ml-1">Adresse Email</label>
+                    {{ form_widget(form.visitorEmail, {'attr': {'class': 'w-full px-6 py-4 bg-input-background rounded-2xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium', 'placeholder': 'votrenom@exemple.com'}}) }}
+                    <div class="text-red-500 text-xs font-bold mt-1 ml-1">{{ form_errors(form.visitorEmail) }}</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] items-center font-bold text-muted-foreground uppercase tracking-widest ml-1">Mode de Paiement</label>
+                        {{ form_widget(form.modePaiement, {'attr': {'class': 'w-full px-6 py-4 bg-input-background rounded-2xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium'}}) }}
+                        <div class="text-red-500 text-xs font-bold mt-1 ml-1">{{ form_errors(form.modePaiement) }}</div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-[10px] items-center font-bold text-muted-foreground uppercase tracking-widest ml-1">Montant à régler</label>
+                        <div class="relative">
+                            {{ form_widget(form.montantPaye, {'attr': {'class': 'w-full pl-6 pr-12 py-4 bg-muted/30 rounded-2xl border-none font-bold text-primary cursor-not-allowed', 'readonly': 'readonly', 'value': event.prix}}) }}
+                            <span class="absolute right-6 top-1/2 -translate-y-1/2 font-bold text-primary">€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 space-y-4">
+                    <button type="submit" class="w-full py-4 bg-primary text-white text-center rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transform transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-5 h-5"></i>
+                        Confirmer l'inscription
+                    </button>
+                    <a href="{{ path('app_front_event_show', {id: event.id}) }}" class="block w-full py-4 text-center text-muted-foreground font-bold hover:text-foreground transition-colors">
+                        Annuler
+                    </a>
+                </div>
+
+                <div style="display: none;">
+                    {{ form_rest(form) }}
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

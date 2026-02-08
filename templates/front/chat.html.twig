@@ -1,0 +1,152 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}AI Chat - Naja7ni{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto flex flex-col h-[calc(100vh-12rem)] bg-white rounded-2xl shadow-xl overflow-hidden border border-border">
+    <!-- Chat Header -->
+    <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white text-center">
+        <h1 class="text-2xl font-bold flex items-center justify-center gap-2">
+            <i data-lucide="bot" class="w-8 h-8"></i>
+            Assistant IA Naja7ni
+        </h1>
+        <p class="text-white/80 text-sm mt-1">Posez-moi vos questions sur les événements, les inscriptions, et plus encore !</p>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="flex-1 overflow-y-auto p-6 bg-muted/5 space-y-4" id="chatMessages">
+        <div class="flex items-start gap-4 message assistant">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+            </div>
+            <div class="bg-white p-4 rounded-2xl rounded-tl-none border border-border shadow-sm max-w-[80%] text-foreground">
+                👋 Bonjour ! Je suis votre assistant personnel. Comment puis-je vous aider aujourd'hui ?
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Input area -->
+    <div class="p-6 bg-white border-top border-border">
+        <div class="flex gap-3">
+            <input 
+                type="text" 
+                id="chatInput" 
+                placeholder="Écrivez votre message..." 
+                class="flex-1 px-6 py-3 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                autofocus
+            />
+            <button id="chatSendBtn" class="px-8 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-bold hover:shadow-lg hover:shadow-primary/20 transform transition-all active:scale-95 flex items-center gap-2">
+                <span>Envoyer</span>
+                <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSendBtn');
+    let isLoading = false;
+
+    function addMessage(text, isUser = false, isDemo = false) {
+        const msgWrapper = document.createElement('div');
+        msgWrapper.className = `flex items-start gap-4 message ${isUser ? 'flex-row-reverse' : ''}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = `w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isUser ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`;
+        avatar.innerHTML = `<i data-lucide="${isUser ? 'user' : 'bot'}" class="w-5 h-5"></i>`;
+        
+        const content = document.createElement('div');
+        content.className = `p-4 rounded-2xl shadow-sm border border-border max-w-[80%] ${isUser ? 'bg-secondary text-white rounded-tr-none' : 'bg-white text-foreground rounded-tl-none'}`;
+        if (!isUser && isDemo) {
+            const demoSpan = document.createElement('span');
+            demoSpan.className = 'text-[10px] uppercase font-bold opacity-50 block mb-1';
+            demoSpan.textContent = '(Demo)';
+            content.appendChild(demoSpan);
+        }
+        const textNode = document.createTextNode(text);
+        content.appendChild(textNode);
+        
+        msgWrapper.appendChild(avatar);
+        msgWrapper.appendChild(content);
+        chatMessages.appendChild(msgWrapper);
+        
+        lucide.createIcons();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'flex items-start gap-4 message assistant italic text-muted-foreground text-sm'
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <i data-lucide="bot" class="w-5 h-5 animate-pulse"></i>
+            </div>
+            <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-border shadow-sm">
+                En train de réfléchir...
+            </div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        lucide.createIcons();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+    }
+
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message || isLoading) return;
+
+        isLoading = true;
+        sendBtn.disabled = true;
+
+        addMessage(message, true);
+        chatInput.value = '';
+        showTyping();
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+
+            removeTyping();
+
+            if (!response.ok) {
+                addMessage('Désolé, une erreur est survenue. Veuillez réessayer.');
+                return;
+            }
+
+            const data = await response.json();
+            addMessage(data.response, false, data.isDemo || false);
+
+        } catch (error) {
+            removeTyping();
+            addMessage('Erreur de connexion. Veuillez réessayer.');
+            console.error('Error:', error);
+        } finally {
+            isLoading = false;
+            sendBtn.disabled = false;
+            chatInput.focus();
+        }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    window.addEventListener('load', () => {
+        chatInput.focus();
+    });
+</script>
+{% endblock %}
