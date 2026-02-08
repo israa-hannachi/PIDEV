@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cour.titre }}</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111827; }
+        h1 { font-size: 18px; margin: 0 0 8px 0; }
+        .muted { color: #6b7280; font-size: 11px; }
+        .meta { margin: 0 0 16px 0; }
+        .box { border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; }
+        .content { margin-top: 12px; }
+        .content * { max-width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>{{ cour.titre }}</h1>
+    <div class="meta muted">
+        Module : {{ cour.module.titre }}<br>
+        Durée : {{ cour.duree }} min<br>
+        Ordre : {{ cour.ordre }}
+    </div>
+
+    {% if cour.description %}
+        <div class="box">
+            <strong>Description</strong>
+            <div class="content">{{ cour.description }}</div>
+        </div>
+        <div style="height: 12px;"></div>
+    {% endif %}
+
+    <div class="box">
+        <strong>Contenu</strong>
+        <div class="content">
+            {{ cour.contenu|raw }}
+        </div>
+    </div>
+</body>
+</html>

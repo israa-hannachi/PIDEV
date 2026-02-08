@@ -1,0 +1,67 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+    {% if not form.vars.valid %}
+        <div class="p-4 rounded-xl border border-border bg-white text-sm">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+
+    <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                {{ form_row(form.titre) }}
+            </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.description) }}
+            </div>
+
+            <div class="md:col-span-2">
+                <div class="p-4 rounded-xl border border-border bg-muted/20 text-sm text-muted-foreground">
+                    Choisissez un seul mode de contenu :
+                    <span class="font-semibold">texte</span> ou <span class="font-semibold">fichier</span>.
+                </div>
+            </div>
+
+            <div class="md:col-span-2">
+                {{ form_row(form.contenu) }}
+            </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.fichierContenu) }}
+            </div>
+
+            <div>
+                {{ form_row(form.duree) }}
+            </div>
+            <div>
+                {{ form_row(form.ordre) }}
+            </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.module) }}
+            </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.actif) }}
+            </div>
+        </div>
+
+        <div class="mt-8 flex items-center justify-end gap-3">
+            <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition" type="submit">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                {{ button_label|default('Enregistrer') }}
+            </button>
+        </div>
+    </div>
+
+    {% set _tinymceKey = (tinymce_api_key|default('')|trim) %}
+    <script src="https://cdn.tiny.cloud/1/{{ _tinymceKey ?: 'no-api-key' }}/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        if (window.tinymce) {
+            window.tinymce.init({
+                selector: 'textarea.js-richtext',
+                height: 320,
+                menubar: false,
+                plugins: 'lists link image table code autoresize',
+                toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image table | code',
+                branding: false
+            });
+        }
+    </script>
+{{ form_end(form) }}

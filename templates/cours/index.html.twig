@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cours index{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between gap-4">
+        <h1>Cours index</h1>
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_favoris_index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded border">
+                Mes favoris
+            </a>
+            {% set _sort = app.request.query.get('sort')|default('date_desc') %}
+            {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Date') %}
+            <details class="relative">
+                <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded border">
+                    Trier ({{ _sortLabel }})
+                </summary>
+                <div class="absolute right-0 mt-2 w-44 bg-white border rounded shadow overflow-hidden z-20">
+                    <a class="block px-3 py-2 hover:bg-gray-100" href="{{ path('app_cours_index', app.request.query.all|merge({'sort': 'date_desc'})) }}">Date (récent)</a>
+                    <a class="block px-3 py-2 hover:bg-gray-100" href="{{ path('app_cours_index', app.request.query.all|merge({'sort': 'alpha_asc'})) }}">A → Z</a>
+                    <a class="block px-3 py-2 hover:bg-gray-100" href="{{ path('app_cours_index', app.request.query.all|merge({'sort': 'alpha_desc'})) }}">Z → A</a>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Favori</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Contenu</th>
+                <th>Duree</th>
+                <th>Ordre</th>
+                <th>DateCreation</th>
+                <th>DateModification</th>
+                <th>Actif</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for cour in cours %}
+            <tr>
+                <td>{{ cour.id }}</td>
+                <td>
+                    {% set _isFavori = favoris_ids is defined and (cour.id in favoris_ids) %}
+                    <form method="post" action="{{ path('app_favoris_toggle', {'id': cour.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle_favori' ~ cour.id) }}">
+                        <button type="submit" title="{{ _isFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                            {{ _isFavori ? '★' : '☆' }}
+                        </button>
+                    </form>
+                </td>
+                <td>{{ cour.titre }}</td>
+                <td>{{ cour.description }}</td>
+                <td>{{ cour.contenu }}</td>
+                <td>{{ cour.duree }}</td>
+                <td>{{ cour.ordre }}</td>
+                <td>{{ cour.dateCreation ? cour.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ cour.dateModification ? cour.dateModification|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ cour.actif ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_cours_show', {'id': cour.id}) }}">show</a>
+                    <a href="{{ path('app_cours_edit', {'id': cour.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

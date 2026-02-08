@@ -1,0 +1,24 @@
+{% extends 'naja7ni/base.html.twig' %}
+
+{% block title %}Naja7ni - Nouvelle catégorie{% endblock %}
+
+{% block body %}
+    <div class="mb-8 flex items-start justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                    <i data-lucide="folder-plus" class="w-6 h-6"></i>
+                </div>
+                <h1 class="text-3xl font-bold">Nouvelle catégorie</h1>
+            </div>
+            <p class="text-muted-foreground">Créer une nouvelle catégorie.</p>
+        </div>
+
+        <a href="{{ path('app_categorie_index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Retour aux catégories
+        </a>
+    </div>
+
+    {{ include('categorie/_form.html.twig', {'button_label': 'Créer'}) }}
+{% endblock %}

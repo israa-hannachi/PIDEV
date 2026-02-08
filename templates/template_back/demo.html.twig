@@ -1,0 +1,38 @@
+{% extends 'template_back/base.html.twig' %}
+
+{% block title %}NAJA7NI - Demo Template Back{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Demo - Template Back intégré</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">Si tu vois la sidebar + header du template back, alors l’intégration des assets est OK.</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a class="btn btn-primary" href="{{ path('app_categorie_index') }}">Aller aux catégories (UI actuelle)</a>
+                            <a class="btn btn-outline-secondary" href="{{ path('app_search') }}?q=test">Tester recherche</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Checklist</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>CSS bootstrap/theme chargé</li>
+                            <li>Icônes feather visibles</li>
+                            <li>Sidebar navigable</li>
+                            <li>Dropdown search fonctionne</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

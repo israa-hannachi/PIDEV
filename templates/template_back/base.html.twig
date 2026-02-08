@@ -1,0 +1,51 @@
+{# Layout basé sur TEMPLATE_BACK_NAJA7NI (Bootstrap). 
+   Pré-requis: copier le dossier `_external/TEMPLATE_BACK_NAJA7NI/public/assets/` vers `public/template_back/assets/`.
+#}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{% block title %}NAJA7NI{% endblock %}</title>
+
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('template_back/assets/images/favicon.ico') }}" />
+
+    {% block stylesheets %}
+        <link rel="stylesheet" type="text/css" href="{{ asset('template_back/assets/css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('template_back/assets/vendors/css/vendors.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('template_back/assets/vendors/css/daterangepicker.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('template_back/assets/css/theme.min.css') }}" />
+    {% endblock %}
+</head>
+<body>
+    <div class="nxl-app">
+        {% include 'template_back/partials/_sidebar.html.twig' %}
+        <div class="nxl-main">
+            {% include 'template_back/partials/_header.html.twig' %}
+            <main class="nxl-content">
+                <div class="main-content">
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label }}" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% block body %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    {% block javascripts %}
+        <script src="{{ asset('template_back/assets/vendors/js/vendors.min.js') }}"></script>
+        <script src="{{ asset('template_back/assets/vendors/js/daterangepicker.min.js') }}"></script>
+        <script src="{{ asset('template_back/assets/vendors/js/apexcharts.min.js') }}"></script>
+        <script src="{{ asset('template_back/assets/vendors/js/circle-progress.min.js') }}"></script>
+        <script src="{{ asset('template_back/assets/js/common-init.min.js') }}"></script>
+        <script src="{{ asset('template_back/assets/js/dashboard-init.min.js') }}"></script>
+        <script src="{{ asset('template_back/assets/js/theme-customizer-init.min.js') }}"></script>
+    {% endblock %}
+</body>
+</html>
