@@ -1,0 +1,42 @@
+<a class="nxl-head-link me-3" data-bs-toggle="dropdown" href="#" role="button" data-bs-auto-close="outside">
+    <i class="feather-bell"></i>
+    {% if count > 0 %}
+        <span class="badge bg-danger nxl-h-badge">{{ count }}</span>
+    {% endif %}
+</a>
+<div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-notifications-menu">
+    <div class="d-flex justify-content-between align-items-center notifications-head">
+        <h6 class="fw-bold text-dark mb-0">Notifications</h6>
+        <a href="javascript:void(0);" class="fs-11 text-success text-end ms-auto" data-bs-toggle="tooltip" title="Make as Read">
+            <i class="feather-check"></i>
+            <span>Tout lire</span>
+        </a>
+    </div>
+    <div class="notifications-item-wrapper" style="max-height: 300px; overflow-y: auto;">
+        {% for notification in notifications %}
+            <div class="notifications-item">
+                <div class="notifications-desc" style="padding-left: 0;">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-semibold text-dark">{{ notification.title }}</span>
+                        <small class="text-muted">{{ notification.createdAt|date('H:i') }}</small>
+                    </div>
+                    <p class="font-body text-truncate-2-line mb-0">
+                        {{ notification.message }}
+                    </p>
+                    <div class="mt-1">
+                        <span class="badge bg-soft-{{ notification.type }} text-{{ notification.type }} fs-10">
+                            {{ notification.type|upper }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="p-3 text-center text-muted">
+                Aucune notification
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-center notifications-footer">
+        <a href="javascript:void(0);" class="fs-13 fw-semibold text-dark">Voir tout</a>
+    </div>
+</div>

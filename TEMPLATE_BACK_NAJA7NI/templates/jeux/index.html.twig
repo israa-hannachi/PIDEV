@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jeux{% endblock %}
+
+{% block body %}
+    {% include 'partials/_sidebar.html.twig' %}
+    {% include 'partials/_header.html.twig' %}
+    
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Jeux</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item">Jeux</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card stretch stretch-full">
+                            <div class="card-body">
+                                <h1>Jeux Management</h1>
+                                <p>This is the Games management page.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

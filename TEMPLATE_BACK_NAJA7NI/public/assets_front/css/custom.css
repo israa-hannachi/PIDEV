@@ -1,0 +1,15 @@
+/* Custom styles for naja7ni header */
+
+/* Enlarge navbar brand logo on desktop, keep smaller on mobile */
+.navbar-brand .navbar-brand-item {
+  height: 64px;
+  max-height: 64px;
+  width: auto;
+}
+
+@media (max-width: 575.98px) {
+  .navbar-brand .navbar-brand-item {
+    height: 40px;
+    max-height: 40px;
+  }
+}

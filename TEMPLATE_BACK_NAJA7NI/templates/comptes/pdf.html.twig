@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Comptes</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h2 { text-align: center; color: #1e3a5f; }
+        .status-actif { color: green; font-weight: bold; }
+        .status-inactif { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Rapport - Liste des Comptes NAJA7NI</h2>
+    <p>Généré le : {{ "now"|date("d/m/Y H:i") }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom & Prénom</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Date Création</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.nom }} {{ user.prenom }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td class="{{ user.statut == 'ACTIF' ? 'status-actif' : 'status-inactif' }}">
+                        {{ user.statut }}
+                    </td>
+                    <td>{{ user.dateCreation ? user.dateCreation|date('d/m/Y') : '-' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
