@@ -7,6 +7,7 @@ use App\Form\ParticipantType;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,6 +20,34 @@ class ParticipantController extends AbstractController
     {
         return $this->render('user/index_admin.html.twig', [
             'participants' => $participantRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/data', name: 'app_user_data', methods: ['GET'])]
+    public function data(Request $request, ParticipantRepository $participantRepository): JsonResponse
+    {
+        $q = $request->query->get('q');
+        $role = $request->query->get('role');
+        $sort = $request->query->get('sort');
+        $dir = $request->query->get('dir');
+
+        $participants = $participantRepository->searchAjax($q, $role, $sort, $dir);
+
+        $data = array_map(static function ($p) {
+            return [
+                'id' => $p->getId(),
+                'nom' => $p->getNom(),
+                'prenom' => $p->getPrenom(),
+                'email' => $p->getEmail(),
+                'role' => $p->getRole(),
+                'createdAt' => $p->getCreatedAt() ? $p->getCreatedAt()->format('Y-m-d') : null,
+                'meetsCount' => $p->getMeets()->count(),
+            ];
+        }, $participants);
+
+        return $this->json([
+            'items' => $data,
+            'total' => count($data),
         ]);
     }
 

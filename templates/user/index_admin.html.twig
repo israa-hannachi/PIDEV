@@ -97,6 +97,40 @@
                     Liste des Participants
                 </h2>
             </div>
+
+            <div class="p-6 border-b border-border">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-2">Recherche</label>
+                        <input id="adminSearchQ" type="text" placeholder="Nom, prénom ou email"
+                            class="form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Rôle</label>
+                        <select id="adminSearchRole" class="form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all">
+                            <option value="">Tous</option>
+                            <option value="enseignant">Enseignant</option>
+                            <option value="etudiant">Étudiant</option>
+                            <option value="administrateur">Admin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Tri</label>
+                        <div class="flex gap-2">
+                            <select id="adminSort" class="form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all">
+                                <option value="createdAt">Date</option>
+                                <option value="nom">Nom</option>
+                                <option value="email">Email</option>
+                                <option value="role">Rôle</option>
+                            </select>
+                            <select id="adminDir" class="form-control w-28 px-4 py-3 rounded-xl focus:ring-4 transition-all">
+                                <option value="ASC">Asc</option>
+                                <option value="DESC">Desc</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -110,7 +144,7 @@
                             <th class="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-border">
+                    <tbody id="adminParticipantsTbody" class="divide-y divide-border">
                         {% for participant in participants %}
                         <tr class="hover:bg-muted/30 transition-colors">
                             <td class="px-6 py-4">
@@ -159,7 +193,7 @@
                                         <i data-lucide="edit" class="w-4 h-4 text-muted-foreground group-hover:text-secondary"></i>
                                     </a>
                                     <form method="post" action="{{ path('app_user_delete', {'id': participant.id }) }}" 
-                                          style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ participant.nom }} {{ participant.prenom }}?')">
+                                          style="display: inline-block;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ participant.id) }}">
                                         <button type="submit" class="p-2 hover:bg-red-50 rounded-lg transition-colors group">
                                             <i data-lucide="trash-2" class="w-4 h-4 text-muted-foreground group-hover:text-red-600"></i>
@@ -196,6 +230,115 @@
             if (window.lucide) {
                 window.lucide.createIcons();
             }
+
+            const qEl = document.getElementById('adminSearchQ');
+            const roleEl = document.getElementById('adminSearchRole');
+            const sortEl = document.getElementById('adminSort');
+            const dirEl = document.getElementById('adminDir');
+            const tbody = document.getElementById('adminParticipantsTbody');
+
+            function escapeHtml(str) {
+                return String(str)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
+            function roleBadge(role) {
+                if (role === 'enseignant') {
+                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">Enseignant</span>';
+                }
+                if (role === 'administrateur') {
+                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">Admin</span>';
+                }
+                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">Étudiant</span>';
+            }
+
+            async function loadAdminParticipants() {
+                if (!tbody) return;
+                const params = new URLSearchParams();
+                if (qEl && qEl.value.trim() !== '') params.set('q', qEl.value.trim());
+                if (roleEl && roleEl.value !== '') params.set('role', roleEl.value);
+                if (sortEl && sortEl.value !== '') params.set('sort', sortEl.value);
+                if (dirEl && dirEl.value !== '') params.set('dir', dirEl.value);
+
+                const res = await fetch('{{ path('app_user_data') }}' + '?' + params.toString(), {
+                    headers: { 'Accept': 'application/json' },
+                });
+                if (!res.ok) return;
+                const json = await res.json();
+
+                const items = Array.isArray(json.items) ? json.items : [];
+                if (items.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <h3 class="text-lg font-medium text-muted-foreground mb-2">Aucun participant trouvé</h3>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = items.map(p => {
+                    const initial = (p.nom || 'P').toString().charAt(0).toUpperCase();
+                    const createdAt = p.createdAt ? escapeHtml(p.createdAt) : '-';
+
+                    return `
+                        <tr class="hover:bg-muted/30 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold">
+                                        ${escapeHtml(initial)}
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">${escapeHtml(p.nom)} ${escapeHtml(p.prenom)}</p>
+                                        <p class="text-sm text-muted-foreground">ID: ${escapeHtml(p.id)}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4"><p class="text-sm">${escapeHtml(p.email)}</p></td>
+                            <td class="px-6 py-4">${roleBadge(p.role)}</td>
+                            <td class="px-6 py-4"><p class="text-sm font-medium">${escapeHtml(p.meetsCount)}</p></td>
+                            <td class="px-6 py-4"><p class="text-sm text-muted-foreground">${createdAt}</p></td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ path('app_user_show', {'id': '__ID__'}) }}" class="p-2 hover:bg-muted rounded-lg transition-colors group">
+                                        <i data-lucide="eye" class="w-4 h-4 text-muted-foreground group-hover:text-primary"></i>
+                                    </a>
+                                    <a href="{{ path('app_user_edit', {'id': '__ID__'}) }}" class="p-2 hover:bg-muted rounded-lg transition-colors group">
+                                        <i data-lucide="edit" class="w-4 h-4 text-muted-foreground group-hover:text-secondary"></i>
+                                    </a>
+                                    <form method="post" action="{{ path('app_user_delete', {'id': '__ID__'}) }}" style="display: inline-block;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ '__ID__') }}">
+                                        <button type="submit" class="p-2 hover:bg-red-50 rounded-lg transition-colors group">
+                                            <i data-lucide="trash-2" class="w-4 h-4 text-muted-foreground group-hover:text-red-600"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    `.replaceAll('__ID__', String(p.id));
+                }).join('');
+
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }
+
+            let t = null;
+            function scheduleLoad() {
+                if (t) clearTimeout(t);
+                t = setTimeout(loadAdminParticipants, 250);
+            }
+
+            [qEl, roleEl, sortEl, dirEl].forEach(el => {
+                if (!el) return;
+                el.addEventListener('input', scheduleLoad);
+                el.addEventListener('change', scheduleLoad);
+            });
         });
     </script>
 {% endblock %}

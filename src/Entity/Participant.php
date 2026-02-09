@@ -6,6 +6,7 @@ use App\Repository\ParticipantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
 class Participant
@@ -16,15 +17,24 @@ class Participant
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 255)]
     private ?string $email = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['etudiant', 'enseignant', 'administrateur'])]
     private ?string $role = null;
 
     #[ORM\Column]
@@ -36,9 +46,16 @@ class Participant
     #[ORM\OneToMany(targetEntity: Meet::class, mappedBy: 'participant')]
     private Collection $meets;
 
+    /**
+     * @var Collection<int, Meet>
+     */
+    #[ORM\ManyToMany(targetEntity: Meet::class, mappedBy: 'participants')]
+    private Collection $joinedMeets;
+
     public function __construct()
     {
         $this->meets = new ArrayCollection();
+        $this->joinedMeets = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -138,6 +155,33 @@ class Participant
             if ($meet->getParticipant() === $this) {
                 $meet->setParticipant(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Meet>
+     */
+    public function getJoinedMeets(): Collection
+    {
+        return $this->joinedMeets;
+    }
+
+    public function addJoinedMeet(Meet $meet): static
+    {
+        if (!$this->joinedMeets->contains($meet)) {
+            $this->joinedMeets->add($meet);
+            $meet->addParticipant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJoinedMeet(Meet $meet): static
+    {
+        if ($this->joinedMeets->removeElement($meet)) {
+            $meet->removeParticipant($this);
         }
 
         return $this;

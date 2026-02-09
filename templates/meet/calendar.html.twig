@@ -66,6 +66,47 @@
             </div>
         </div>
 
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-2">Cours</label>
+                    <input id="calCourse" type="text" placeholder="Rechercher par cours"
+                        class="form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-2">Professeur</label>
+                    <input id="calTeacher" type="text" placeholder="Rechercher par professeur"
+                        class="form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Statut</label>
+                    <select id="calStatus" class="form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all">
+                        <option value="">Tous</option>
+                        <option value="upcoming">À venir</option>
+                        <option value="current">En cours</option>
+                        <option value="completed">Terminée</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center justify-end gap-2">
+                <div id="calMeta" class="mr-auto text-sm text-muted-foreground">
+                    <span id="calCount"></span>
+                    <span id="calLoading" class="hidden">Chargement...</span>
+                </div>
+                <select id="calSort" class="form-control px-4 py-3 rounded-xl focus:ring-4 transition-all">
+                    <option value="dateDebut">Date début</option>
+                    <option value="dateFin">Date fin</option>
+                    <option value="titre">Titre</option>
+                    <option value="prof">Prof</option>
+                </select>
+                <select id="calDir" class="form-control px-4 py-3 rounded-xl focus:ring-4 transition-all">
+                    <option value="ASC">Asc</option>
+                    <option value="DESC">Desc</option>
+                </select>
+                <button id="calReset" type="button" class="btn btn-secondary px-5 py-3 rounded-xl transition-all">Reset</button>
+            </div>
+        </div>
+
         <!-- Grille du calendrier -->
         <div id="calendarShell" class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
             <div id="calendarHeaders" class="border-b border-border bg-muted/50">
@@ -89,7 +130,7 @@
                     <span>Réunion à venir</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="w-4 h-4 bg-muted rounded"></div>
+                    <div class="w-4 h-4 bg-yellow-500 rounded"></div>
                     <span>Réunion terminée</span>
                 </div>
             </div>
@@ -117,7 +158,7 @@
     {{ parent() }}
     <script>
         // Données des réunions
-        const meets = {{ meets|json_encode|raw }};
+        let meets = {{ meets|json_encode|raw }};
         
         let currentDate = new Date();
         let currentView = 'month';
@@ -129,6 +170,74 @@
             
             if (window.lucide) {
                 window.lucide.createIcons();
+            }
+
+            const courseEl = document.getElementById('calCourse');
+            const teacherEl = document.getElementById('calTeacher');
+            const statusEl = document.getElementById('calStatus');
+            const sortEl = document.getElementById('calSort');
+            const dirEl = document.getElementById('calDir');
+            const resetEl = document.getElementById('calReset');
+            const countEl = document.getElementById('calCount');
+            const loadingEl = document.getElementById('calLoading');
+
+            function updateCount() {
+                if (!countEl) return;
+                const n = Array.isArray(meets) ? meets.length : 0;
+                countEl.textContent = n + ' résultat' + (n > 1 ? 's' : '');
+            }
+
+            updateCount();
+
+            async function loadCalendarData() {
+                if (loadingEl) loadingEl.classList.remove('hidden');
+                const params = new URLSearchParams();
+                if (courseEl && courseEl.value.trim() !== '') params.set('course', courseEl.value.trim());
+                if (teacherEl && teacherEl.value.trim() !== '') params.set('teacher', teacherEl.value.trim());
+                if (statusEl && statusEl.value !== '') params.set('status', statusEl.value);
+                if (sortEl && sortEl.value !== '') params.set('sort', sortEl.value);
+                if (dirEl && dirEl.value !== '') params.set('dir', dirEl.value);
+
+                try {
+                    const res = await fetch('{{ path('app_calendar_data') }}' + '?' + params.toString(), {
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    if (!res.ok) {
+                        return;
+                    }
+                    const json = await res.json();
+                    meets = Array.isArray(json.items) ? json.items : [];
+                    updateCount();
+                    renderCalendar();
+                    updateMonthHeader();
+                } finally {
+                    if (loadingEl) loadingEl.classList.add('hidden');
+                }
+            }
+
+            let tt = null;
+            function scheduleLoad() {
+                if (tt) clearTimeout(tt);
+                tt = setTimeout(loadCalendarData, 250);
+            }
+
+            [courseEl, teacherEl].forEach(el => {
+                if (!el) return;
+                el.addEventListener('input', scheduleLoad);
+            });
+            [statusEl, sortEl, dirEl].forEach(el => {
+                if (!el) return;
+                el.addEventListener('change', scheduleLoad);
+            });
+            if (resetEl) {
+                resetEl.addEventListener('click', () => {
+                    if (courseEl) courseEl.value = '';
+                    if (teacherEl) teacherEl.value = '';
+                    if (statusEl) statusEl.value = '';
+                    if (sortEl) sortEl.value = 'dateDebut';
+                    if (dirEl) dirEl.value = 'ASC';
+                    loadCalendarData();
+                });
             }
         });
         
@@ -152,6 +261,15 @@
 
         function formatTime(date) {
             return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+        }
+
+        function formatDuration(startDate, endDate) {
+            const ms = endDate.getTime() - startDate.getTime();
+            const totalMinutes = Math.max(0, Math.round(ms / 60000));
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            if (h > 0) return `${h}h${m > 0 ? pad2(m) : ''}`;
+            return `${m}min`;
         }
 
         function startOfWeekMonday(date) {
@@ -230,10 +348,14 @@
                 
                 dayMeets.forEach(meet => {
                     const status = getMeetStatus(meet);
-                    const colorClass = status === 'current' ? 'bg-primary' : (status === 'upcoming' ? 'bg-secondary' : 'bg-muted');
+                    const colorClass = status === 'current' ? 'bg-primary' : (status === 'upcoming' ? 'bg-secondary' : 'bg-yellow-500');
+                    const startDate = new Date(meet.dateDebut);
+                    const endDate = new Date(meet.dateFin);
+                    const duration = formatDuration(startDate, endDate);
                     
                     html += `<div class="text-xs p-1 rounded ${colorClass} text-white truncate cursor-pointer hover:opacity-80" onclick="showMeetDetails(event, ${meet.id})" title="${meet.titre}">
-                        ${meet.titre}
+                        <div class="font-semibold truncate">${meet.titre}</div>
+                        <div class="text-[11px] opacity-95 truncate">Prof. ${meet.participant.nom} ${meet.participant.prenom} • ${duration}</div>
                     </div>`;
                 });
                 
@@ -327,13 +449,14 @@
                     const top = (startMin - startHour * 60) * minutePx;
                     const height = Math.max(18, (endMin - startMin) * minutePx);
                     const status = getMeetStatus(meet);
-                    const bg = status === 'current' ? 'bg-primary' : (status === 'upcoming' ? 'bg-secondary' : 'bg-muted');
+                    const bg = status === 'current' ? 'bg-primary' : (status === 'upcoming' ? 'bg-secondary' : 'bg-yellow-500');
+                    const duration = formatDuration(meet._start, meet._end);
 
                     bodyHtml += `
                         <div class="absolute left-2 right-2 ${bg} text-white rounded-lg shadow-sm p-2 cursor-pointer hover:opacity-90" style="top:${top}px;height:${height}px;" onclick="showMeetDetails(event, ${meet.id})">
                             <div class="text-xs font-semibold truncate">${meet.titre}</div>
                             <div class="text-[11px] opacity-95 truncate">Prof. ${meet.participant.nom} ${meet.participant.prenom}</div>
-                            <div class="text-[11px] opacity-90">${formatTime(meet._start)} - ${formatTime(meet._end)}</div>
+                            <div class="text-[11px] opacity-90">${formatTime(meet._start)} - ${formatTime(meet._end)} • ${duration}</div>
                         </div>
                     `;
                 });
@@ -409,13 +532,14 @@
                 const top = (startMin - startHour * 60) * minutePx;
                 const height = Math.max(18, (endMin - startMin) * minutePx);
                 const status = getMeetStatus(meet);
-                const bg = status === 'current' ? 'bg-primary' : (status === 'upcoming' ? 'bg-secondary' : 'bg-muted');
+                const bg = status === 'current' ? 'bg-primary' : (status === 'upcoming' ? 'bg-secondary' : 'bg-yellow-500');
+                const duration = formatDuration(meet._start, meet._end);
 
                 bodyHtml += `
                     <div class="absolute left-3 right-3 ${bg} text-white rounded-lg shadow-sm p-3 cursor-pointer hover:opacity-90" style="top:${top}px;height:${height}px;" onclick="showMeetDetails(event, ${meet.id})">
                         <div class="text-sm font-semibold truncate">${meet.titre}</div>
                         <div class="text-xs opacity-95 truncate">Prof. ${meet.participant.nom} ${meet.participant.prenom}</div>
-                        <div class="text-xs opacity-90">${formatTime(meet._start)} - ${formatTime(meet._end)}</div>
+                        <div class="text-xs opacity-90">${formatTime(meet._start)} - ${formatTime(meet._end)} • ${duration}</div>
                     </div>
                 `;
             });
@@ -458,7 +582,7 @@
             const endDate = new Date(meet.dateFin);
             const status = getMeetStatus(meet);
             const statusText = status === 'current' ? 'En cours' : (status === 'upcoming' ? 'À venir' : 'Terminée');
-            const statusColor = status === 'current' ? 'text-green-600' : (status === 'upcoming' ? 'text-blue-600' : 'text-gray-600');
+            const statusColor = status === 'current' ? 'text-green-600' : (status === 'upcoming' ? 'text-blue-600' : 'text-yellow-700');
             
             content.innerHTML = `
                 <div class="space-y-4">

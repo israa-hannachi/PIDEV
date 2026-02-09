@@ -153,7 +153,7 @@
                                             </a>
                                         {% endif %}
                                         <form method="post" action="{{ path('app_user_delete', {'id': participant.id}) }}" 
-                                              style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ participant.nom }} {{ participant.prenom }}?')">
+                                              style="display: inline-block;">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ participant.id) }}">
                                             <button type="submit" class="p-2 hover:bg-red-100 rounded-lg transition-colors group" title="Supprimer">
                                                 <i data-lucide="trash-2" class="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform"></i>

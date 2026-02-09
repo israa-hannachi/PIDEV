@@ -24,20 +24,10 @@
                     <i data-lucide="home" class="w-6 h-6 transition-colors"></i>
                     <span class="text-[11px] font-medium">Accueil</span>
                 </a>
-                <a href="{{ path('app_user_index') }}"
-                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
-                    <i data-lucide="shield" class="w-6 h-6 transition-colors"></i>
-                    <span class="text-[11px] font-medium">Admin</span>
-                </a>
                 <a href="{{ path('app_meet_index') }}"
                     class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
                     <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
                     <span class="text-[11px] font-medium">Meet</span>
-                </a>
-                <a href="{{ path('app_calendar') }}"
-                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
-                    <i data-lucide="calendar-days" class="w-6 h-6 transition-colors"></i>
-                    <span class="text-[11px] font-medium">Calendrier</span>
                 </a>
                 <a href="#"
                     class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
@@ -63,15 +53,15 @@
                 <div class="flex items-center gap-8">
                     <img src="{{ asset('assets/images/logo-full.png') }}" alt="Naja7ni" class="h-10 object-contain">
                 </div>
-                <div class="flex-1 max-w-xl mx-8">
-                    <div class="relative group">
-                        <i data-lucide="search"
-                            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
-                        <input type="text" placeholder="Rechercher des cours, modules..."
-                            class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all" />
-                    </div>
-                </div>
                 <div class="flex items-center gap-4">
+                    <a href="{{ path('app_calendar') }}" class="p-2.5 hover:bg-muted rounded-xl transition-colors group" title="Calendrier">
+                        <i data-lucide="calendar-days"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </a>
+                    <a href="{{ path('app_user_index') }}" class="p-2.5 hover:bg-muted rounded-xl transition-colors group" title="Admin">
+                        <i data-lucide="shield"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </a>
                     <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
                         <i data-lucide="bell"
                             class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>

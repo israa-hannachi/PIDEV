@@ -9,9 +9,8 @@
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-3xl font-bold mb-2">Rejoindre la réunion</h1>
-                <p class="text-muted-foreground">Créez votre profil pour participer à la réunion</p>
             </div>
-            <a href="{{ path('app_meet_index') }}" class="btn btn-secondary px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all flex items-center gap-2 font-medium border border-secondary text-secondary">
+            <a href="{{ path('app_meet_index') }}" class="bg-white text-secondary border border-secondary px-6 py-3 rounded-xl hover:bg-secondary/5 transition-all flex items-center gap-2 font-medium">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 Retour
             </a>
@@ -46,115 +45,36 @@
             </div>
         {% endfor %}
 
-        <!-- Formulaire participant -->
-        <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+        <div class="card rounded-2xl p-8">
             <div class="mb-6">
-                <h3 class="text-xl font-semibold mb-2">Créer votre profil</h3>
-                <p class="text-muted-foreground">Remplissez vos informations pour rejoindre la réunion</p>
+                <h3 class="text-xl font-semibold mb-2">Accès à la réunion</h3>
+                <p class="text-muted-foreground">Les étudiants doivent être pré-inscrits par l’enseignant.</p>
             </div>
 
-            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Nom -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2">
-                            <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
-                            Nom
-                        </label>
-                        {{ form_widget(form.nom, {'attr': {
-                            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-input-background focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all',
-                            'placeholder': 'Entrez votre nom'
-                        }}) }}
-                        {% if form.nom.vars.errors|length > 0 %}
-                            <div class="mt-2 text-red-600 text-sm">
-                                {% for error in form.nom.vars.errors %}
-                                    <div class="flex items-center gap-1">
-                                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                                        {{ error.message }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Prénom -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2">
-                            <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
-                            Prénom
-                        </label>
-                        {{ form_widget(form.prenom, {'attr': {
-                            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-input-background focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all',
-                            'placeholder': 'Entrez votre prénom'
-                        }}) }}
-                        {% if form.prenom.vars.errors|length > 0 %}
-                            <div class="mt-2 text-red-600 text-sm">
-                                {% for error in form.prenom.vars.errors %}
-                                    <div class="flex items-center gap-1">
-                                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                                        {{ error.message }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Email -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium mb-2">
-                            <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
-                            Email
-                        </label>
-                        {{ form_widget(form.email, {'attr': {
-                            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-input-background focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all',
-                            'placeholder': 'votre@email.com'
-                        }}) }}
-                        {% if form.email.vars.errors|length > 0 %}
-                            <div class="mt-2 text-red-600 text-sm">
-                                {% for error in form.email.vars.errors %}
-                                    <div class="flex items-center gap-1">
-                                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                                        {{ error.message }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Rôle -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium mb-2">
-                            <i data-lucide="shield" class="w-4 h-4 inline mr-2"></i>
-                            Rôle
-                        </label>
-                        {{ form_widget(form.role, {'attr': {
-                            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-input-background focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all'
-                        }}) }}
-                        {% if form.role.vars.errors|length > 0 %}
-                            <div class="mt-2 text-red-600 text-sm">
-                                {% for error in form.role.vars.errors %}
-                                    <div class="flex items-center gap-1">
-                                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                                        {{ error.message }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+            {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+                <div>
+                    {{ form_label(form.mode, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                    <div class="flex flex-col md:flex-row gap-4">
+                        {{ form_widget(form.mode) }}
                     </div>
                 </div>
 
-                <!-- Actions -->
+                <div>
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                    {{ form_widget(form.email, {'attr': {
+                        'class': 'form-control w-full px-4 py-3 rounded-xl focus:ring-4 transition-all',
+                        'placeholder': 'exemple@email.com'
+                    }}) }}
+                </div>
+
                 <div class="flex items-center justify-between pt-6 border-t border-border">
-                    <a href="{{ path('app_meet_index') }}" 
-                       class="px-6 py-3 rounded-xl border border-border hover:bg-muted transition-all flex items-center gap-2 font-medium">
+                    <a href="{{ path('app_meet_index') }}" class="btn btn-secondary px-6 py-3 rounded-xl transition-all flex items-center gap-2 font-medium">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                         Annuler
                     </a>
-                    <button type="submit"
-                        class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary/90 transition-all hover:shadow-lg flex items-center gap-2 font-medium">
-                        <i data-lucide="user-plus" class="w-5 h-5"></i>
-                        Créer et rejoindre la réunion
+                    <button type="submit" class="btn btn-primary px-6 py-3 rounded-xl transition-all hover:shadow-lg flex items-center gap-2 font-medium">
+                        <i data-lucide="log-in" class="w-5 h-5"></i>
+                        Rejoindre
                     </button>
                 </div>
 

@@ -7,7 +7,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class ParticipantType extends AbstractType
@@ -17,6 +16,7 @@ class ParticipantType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'Entrez le nom',
                     'class' => 'form-control'
@@ -24,13 +24,15 @@ class ParticipantType extends AbstractType
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'Entrez le prénom',
                     'class' => 'form-control'
                 ]
             ])
-            ->add('email', EmailType::class, [
+            ->add('email', TextType::class, [
                 'label' => 'Email',
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'exemple@email.com',
                     'class' => 'form-control'
@@ -38,14 +40,14 @@ class ParticipantType extends AbstractType
             ])
             ->add('role', ChoiceType::class, [
                 'label' => 'Rôle',
+                'required' => false,
                 'choices' => [
                     'Étudiant' => 'etudiant',
                     'Enseignant' => 'enseignant',
                     'Administrateur' => 'administrateur'
                 ],
                 'attr' => [
-                    'class' => 'form-control',
-                    'onchange' => 'handleRoleChange(this.value)'
+                    'class' => 'form-control'
                 ]
             ])
         ;

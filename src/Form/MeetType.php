@@ -10,9 +10,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\Extension\Core\Type\EntityType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType as DoctrineEntityType;
+use App\Repository\ParticipantRepository;
 
 class MeetType extends AbstractType
 {
@@ -21,6 +21,7 @@ class MeetType extends AbstractType
         $builder
             ->add('titre', TextType::class, [
                 'label' => 'Titre de la réunion',
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'Ex: Cours de Mathématiques',
                     'class' => 'form-control'
@@ -28,6 +29,7 @@ class MeetType extends AbstractType
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'Décrivez le contenu de la réunion...',
                     'rows' => 4,
@@ -37,6 +39,7 @@ class MeetType extends AbstractType
             ->add('dateDebut', DateTimeType::class, [
                 'label' => 'Date de début',
                 'widget' => 'single_text',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control'
                 ]
@@ -44,11 +47,12 @@ class MeetType extends AbstractType
             ->add('dateFin', DateTimeType::class, [
                 'label' => 'Date de fin',
                 'widget' => 'single_text',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control'
                 ]
             ])
-            ->add('lienMeet', UrlType::class, [
+            ->add('lienMeet', TextType::class, [
                 'label' => 'Lien de la réunion (optionnel)',
                 'required' => false,
                 'attr' => [
@@ -59,6 +63,7 @@ class MeetType extends AbstractType
             ->add('participant', DoctrineEntityType::class, [
                 'label' => 'Enseignant responsable',
                 'class' => Participant::class,
+                'required' => false,
                 'query_builder' => function ($repository) {
                     return $repository->createQueryBuilder('p')
                         ->where('p.role = :role')
@@ -71,6 +76,24 @@ class MeetType extends AbstractType
                 'attr' => [
                     'class' => 'form-control'
                 ]
+            ])
+            ->add('participants', DoctrineEntityType::class, [
+                'label' => 'Participants (étudiants) inscrits',
+                'class' => Participant::class,
+                'multiple' => true,
+                'required' => false,
+                'query_builder' => function (ParticipantRepository $repository) {
+                    return $repository->createQueryBuilder('p')
+                        ->where('p.role = :role')
+                        ->setParameter('role', 'etudiant')
+                        ->orderBy('p.nom', 'ASC');
+                },
+                'choice_label' => function (Participant $participant) {
+                    return $participant->getNom() . ' ' . $participant->getPrenom();
+                },
+                'attr' => [
+                    'class' => 'form-control'
+                ],
             ])
         ;
     }

@@ -31,7 +31,7 @@
             {% endfor %}
 
             <!-- Formulaire -->
-            <form method="post" class="space-y-6">
+            <form method="post" class="space-y-6" novalidate="novalidate">
                 <div>
                     <label class="block text-sm font-medium mb-2">
                         <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>
@@ -39,7 +39,6 @@
                     </label>
                     <input type="password" 
                            name="admin_password" 
-                           required
                            class="w-full px-4 py-3 rounded-xl border border-border bg-input-background focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                            placeholder="Entrez le mot de passe">
                 </div>

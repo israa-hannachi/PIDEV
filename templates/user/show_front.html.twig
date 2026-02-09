@@ -11,7 +11,7 @@
                 <h1 class="text-3xl font-bold mb-2">Détails du participant</h1>
                 <p class="text-muted-foreground">Informations complètes du participant</p>
             </div>
-            <a href="{{ path('app_user_index') }}" class="btn btn-secondary px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all flex items-center gap-2 font-medium border border-secondary text-secondary">
+            <a href="{{ path('app_user_index') }}" class="bg-white text-secondary border border-secondary px-6 py-3 rounded-xl hover:bg-secondary/5 transition-all flex items-center gap-2 font-medium">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 Retour
             </a>
@@ -44,14 +44,14 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div class="bg-muted/30 rounded-2xl p-4 border border-border">
                     <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
                         <i data-lucide="mail" class="w-5 h-5 text-primary"></i>
                         Email
                     </h3>
                     <p class="text-muted-foreground">{{ participant.email }}</p>
                 </div>
-                <div>
+                <div class="bg-muted/30 rounded-2xl p-4 border border-border">
                     <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
                         <i data-lucide="calendar" class="w-5 h-5 text-primary"></i>
                         Date de création
@@ -84,21 +84,21 @@
             {% endif %}
 
             <!-- Actions -->
-            <div class="flex items-center gap-3 mt-8 pt-6 border-t border-border">
+            <div class="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t border-border">
                 <a href="{{ path('app_user_edit', {'id': participant.id}) }}" 
-                   class="bg-secondary text-white px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all flex items-center gap-2 font-medium">
+                   class="btn btn-secondary px-6 py-3 rounded-xl transition-all flex items-center gap-2 font-medium">
                     <i data-lucide="edit" class="w-5 h-5"></i>
                     Modifier
                 </a>
                 {% if participant.role == 'enseignant' %}
                     <a href="{{ path('app_meet_new') }}?participant={{ participant.id }}" 
-                       class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 font-medium">
+                       class="btn btn-primary px-6 py-3 rounded-xl transition-all flex items-center gap-2 font-medium">
                         <i data-lucide="video" class="w-5 h-5"></i>
                         Créer une réunion
                     </a>
                 {% endif %}
                 <form method="post" action="{{ path('app_user_delete', {'id': participant.id }) }}" 
-                      style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ participant.nom }} {{ participant.prenom }}?')">
+                      style="display: inline-block;">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ participant.id) }}">
                     <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-all flex items-center gap-2 font-medium">
                         <i data-lucide="trash-2" class="w-5 h-5"></i>
