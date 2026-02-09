@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<div class="card mx-auto mt-4" style="max-width: 900px;">
+    <!-- Header avec titre et bouton -->
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Liste des Jeux</h5>
+        <a href="{{ path('game_new') }}" class="btn btn-primary btn-sm">
+            <i class="feather-plus"></i> Nouveau Jeu
+        </a>
+        <a href="{{ path('games_pdf') }}" class="btn btn-outline-danger btn-sm">
+    <i class="feather-file-text"></i> Exporter en PDF
+</a>
+<a href="{{ path('games_excel') }}" class="btn btn-outline-success btn-sm">
+    <i class="feather-file"></i> Exporter en Excel
+</a>
+<a href="{{ path('games_csv') }}" class="btn btn-outline-primary btn-sm">
+    <i class="feather-file-text"></i> Exporter en CSV
+</a>
+
+
+    </div>
+
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Titre</th>
+                    <th style="width: 15%;">Type</th>
+                    <th style="width: 15%;">Niveau</th>
+                    <th style="width: 15%;">Score Max</th>
+                    <th style="width: 15%;">duration</th>
+                    <th style="width: 15%;">tentative</th>
+                    <th style="width: 30%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                    <tr>
+                        <td>{{ game.titre }}</td>
+                        <td>{{ game.type }}</td>
+                        <td>{{ game.niveau }}</td>
+                        <td>{{ game.scoreMax }}</td>
+                        <td>{{ game.duration }}</td>
+                        <td class="text-danger fw-bold">{{ game.attemptNumber }}</td>
+                        <td class="text-center">
+                            <a href="{{ path('game_edit', {'id': game.id}) }}" 
+   class="btn btn-sm btn-outline-dark me-1" 
+   title="Modifier">
+    <i class="feather-edit"></i>
+</a>
+
+                            <button class="btn btn-sm btn-outline-dark me-1" data-bs-toggle="modal" data-bs-target="#deleteGameModal-{{ game.id }}" title="Supprimer">
+                                <i class="feather-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#questions-{{ game.id }}" title="Questions">
+                                <i class="feather-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Modal Supprimer -->
+                    <div class="modal fade" id="deleteGameModal-{{ game.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Supprimer le jeu</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Voulez-vous vraiment supprimer le jeu <strong>{{ game.titre }}</strong> ?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="{{ path('game_delete', {id: game.id}) }}" class="btn btn-danger">Oui, supprimer</a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloc Questions (inchangé) -->
+                    <tr class="collapse" id="questions-{{ game.id }}">
+                        <td colspan="5">
+                            <strong>Questions :</strong>
+                            <div class="mt-2">
+                                {% for question in game.questions %}
+                                    <div class="d-flex justify-content-between align-items-center border-bottom py-1">
+                                        <span>
+                                            {{ question.questionText }}
+                                            <span class="badge bg-success">Correcte : {{ question.correctAnswer }}</span>
+                                        </span>
+                                        <span>
+                                            <a href="{{ path('gamequestion_edit', {id: question.id}) }}" class="btn btn-sm btn-outline-warning me-1" title="Modifier">
+                                                <i class="feather-edit"></i>
+                                            </a>
+                                           <!-- Bouton Supprimer -->
+<button class="btn btn-sm btn-outline-danger" 
+        data-bs-toggle="modal" 
+        data-bs-target="#deleteQuestionModal-{{ question.id }}" 
+        title="Supprimer">
+    <i class="feather-trash"></i>
+</button>
+
+<!-- Modal Supprimer Question -->
+<div class="modal fade" id="deleteQuestionModal-{{ question.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Supprimer la question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous vraiment supprimer la question 
+                   <strong>{{ question.questionText }}</strong> ?</p>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ path('gamequestion_delete', {id: question.id}) }}" 
+                   class="btn btn-danger">Oui, supprimer</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">Aucune question pour ce jeu.</p>
+                                {% endfor %}
+                            </div>
+                            <a href="{{ path('gamequestion_new', {gameId: game.id}) }}" class="btn btn-sm btn-success mt-2">
+                                <i class="feather-plus"></i> Ajouter une question
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucun jeu trouvé</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
