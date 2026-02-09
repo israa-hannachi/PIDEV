@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}NAJA7NI || Dashboard{% endblock %}
+
+{% block body %}
+    {# Include Sidebar #}
+    {% include 'partials/_sidebar.html.twig' %}
+    
+    {# Include Header/Navbar #}
+    {% include 'partials/_header.html.twig' %}
+    
+    {# Main Content #}
+    <main class="nxl-container">
+        <div class="nxl-content">
+            {# Page Header #}
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Dashboard</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item">Dashboard</li>
+                    </ul>
+                </div>
+            </div>
+            
+            {# Main Content Area #}
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card stretch stretch-full">
+                            <div class="card-body">
+                                <h1>Welcome to NAJA7NI Dashboard</h1>
+                                <p>This is the main dashboard page. The template has been successfully integrated!</p>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-3">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-body text-center">
+                                                <i class="feather-users fs-1 text-primary mb-3"></i>
+                                                <h5>Comptes</h5>
+                                                <a href="{{ path('app_comptes') }}" class="btn btn-sm btn-primary mt-2">View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-body text-center">
+                                                <i class="feather-list fs-1 text-success mb-3"></i>
+                                                <h5>Catégories</h5>
+                                                <a href="{{ path('app_categories') }}" class="btn btn-sm btn-success mt-2">View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-body text-center">
+                                                <i class="feather-play-circle fs-1 text-warning mb-3"></i>
+                                                <h5>Jeux</h5>
+                                                <a href="{{ path('app_jeux') }}" class="btn btn-sm btn-warning mt-2">View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-body text-center">
+                                                <i class="feather-message-circle fs-1 text-info mb-3"></i>
+                                                <h5>Forums</h5>
+                                                <a href="{{ path('app_forums') }}" class="btn btn-sm btn-info mt-2">View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

@@ -1,0 +1,79 @@
+{# templates/base.html.twig #}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="flexilecode" />
+    
+    {% block title %}<title>NAJA7NI || Dashboard</title>{% endblock %}
+    
+    <!--! BEGIN: Favicon-->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/favicon.ico') }}" />
+    <!--! END: Favicon-->
+    
+    {% block stylesheets %}
+        <!--! BEGIN: Bootstrap CSS-->
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+        <!--! END: Bootstrap CSS-->
+        <!--! BEGIN: Vendors CSS-->
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/vendors.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/daterangepicker.min.css') }}" />
+        <!--! END: Vendors CSS-->
+        <!--! BEGIN: Custom CSS-->
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/theme.min.css') }}" />
+        <!--! END: Custom CSS-->
+    {% endblock %}
+
+    <!--! HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries !-->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    {% block body %}{% endblock %}
+
+    {% block javascripts %}
+        <!--! ================================================================ !-->
+        <!--! Footer Script !-->
+        <!--! ================================================================ !-->
+        <!--! BEGIN: Vendors JS !-->
+        <script src="{{ asset('assets/vendors/js/vendors.min.js') }}"></script>
+        <!-- vendors.min.js {always must need to be top} -->
+        <script src="{{ asset('assets/vendors/js/daterangepicker.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/js/apexcharts.min.js') }}"></script>
+        <script src="{{ asset('assets/vendors/js/circle-progress.min.js') }}"></script>
+        <!--! END: Vendors JS !-->
+        <!--! BEGIN: Apps Init  !-->
+        <script src="{{ asset('assets/js/common-init.min.js') }}"></script>
+        <script src="{{ asset('assets/js/dashboard-init.min.js') }}"></script>
+        <!--! END: Apps Init !-->
+        <!--! BEGIN: Theme Customizer  !-->
+        <script src="{{ asset('assets/js/theme-customizer-init.min.js') }}"></script>
+        <!--! END: Theme Customizer !-->
+        
+        <script>
+            $(document).ready(function() {
+                $('.nxl-hasmenu > .nxl-link').on('click', function(e) {
+                    e.preventDefault();
+                    var $parent = $(this).parent();
+                    if ($parent.hasClass('nxl-open')) {
+                        $parent.removeClass('nxl-open');
+                        $parent.find('.nxl-submenu').slideUp();
+                    } else {
+                        $parent.addClass('nxl-open');
+                        $parent.find('.nxl-submenu').slideDown();
+                    }
+                });
+            });
+        </script>
+    {% endblock %}
+</body>
+
+</html>

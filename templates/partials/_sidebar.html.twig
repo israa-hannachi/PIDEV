@@ -1,0 +1,98 @@
+{# Sidebar Navigation from source template #}
+<nav class="nxl-navigation">
+    <div class="navbar-wrapper">
+        <div class="m-header">
+            <a href="{{ path('app_home') }}" class="b-brand">
+                <img src="{{ asset('assets/images/long logo.png') }}" alt="" class="logo logo-lg" style="max-width:160px;height:auto;" />
+                <img src="{{ asset('assets/images/small.png') }}" alt="" class="logo logo-sm" />
+            </a>
+        </div>
+        <div class="navbar-content">
+            <ul class="nxl-navbar">
+                <li class="nxl-item nxl-caption">
+                    <label>Navigation</label>
+                </li>
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                        <span class="nxl-mtext">Dashboards</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_home') }}">Dashboard</a></li>
+                    </ul>
+                </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-users"></i></span>
+                        <span class="nxl-mtext">Comptes</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_comptes') }}">Liste des comptes</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_user_index') }}">CRUD Comptes</a></li>
+                    </ul>
+                </li>
+                
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-list"></i></span>
+                        <span class="nxl-mtext">Catégories</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_categories') }}">Catégories</a></li>
+                    </ul>
+                </li>
+                
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-play-circle"></i></span>
+                        <span class="nxl-mtext">Jeux</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_jeux') }}">Jeux</a></li>
+                    </ul>
+                </li>
+                
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-message-circle"></i></span>
+                        <span class="nxl-mtext">Forum</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_forums') }}">Forum</a></li>
+                    </ul>
+                </li>
+                
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-calendar"></i></span>
+                        <span class="nxl-mtext">Events</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_events') }}">Events</a></li>
+                    </ul>
+                </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-video"></i></span>
+                        <span class="nxl-mtext">Meet</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_meet') }}">Meet</a></li>
+                    </ul>
+                </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-dollar-sign"></i></span>
+                        <span class="nxl-mtext">Payment</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('app_payment') }}">Payment</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

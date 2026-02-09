@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {# Main Wrapper #}
+    <main class="nxl-container">
+        {# Sidebar #}
+        {% include 'admin/partials/_sidebar.html.twig' %}
+
+        {# Header/Navbar #}
+        {% include 'admin/partials/_navbar.html.twig' %}
+
+        {# Main Content #}
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">{% block page_title %}Dashboard{% endblock %}</h5>
+                    </div>
+                </div>
+            </div>
+
+            {# Admin Content Block - Override this in child templates #}
+            <div class="main-content">
+                {% block admin_content %}
+                    {# Default admin content goes here #}
+                {% endblock %}
+            </div>
+        </div>
+    </main>
+{% endblock %}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naja7ni - Events</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
+    <style>
+         /* Custom scrollbar to match design if needed */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+    </style>
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        {% include 'front/partials/_sidebar.html.twig' %}
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navbar -->
+            {% include 'front/partials/_navbar.html.twig' %}
+
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h1 class="text-3xl font-bold mb-2">Événements</h1>
+                                <p class="text-muted-foreground">Découvrez et participez aux événements éducatifs</p>
+                            </div>
+                            <button
+                                class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-primary/90 transition-all hover:shadow-lg flex items-center gap-2 font-medium">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                                Créer un événement
+                            </button>
+                        </div>
+
+                        <!-- Calendar Banner -->
+                        <div
+                            class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
+                            <div class="absolute inset-0 bg-white/10 pattern-grid"></div>
+                            <div class="relative z-10 flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-2xl font-bold mb-2">Calendrier Mars 2024</h2>
+                                    <p class="text-white/90">4 événements ce mois-ci</p>
+                                </div>
+                                <div
+                                    class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg border border-white/30">
+                                    <div class="text-4xl font-bold mb-1">15</div>
+                                    <div class="text-sm text-white/90 font-medium tracking-wide">MARS</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Events List -->
+                        <h2 class="text-2xl font-bold mb-6">Événements à venir</h2>
+                        <div class="space-y-6">
+                            <!-- Event 1 -->
+                            <div
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-lg transition-all hover:border-primary/30 group">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <div
+                                        class="w-20 h-20 bg-blue-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20">
+                                        <i data-lucide="speech" class="w-10 h-10 text-white"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div>
+                                                <h3
+                                                    class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                                                    Salon de l'Orientation 2024</h3>
+                                                <span
+                                                    class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">Conférence</span>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm text-muted-foreground">
+                                            <div class="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-lg">
+                                                <i data-lucide="calendar" class="w-4 h-4 text-primary"></i>
+                                                15 Mars 2024
+                                            </div>
+                                            <div class="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-lg">
+                                                <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
+                                                09:00 - 17:00
+                                            </div>
+                                            <div class="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-lg">
+                                                <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                                                Casablanca
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between border-t border-border/50 pt-4">
+                                            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <i data-lucide="users" class="w-4 h-4"></i>
+                                                <span class="font-medium">250 participants</span>
+                                            </div>
+                                            <button
+                                                class="bg-primary text-white px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-all font-medium shadow-md hover:shadow-lg">
+                                                S'inscrire
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event 2 -->
+                            <div
+                                class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-lg transition-all hover:border-purple/30 group">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <div
+                                        class="w-20 h-20 bg-purple-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/20">
+                                        <i data-lucide="cpu" class="w-10 h-10 text-white"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div>
+                                                <h3
+                                                    class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                                                    Workshop: Intelligence Artificielle</h3>
+                                                <span
+                                                    class="inline-block px-3 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">Workshop</span>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm text-muted-foreground">
+                                            <div class="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-lg">
+                                                <i data-lucide="calendar" class="w-4 h-4 text-purple-500"></i>
+                                                20 Mars 2024
+                                            </div>
+                                            <div class="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-lg">
+                                                <i data-lucide="clock" class="w-4 h-4 text-purple-500"></i>
+                                                14:00 - 16:00
+                                            </div>
+                                            <div class="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-lg">
+                                                <i data-lucide="monitor" class="w-4 h-4 text-purple-500"></i>
+                                                En ligne
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between border-t border-border/50 pt-4">
+                                            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <i data-lucide="users" class="w-4 h-4"></i>
+                                                <span class="font-medium">45 participants</span>
+                                            </div>
+                                            <button
+                                                class="bg-primary text-white px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-all font-medium shadow-md hover:shadow-lg">
+                                                S'inscrire
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

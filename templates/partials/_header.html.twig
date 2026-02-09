@@ -1,0 +1,161 @@
+{# Header/Navbar from source template - simplified version #}
+<header class="nxl-header">
+    <div class="header-wrapper">
+        {# Header Left #}
+        <div class="header-left d-flex align-items-center gap-4">
+            {# Mobile toggler #}
+            <a href="javascript:void(0);" class="nxl-head-mobile-toggler" id="mobile-collapse">
+                <div class="hamburger hamburger--arrowturn">
+                    <div class="hamburger-box">
+                        <div class="hamburger-inner"></div>
+                    </div>
+                </div>
+            </a>
+            
+            {# Navigation toggle #}
+            <div class="nxl-navigation-toggle">
+                <a href="javascript:void(0);" id="menu-mini-button">
+                    <i class="feather-align-left"></i>
+                </a>
+                <a href="javascript:void(0);" id="menu-expend-button" style="display: none">
+                    <i class="feather-arrow-right"></i>
+                </a>
+            </div>
+            
+            {# Mobile menu toggle #}
+            <div class="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
+                <a href="javascript:void(0);" id="nxl-lavel-mega-menu-open">
+                    <i class="feather-align-left"></i>
+                </a>
+            </div>
+            
+            {# Mega menu #}
+            <div class="nxl-drp-link nxl-lavel-mega-menu">
+                <div class="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
+                    <a href="javascript:void(0)" id="nxl-lavel-mega-menu-hide">
+                        <i class="feather-arrow-left me-2"></i>
+                        <span>Back</span>
+                    </a>
+                </div>
+                <div class="nxl-lavel-mega-menu-wrapper d-flex gap-3">
+                    <div class="dropdown nxl-h-item nxl-mega-menu">
+                        <a href="{{ path('front_home') }}" class="btn btn-light-brand">GO TO FRONT</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {# Header Right #}
+        <div class="header-right ms-auto">
+            <div class="d-flex align-items-center">
+                {# Search #}
+                <div class="dropdown nxl-h-item nxl-header-search">
+                    <a href="javascript:void(0);" class="nxl-head-link me-0" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <i class="feather-search"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-search-dropdown">
+                        <div class="input-group search-form">
+                            <span class="input-group-text">
+                                <i class="feather-search fs-6 text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control search-input-field" placeholder="Search...." />
+                            <span class="input-group-text">
+                                <button type="button" class="btn-close"></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                {# Fullscreen toggle #}
+                <div class="nxl-h-item d-none d-sm-flex">
+                    <div class="full-screen-switcher">
+                        <a href="javascript:void(0);" class="nxl-head-link me-0" onclick="$('body').fullScreenHelper('toggle');">
+                            <i class="feather-maximize maximize"></i>
+                            <i class="feather-minimize minimize"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                {# Dark/Light theme toggle #}
+                <div class="nxl-h-item dark-light-theme">
+                    <a href="javascript:void(0);" class="nxl-head-link me-0 dark-button">
+                        <i class="feather-moon"></i>
+                    </a>
+                    <a href="javascript:void(0);" class="nxl-head-link me-0 light-button" style="display: none">
+                        <i class="feather-sun"></i>
+                    </a>
+                </div>
+                
+                {# Notifications #}
+                <div class="dropdown nxl-h-item" id="notifications-container">
+                    {{ render(controller('App\\Controller\\HomeController::notifications')) }}
+                </div>
+                
+                {# User profile dropdown #}
+                <div class="dropdown nxl-h-item">
+                    <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
+                        <img src="{{ asset('assets/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar me-0" />
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown">
+                        <div class="dropdown-header">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ asset('assets/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar" />
+                                <div>
+                                    <h6 class="text-dark mb-0">{% if app.user %}{{ app.user.nom }} {{ app.user.prenom }}{% else %}Utilisateur{% endif %} <span class="badge bg-soft-success text-success ms-1">PRO</span></h6>
+                                    <span class="fs-12 fw-medium text-muted">{% if app.user %}{{ app.user.email }}{% endif %}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0);" class="dropdown-item">
+                            <i class="feather-user"></i>
+                            <span>Profile Details</span>
+                        </a>
+                        <a href="javascript:void(0);" class="dropdown-item">
+                            <i class="feather-settings"></i>
+                            <span>Account Settings</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ path('app_logout') }}" class="dropdown-item">
+                            <i class="feather-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    /* Hover dropdown logic */
+    @media (min-width: 992px) {
+        .dropdown.nxl-h-item:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userDropdown = document.querySelector('.dropdown.nxl-h-item:last-child');
+        if (userDropdown) {
+            userDropdown.addEventListener('mouseenter', function() {
+                const menu = this.querySelector('.dropdown-menu');
+                if (menu) {
+                    menu.classList.add('show');
+                }
+            });
+            userDropdown.addEventListener('mouseleave', function() {
+                const menu = this.querySelector('.dropdown-menu');
+                if (menu) {
+                    menu.classList.remove('show');
+                }
+            });
+        }
+    });
+</script>

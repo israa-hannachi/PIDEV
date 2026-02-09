@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/css/login-dashboard.css') }}">
+    <style>
+        /* Override base background for login page */
+        body {
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        .login-dashboard {
+            height: 100vh;
+        }
+        .login-logo__image {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="login-dashboard">
+    <div class="login-dashboard__container">
+        <!-- Left Section - Login Form -->
+        <section class="login-section">
+            <div class="login-section__inner">
+                <!-- Logo -->
+                <header class="login-logo">
+                    <img src="{{ asset('assets/images/brand/login-logo.png') }}" alt="Dashboard Logo" class="login-logo__image">
+                </header>
+
+                <!-- Login Form -->
+                <div class="login-form-container">
+                    <div class="login-form__header">
+                        <h1 class="login-form__title">Welcome Back</h1>
+                        <p class="login-form__subtitle">Sign in to access your dashboard</p>
+                    </div>
+
+                    {% if error %}
+                        <div class="alert alert-danger" style="border-radius: 0.5rem; margin-bottom: 1rem;">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form class="login-form" method="post">
+                        <!-- Email Input -->
+                        <div class="form-group">
+                            <label htmlFor="email" class="form-label">Email Address</label>
+                            <input
+                                id="email"
+                                type="email"
+                                name="_username"
+                                value="{{ last_username }}"
+                                placeholder="you@example.com"
+                                class="form-input"
+                                autocomplete="email"
+                                required
+                                autofocus
+                            >
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="form-group">
+                            <label htmlFor="password" class="form-label">Password</label>
+                            <input
+                                id="password"
+                                type="password"
+                                name="_password"
+                                placeholder="Enter your password"
+                                class="form-input"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="form-options">
+                            <label class="form-checkbox-group">
+                                <input type="checkbox" name="_remember_me" class="form-checkbox">
+                                <span class="form-checkbox-label">Remember me</span>
+                            </label>
+                            <a href="#" class="form-link">Forgot password?</a>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button type="submit" class="btn-primary">
+                            Login to Dashboard
+                        </button>
+                    </form>
+
+                    <!-- Helper Text -->
+                    <p class="login-form__footer">
+                        Don't have an account? <a href="#" class="form-link">Sign up here</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Section - Dashboard Preview -->
+        <aside class="dashboard-preview">
+            <!-- Decorative Elements -->
+            <div class="dashboard-preview__decorations">
+                <div class="decoration-blur-1"></div>
+                <div class="decoration-blur-2"></div>
+            </div>
+
+            <!-- Dashboard Preview Cards -->
+            <div class="dashboard-cards">
+                <!-- Analytics Card -->
+                <article class="dashboard-card shadow">
+                    <div class="analytics-card__header">
+                        <h3 class="analytics-card__title">Analytics Overview</h3>
+                        <div class="analytics-card__icon">
+                            <div class="analytics-card__icon-inner"></div>
+                        </div>
+                    </div>
+                    <div class="analytics-card__progress">
+                        <div class="progress-bar">
+                            <div class="progress-bar__fill progress-bar__fill--75" style="width: 75%"></div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-bar__fill progress-bar__fill--50" style="width: 50%"></div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-bar__fill progress-bar__fill--85" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-card__label">Active Students</div>
+                        <div class="stat-card__value">1,247</div>
+                        <div class="stat-card__progress">
+                            <div class="stat-progress-bar">
+                                <div class="stat-progress-bar__fill stat-progress-bar__fill--teal" style="width: 66%"></div>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-card__label">Courses</div>
+                        <div class="stat-card__value">32</div>
+                        <div class="stat-card__progress">
+                            <div class="stat-progress-bar">
+                                <div class="stat-progress-bar__fill stat-progress-bar__fill--green" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Progress Card -->
+                <article class="dashboard-card">
+                    <h3 class="activity-card__title">Recent Activity</h3>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <span class="activity-item__indicator activity-item__indicator--green"></span>
+                            <span class="activity-item__content">🚀 Lancement de la plateforme Naja7ni</span>
+                        </li>
+                        <li class="activity-item">
+                            <span class="activity-item__indicator activity-item__indicator--teal"></span>
+                            <span class="activity-item__content">🔔 Mise à jour du tableau de bord</span>
+                        </li>
+                        <li class="activity-item">
+                            <span class="activity-item__indicator activity-item__indicator--green"></span>
+                            <span class="activity-item__content">📢 Annonce publiée par l'administration</span>
+                        </li>
+                    </ul>
+                </article>
+            </div>
+
+            <!-- Geometric Shapes -->
+            <div class="geometric-shape-1"></div>
+            <div class="geometric-shape-2"></div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

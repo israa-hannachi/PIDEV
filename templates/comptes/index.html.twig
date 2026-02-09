@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}NAJA7NI || Liste des Comptes{% endblock %}
+
+{% block body %}
+    {% include 'partials/_sidebar.html.twig' %}
+    {% include 'partials/_header.html.twig' %}
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Liste des Comptes</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item">Comptes</li>
+                    </ul>
+                </div>
+                <div class="page-header-right ms-auto">
+                    <a href="{{ path('app_comptes_export_pdf') }}" class="btn btn-primary">
+                        <i class="feather-download me-2"></i>
+                        Exporter en PDF
+                    </a>
+                </div>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success m-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card stretch stretch-full">
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Prénom</th>
+                                                <th>Email</th>
+                                                <th>Role</th>
+                                                <th>Statut</th>
+                                                <th>Date de Création</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for user in users %}
+                                            <tr>
+                                                <td>{{ user.nom }}</td>
+                                                <td>{{ user.prenom }}</td>
+                                                <td>{{ user.email }}</td>
+                                                <td>
+                                                    <span class="badge bg-soft-primary text-primary">{{ user.role }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if user.statut == 'ACTIF' %}
+                                                        <span class="badge bg-soft-success text-success">Actif</span>
+                                                    {% else %}
+                                                        <span class="badge bg-soft-danger text-danger">Inactif</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ user.dateCreation ? user.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+                                                <td class="text-end">
+                                                    <form action="{{ path('app_comptes_toggle_status', {'id': user.id}) }}" method="POST" style="display:inline;">
+                                                        <button type="submit" class="btn btn-sm {{ user.statut == 'ACTIF' ? 'btn-soft-danger' : 'btn-soft-success' }}">
+                                                            {{ user.statut == 'ACTIF' ? 'Désactiver' : 'Activer' }}
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="7" class="text-center">Aucun compte trouvé</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

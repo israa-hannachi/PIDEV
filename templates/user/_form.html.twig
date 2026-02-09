@@ -1,0 +1,39 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {{ form_label(form.nom, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
+            {{ form_errors(form.nom) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_label(form.prenom, 'Prénom', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.prenom, {'attr': {'class': 'form-control', 'placeholder': 'Prénom'}}) }}
+            {{ form_errors(form.prenom) }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {{ form_label(form.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Email'}}) }}
+            {{ form_errors(form.email) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_label(form.mot_de_passe, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.mot_de_passe, {'attr': {'class': 'form-control', 'placeholder': 'Mot de passe'}}) }}
+            {{ form_errors(form.mot_de_passe) }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {{ form_label(form.role, 'Rôle', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.role, {'attr': {'class': 'form-select'}}) }}
+            {{ form_errors(form.role) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_label(form.statut, 'Statut', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.statut, {'attr': {'class': 'form-select'}}) }}
+            {{ form_errors(form.statut) }}
+        </div>
+    </div>
+    <button class="btn btn-primary">{{ button_label|default('Sauvegarder') }}</button>
+{{ form_end(form) }}
