@@ -1,0 +1,89 @@
+{{ form_start(form, {'attr': {'class': 'row g-3', 'novalidate': 'novalidate'}}) }}
+    {% if not form.vars.valid %}
+        <div class="col-12">
+            <div class="alert alert-danger border-0 shadow-sm mb-4">
+                {{ form_errors(form) }}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="col-md-12">
+        {{ form_label(form.titre, "Titre du cours", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre du cours'}}) }}
+        {{ form_errors(form.titre) }}
+    </div>
+
+    <div class="col-md-12">
+        {{ form_label(form.description, "Description", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '3', 'placeholder': 'Décrivez le contenu du cours'}}) }}
+        {{ form_errors(form.description) }}
+    </div>
+
+    <div class="col-12 mt-4">
+        <div class="p-3 rounded-lg bg-light text-muted fs-12 mb-3">
+            <i class="feather-info me-1"></i> Choisissez un seul mode de contenu : <strong>texte</strong> ou <strong>fichier</strong>.
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        {{ form_label(form.contenu, "Contenu texte", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.contenu, {'attr': {'class': 'form-control js-richtext', 'rows': '8'}}) }}
+        {{ form_errors(form.contenu) }}
+    </div>
+
+    <div class="col-md-12">
+        {{ form_label(form.fichierContenu, "Ou uploader un fichier", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.fichierContenu, {'attr': {'class': 'form-control'}}) }}
+        <div class="form-text mt-1 fs-11">Formats acceptés : txt, pdf, doc, docx, ppt, pptx, png, jpg (max 10Mo)</div>
+        {{ form_errors(form.fichierContenu) }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form_label(form.duree, "Durée (en minutes)", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.duree, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 45'}}) }}
+        {{ form_errors(form.duree) }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form_label(form.ordre, "Ordre d'affichage", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.ordre, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 1'}}) }}
+        {{ form_errors(form.ordre) }}
+    </div>
+
+    <div class="col-md-12">
+        {{ form_label(form.module, "Module", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+        {{ form_widget(form.module, {'attr': {'class': 'form-control select2'}}) }}
+        {{ form_errors(form.module) }}
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-check form-switch mt-2">
+            {{ form_widget(form.actif, {'attr': {'class': 'form-check-input'}}) }}
+            {{ form_label(form.actif, "Cours actif", {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
+        </div>
+        {{ form_errors(form.actif) }}
+    </div>
+
+    <div class="col-12 mt-5 pt-3 border-t">
+        <div class="d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="feather-save me-1"></i> {{ button_label|default('Enregistrer') }}
+            </button>
+        </div>
+    </div>
+
+    {% set _tinymceKey = (tinymce_api_key|default('')|trim) %}
+    <script src="https://cdn.tiny.cloud/1/{{ _tinymceKey ?: 'no-api-key' }}/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        if (window.tinymce) {
+            window.tinymce.init({
+                selector: 'textarea.js-richtext',
+                height: 320,
+                menubar: false,
+                plugins: 'lists link image table code autoresize',
+                toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image table | code',
+                branding: false
+            });
+        }
+    </script>
+{{ form_end(form) }}

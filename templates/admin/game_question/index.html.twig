@@ -1,0 +1,39 @@
+<h1>Liste des questions</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Texte</th>
+            <th>Option 1</th>
+            <th>Option 2</th>
+            <th>Option 3</th>
+            <th>Option 4</th>
+            <th>Réponse correcte</th>
+            <th>Jeu associé</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+            <tr>
+                <td>{{ question.questionText }}</td>
+                <td>{{ question.option1 }}</td>
+                <td>{{ question.option2 }}</td>
+                <td>{{ question.option3 }}</td>
+                <td>{{ question.option4 }}</td>
+                <td>{{ question.correctAnswer }}</td>
+                <td>{{ question.game.titre }}</td>
+                <td>
+                    <a href="{{ path('admin_gamequestion_edit', {id: question.id}) }}">Modifier</a>
+                    <a href="{{ path('admin_gamequestion_delete', {id: question.id}) }}">Supprimer</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucune question trouvée</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('admin_gamequestion_new') }}">➕ Ajouter une nouvelle question</a>

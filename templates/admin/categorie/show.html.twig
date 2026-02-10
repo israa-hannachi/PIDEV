@@ -1,0 +1,105 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Category Details - {{ categorie.nom }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('admin_categorie_index') }}">Categories</a></li>
+    <li class="breadcrumb-item active">Details</li>
+{% endblock %}
+
+{% block header_title %}Category Information{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ categorie.nom }}</h5>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('admin_module_new', {'categorie': categorie.id}) }}" class="btn btn-primary btn-sm">
+                                <i class="feather-plus me-1"></i> Add Module
+                            </a>
+                            <a href="{{ path('admin_categorie_edit', {'id': categorie.id}) }}" class="btn btn-light btn-sm text-primary">
+                                <i class="feather-edit me-1"></i> Edit Category
+                            </a>
+                            {{ include('categorie/_delete_form.html.twig') }}
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted fw-bold fs-11 mb-2">Description</h6>
+                            <p class="text-dark">{{ categorie.description ? categorie.description : 'No description available for this category.' }}</p>
+                        </div>
+
+                        <div class="pt-4 border-t">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="text-uppercase text-muted fw-bold fs-11 mb-0">Modules ({{ modules|length }})</h6>
+                                <div class="dropdown">
+                                    {% set _sort = sort_modules|default('date_desc') %}
+                                    {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Recent') %}
+                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Sort: {{ _sortLabel }}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                        <li><a class="dropdown-item fs-13" href="{{ path('admin_categorie_show', {'id': categorie.id, 'sort_modules': 'date_desc'}) }}">Recent First</a></li>
+                                        <li><a class="dropdown-item fs-13" href="{{ path('admin_categorie_show', {'id': categorie.id, 'sort_modules': 'alpha_asc'}) }}">A → Z</a></li>
+                                        <li><a class="dropdown-item fs-13" href="{{ path('admin_categorie_show', {'id': categorie.id, 'sort_modules': 'alpha_desc'}) }}">Z → A</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {% if modules|length > 0 %}
+                                <div class="row">
+                                    {% for module in modules %}
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card border border-light-subtle h-100">
+                                                <div class="card-body p-4">
+                                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                                        <div class="avatar avatar-sm bg-secondary-subtle rounded text-secondary border border-secondary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                            <i class="feather-layers fs-18"></i>
+                                                        </div>
+                                                        <div class="d-flex gap-1">
+                                                            <a href="{{ path('admin_module_show', {'id': module.id}) }}" class="btn btn-icon btn-sm btn-light text-primary" title="View">
+                                                                <i class="feather-eye"></i>
+                                                            </a>
+                                                            <a href="{{ path('admin_module_edit', {'id': module.id}) }}" class="btn btn-icon btn-sm btn-light text-warning" title="Edit">
+                                                                <i class="feather-edit"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="fw-bold text-dark mb-2">{{ module.titre }}</h6>
+                                                    <p class="text-muted fs-13 mb-3">{{ module.description|slice(0, 100) }}{% if module.description|length > 100 %}...{% endif %}</p>
+                                                    <div class="d-flex gap-3 text-muted fs-12">
+                                                        <span><i class="feather-book me-1"></i> {{ module.cours|length }} Courses</span>
+                                                        <span><i class="feather-clock me-1"></i> {{ module.duree }}h</span>
+                                                        {% if module.niveau %}
+                                                            <span><i class="feather-signal me-1"></i> {{ module.niveau }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-light border text-center py-5">
+                                    <div class="mb-3">
+                                        <i class="feather-folderfs-48 text-muted opacity-50"></i>
+                                    </div>
+                                    <h6 class="text-muted mb-0">No modules found in this category.</h6>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white py-3 border-0 border-t">
+                        <a href="{{ path('admin_categorie_index') }}" class="btn btn-light w-100">
+                            <i class="feather-arrow-left me-1"></i> Back to Categories
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

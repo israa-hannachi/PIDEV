@@ -1,0 +1,52 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}Jeux disponibles{% endblock %}
+
+{% block body %}
+
+
+<!-- Grille des jeux -->
+<h2 class="text-2xl font-bold mb-6">Jeux Disponibles</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for game in games %}
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6 hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1 hover:border-blue-200">
+            <!-- Icône / Emoji -->
+           <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform shadow-blue-500/20 shadow-lg">
+
+    {% if game.type == 'qcm' %}
+        🧠
+    {% elseif game.type == 'math' %}
+        🔢
+    {% elseif game.type == 'vraie ou faux' %}
+        ✅
+    {% else %}
+        🎮
+    {% endif %}
+</div>
+
+            <!-- Titre du jeu -->
+            <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                {{ game.titre }}
+            </h3>
+            <p class="text-sm text-muted-foreground mb-6">
+                Type : {{ game.type }} | Niveau : {{ game.niveau }}
+            </p>
+           
+            <!-- Bouton Jouer -->
+            <div class="flex items-center justify-between pt-4 border-t border-border/50">
+                <span class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                    Tentatives : {{ game.attemptNumber }}
+                </span>
+                <a href="{{ path('game_play', {id: game.id}) }}"
+                   class="bg-primary text-white px-5 py-2 rounded-xl hover:bg-primary/90 transition-all font-medium flex items-center gap-2 shadow-md hover:shadow-lg">
+                    <i data-lucide="play" class="w-4 h-4"></i>
+                    Jouer
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted-foreground">Aucun jeu disponible pour le moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

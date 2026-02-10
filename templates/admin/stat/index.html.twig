@@ -1,0 +1,111 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Game Analytics & Statistics - Admin{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Analytics</li>
+{% endblock %}
+
+{% block header_title %}Game Performance Analytics{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-primary text-white">
+                    <div class="card-body p-4 text-center">
+                        <div class="fs-12 text-uppercase opacity-75 mb-1 font-bold">Best Score</div>
+                        <h4 class="mb-0 fw-bold">{{ bestGame.titre|default('N/A') }}</h4>
+                        {% if bestGame %}
+                            <div class="fs-13 mt-1">{{ bestGame.avgScore }}% Avg. Accuracy</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-warning text-white">
+                    <div class="card-body p-4 text-center">
+                        <div class="fs-12 text-uppercase opacity-75 mb-1 font-bold">Most Attempted</div>
+                        <h4 class="mb-0 fw-bold">{{ mostAttempted.titre|default('N/A') }}</h4>
+                        {% if mostAttempted %}
+                            <div class="fs-13 mt-1">{{ mostAttempted.attemptNumber }} attempts</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-info text-white">
+                    <div class="card-body p-4 text-center">
+                        <div class="fs-12 text-uppercase opacity-75 mb-1 font-bold">Total Games</div>
+                        <h4 class="mb-0 fw-bold fs-24 tracking-tight">{{ labels|length }}</h4>
+                        <div class="fs-13 mt-1">Active gamified modules</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-danger text-white">
+                    <div class="card-body p-4 text-center">
+                        <div class="fs-12 text-uppercase opacity-75 mb-1 font-bold">Lowest Score</div>
+                        <h4 class="mb-0 fw-bold">{{ worstGame.titre|default('N/A') }}</h4>
+                        {% if worstGame %}
+                            <div class="fs-13 mt-1">{{ worstGame.avgScore }}% Avg. Accuracy</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">Overall Performance Chart</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <canvas id="gameStatsChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('gameStatsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ labels|json_encode|raw }},
+                datasets: [{
+                    label: 'Average Score (%)',
+                    data: {{ scores|json_encode|raw }},
+                    backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 1
+                }, {
+                    label: 'Attempts',
+                    data: {{ attempts|json_encode|raw }},
+                    type: 'line',
+                    borderColor: 'rgb(245, 158, 11)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

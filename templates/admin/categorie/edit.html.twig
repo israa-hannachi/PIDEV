@@ -1,0 +1,34 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Edit Category - {{ categorie.nom }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('admin_categorie_index') }}">Categories</a></li>
+    <li class="breadcrumb-item active">Edit Category</li>
+{% endblock %}
+
+{% block header_title %}Edit Category: {{ categorie.nom }}{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Category Details</h5>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('admin_categorie_index') }}" class="btn btn-light btn-sm">
+                                <i class="feather-arrow-left me-1"></i> Back to List
+                            </a>
+                            {{ include('admin/categorie/_delete_form.html.twig') }}
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ include('admin/categorie/_form.html.twig', {'button_label': 'Update Category'}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

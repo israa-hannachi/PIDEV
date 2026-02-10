@@ -1,0 +1,135 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin Dashboard - NAJA7NI{% endblock %}
+
+{% block header_title %}System Overview{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <!-- Summary Cards -->
+        <div class="row">
+            <!-- Events Section -->
+            <div class="col-xxl-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm overflow-hidden h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="avatar-text bg-primary-subtle text-primary">
+                                <i class="feather-calendar fs-4"></i>
+                            </div>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Events Module</span>
+                        </div>
+                        <h2 class="fw-bold mb-1">{{ total_events }}</h2>
+                        <p class="text-muted mb-4">Active events managed</p>
+                        <div class="row g-2 border-top pt-3">
+                            <div class="col-6">
+                                <div class="fs-11 text-muted text-uppercase fw-bold">Registrations</div>
+                                <div class="fw-bold text-dark">{{ total_registrations }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="fs-11 text-muted text-uppercase fw-bold">Revenue</div>
+                                <div class="fw-bold text-success">{{ total_revenue|number_format(2) }} €</div>
+                            </div>
+                        </div>
+                        <a href="{{ path('admin_event_index') }}" class="btn btn-light w-100 mt-4">Manage Events <i class="feather-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Section -->
+            <div class="col-xxl-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm overflow-hidden h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="avatar-text bg-info-subtle text-info">
+                                <i class="feather-book-open fs-4"></i>
+                            </div>
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">Learning Center</span>
+                        </div>
+                        <h2 class="fw-bold mb-1">{{ total_modules }}</h2>
+                        <p class="text-muted mb-4">Educational modules</p>
+                        <div class="row g-2 border-top pt-3">
+                            <div class="col-6">
+                                <div class="fs-11 text-muted text-uppercase fw-bold">Categories</div>
+                                <div class="fw-bold text-dark">{{ total_categories }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="fs-11 text-muted text-uppercase fw-bold">Courses</div>
+                                <div class="fw-bold text-dark">{{ total_cours }}</div>
+                            </div>
+                        </div>
+                        <a href="{{ path('admin_module_index') }}" class="btn btn-light w-100 mt-4">Manage Content <i class="feather-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Section -->
+            <div class="col-xxl-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm overflow-hidden h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="avatar-text bg-success-subtle text-success">
+                                <i class="feather-play-circle fs-4"></i>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">Gamification</span>
+                        </div>
+                        <h2 class="fw-bold mb-1">{{ total_games }}</h2>
+                        <p class="text-muted mb-4">Interactive games</p>
+                        <div class="row g-2 border-top pt-3">
+                            <div class="col-6">
+                                <div class="fs-11 text-muted text-uppercase fw-bold">Avg. Accuracy</div>
+                                <div class="fw-bold text-dark">{{ global_avg_score }}%</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="fs-11 text-muted text-uppercase fw-bold">Status</div>
+                                <div class="fw-bold text-success">Operational</div>
+                            </div>
+                        </div>
+                        <a href="{{ path('admin_game_index') }}" class="btn btn-light w-100 mt-4">Manage Games <i class="feather-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status & Recent Activity (Placeholder for robustness) -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">Quick Action Hub</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="{{ path('admin_event_new') }}" class="btn btn-primary-subtle text-primary border border-primary-subtle py-3 px-4 rounded-xl d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="feather-plus"></i>
+                                </div>
+                                <div class="text-start">
+                                    <div class="fw-bold">New Event</div>
+                                    <div class="fs-11 opacity-75">Plan a gathering</div>
+                                </div>
+                            </a>
+                            <a href="{{ path('admin_module_index') }}" class="btn btn-info-subtle text-info border border-info-subtle py-3 px-4 rounded-xl d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="feather-book"></i>
+                                </div>
+                                <div class="text-start">
+                                    <div class="fw-bold">New Content</div>
+                                    <div class="fs-11 opacity-75">Add curriculum</div>
+                                </div>
+                            </a>
+                            <a href="{{ path('admin_game_new') }}" class="btn btn-success-subtle text-success border border-success-subtle py-3 px-4 rounded-xl d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="feather-target"></i>
+                                </div>
+                                <div class="text-start">
+                                    <div class="fw-bold">New Quiz</div>
+                                    <div class="fs-11 opacity-75">Engage students</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

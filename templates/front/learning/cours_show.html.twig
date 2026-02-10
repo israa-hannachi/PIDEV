@@ -1,0 +1,84 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}{{ cour.titre }}{% endblock %}
+
+{% block body %}
+<div class="p-8 max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="mb-10">
+        <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <a href="{{ path('app_categorie_index') }}" class="hover:text-primary transition-colors">Learning</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ path('app_module_show', {id: cour.module.id}) }}" class="hover:text-primary transition-colors">{{ cour.module.titre }}</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-foreground font-medium">{{ cour.titre }}</span>
+        </nav>
+        
+        <h1 class="text-4xl font-extrabold text-foreground mb-4">{{ cour.titre }}</h1>
+        <div class="flex items-center gap-6 text-sm">
+            <span class="flex items-center gap-2 text-muted-foreground">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                Mis à jour le {{ cour.dateCreation|date('d/m/Y') }}
+            </span>
+            <span class="flex items-center gap-2 text-muted-foreground">
+                <i data-lucide="tag" class="w-4 h-4"></i>
+                {{ cour.module.titre }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="bg-card border border-border rounded-3xl p-8 lg:p-12 shadow-sm mb-10">
+        {% if cour.fichierContenu %}
+            <div class="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-border rounded-2xl bg-muted/20">
+                <div class="w-20 h-20 rounded-3xl bg-red-500/10 text-red-500 flex items-center justify-center mb-6">
+                    <i data-lucide="file-pdf" class="w-12 h-12"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">Contenu PDF disponible</h3>
+                <p class="text-muted-foreground mb-8 max-w-md">Ce cours est disponible au format PDF pour une lecture hors-ligne plus confortable.</p>
+                <a href="{{ asset('uploads/cours/' ~ cour.fichierContenu) }}" target="_blank" class="px-8 py-4 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all flex items-center gap-3 shadow-lg shadow-red-500/20">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                    Télécharger le cours (PDF)
+                </a>
+            </div>
+        {% elseif cour.contenu %}
+            <div class="prose prose-lg max-w-none text-foreground leading-relaxed">
+                {{ cour.contenu|raw }}
+            </div>
+        {% else %}
+            <div class="text-center py-20 grayscale opacity-50">
+                <i data-lucide="ghost" class="w-16 h-16 mx-auto mb-4"></i>
+                <p class="text-xl font-bold">Contenu en cours de rédaction...</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-6 py-10 border-t border-border mt-10">
+        <a href="{{ path('app_module_show', {id: cour.module.id}) }}" class="flex items-center gap-3 text-foreground font-bold hover:text-primary transition-colors group">
+            <div class="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </div>
+            Retour au module
+        </a>
+        
+        <div class="flex gap-4">
+            {% if cour.games|length > 0 %}
+                <a href="{{ path('game_play', {id: cour.games|first.id}) }}" class="px-6 py-3 bg-emerald-500/10 text-emerald-600 rounded-xl font-bold hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2">
+                    <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                    Jouer au Quiz du cours
+                </a>
+            {% else %}
+                <a href="{{ path('game_front_list') }}" class="px-6 py-3 bg-emerald-500/10 text-emerald-600 rounded-xl font-bold hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2">
+                    <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                    Pratiquer avec un Jeu
+                </a>
+            {% endif %}
+            <a href="{{ path('app_front_chat') }}" class="px-6 py-3 bg-primary/10 text-primary rounded-xl font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                Poser une question
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Create New Game - Admin{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('admin_game_index') }}">Games</a></li>
+    <li class="breadcrumb-item active">New Game</li>
+{% endblock %}
+
+{% block header_title %}Create New Game{% endblock %}
+
+{% block body %}
+    <div class="main-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">Game Details</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'row g-3'}}) }}
+                            <div class="col-md-12">
+                                {{ form_label(form.titre, "Titre du jeu", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Quiz Mathématique'}}) }}
+                                {{ form_errors(form.titre) }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                {{ form_label(form.type, "Type du jeu", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.type, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Quiz, Puzzle'}}) }}
+                                {{ form_errors(form.type) }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                {{ form_label(form.niveau, "Niveau", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.niveau, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Débutant, Intermédiaire'}}) }}
+                                {{ form_errors(form.niveau) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form_label(form.scoreMax, "Score maximum", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.scoreMax, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.scoreMax) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form_label(form.attemptNumber, "Nombre de tentatives", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.attemptNumber, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.attemptNumber) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form_label(form.duration, "Durée (en secondes)", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.duration, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.duration) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form_label(form.cours, "Cours associé", {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.cours, {'attr': {'class': 'form-control select2'}}) }}
+                                {{ form_errors(form.cours) }}
+                            </div>
+
+                            <div class="col-12 mt-4 pt-3 border-t">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="feather-save me-1"></i> Save Game
+                                    </button>
+                                    <a href="{{ path('admin_game_index') }}" class="btn btn-light px-4">
+                                        <i class="feather-x me-1"></i> Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

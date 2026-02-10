@@ -1,0 +1,115 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}{{ module.titre }}{% endblock %}
+
+{% block body %}
+<div class="p-8">
+    <!-- Header -->
+    <div class="mb-10">
+        <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <a href="{{ path('app_front_home') }}" class="hover:text-primary transition-colors">Accueil</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ path('app_categorie_index') }}" class="hover:text-primary transition-colors">Learning</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ path('app_categorie_show', {id: module.categorie.id}) }}" class="hover:text-primary transition-colors">{{ module.categorie.nom }}</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-foreground font-medium">{{ module.titre }}</span>
+        </nav>
+        
+        <div class="flex items-start justify-between gap-6">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+                        {{ module.categorie.nom }}
+                    </span>
+                    <span class="text-muted-foreground text-sm">
+                        {{ module.cours|length }} Cours disponibles
+                    </span>
+                </div>
+                <h1 class="text-4xl font-extrabold text-foreground mb-4">{{ module.titre }}</h1>
+                <p class="text-lg text-muted-foreground max-w-3xl leading-relaxed">{{ module.description }}</p>
+            </div>
+            
+            <div class="w-72 bg-card border border-border rounded-2xl p-6 shadow-sm">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="gamepad-2" class="w-10 h-10"></i>
+                    </div>
+                    <h4 class="font-bold text-lg">Prêt pour un défi ?</h4>
+                    <p class="text-xs text-muted-foreground mt-1">Testez vos connaissances sur ce module</p>
+                </div>
+                <a href="{{ path('game_front_list') }}" class="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="play" class="w-4 h-4"></i>
+                    Jouer au Quiz
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses List -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <i data-lucide="book-open" class="w-6 h-6 text-primary"></i>
+                Programme du Module
+            </h2>
+            
+            <div class="space-y-4">
+                {% for cour in module.cours %}
+                    <div class="bg-card border border-border rounded-2xl p-6 hover:border-primary transition-all group flex items-center justify-between">
+                        <div class="flex items-center gap-6">
+                            <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                <span class="font-bold text-lg">{{ loop.index }}</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">{{ cour.titre }}</h3>
+                                <div class="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                        Lecture estimée
+                                    </span>
+                                    {% if cour.fichierContenu %}
+                                        <span class="flex items-center gap-1 text-emerald-600">
+                                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                                            PDF Inclus
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ path('app_cours_show', {id: cour.id}) }}" class="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all group-hover:translate-x-1">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-20 bg-muted/30 rounded-3xl border-2 border-dashed border-border">
+                        <i data-lucide="layout" class="w-12 h-12 text-muted-foreground mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-muted-foreground">Aucun cours disponible</h3>
+                        <p class="text-muted-foreground mt-2">Le contenu de ce module arrive bientôt !</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Sidebar context info (e.g. related events) -->
+        <div>
+            <h2 class="text-2xl font-bold mb-6">Prochains Événements</h2>
+            <div class="space-y-4">
+                {# Mocked or fetched events relevant to this learning context #}
+                <div class="bg-indigo-600 rounded-2xl p-6 text-white overflow-hidden relative group">
+                    <div class="relative z-10">
+                        <span class="px-2 py-0.5 rounded bg-white/20 text-[10px] font-bold uppercase mb-4 inline-block">Flash Event</span>
+                        <h3 class="text-xl font-bold mb-2">Webinaire {{ module.titre }}</h3>
+                        <p class="text-indigo-100 text-sm mb-6">Rejoignez nos experts pour une session de Q&A en direct le 15 Mars.</p>
+                        <a href="{{ path('app_front_home') }}#events" class="inline-flex items-center gap-2 text-sm font-bold bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
+                            Voir les détails
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                    <i data-lucide="zap" class="absolute -right-4 -bottom-4 w-32 h-32 text-white/10 transform -rotate-12 group-hover:scale-110 transition-transform"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

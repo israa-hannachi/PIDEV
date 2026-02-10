@@ -1,0 +1,50 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}Modules de {{ categorie.nom }}{% endblock %}
+
+{% block body %}
+<div class="p-8">
+    <!-- Header -->
+    <div class="mb-10">
+        <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <a href="{{ path('app_front_home') }}" class="hover:text-primary transition-colors">Accueil</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{{ path('app_categorie_index') }}" class="hover:text-primary transition-colors">Learning</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-foreground font-medium">{{ categorie.nom }}</span>
+        </nav>
+        
+        <h1 class="text-4xl font-extrabold text-foreground mb-4">{{ categorie.nom }}</h1>
+        <p class="text-lg text-muted-foreground max-w-3xl leading-relaxed">{{ categorie.description }}</p>
+    </div>
+
+    <!-- Modules Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for module in categorie.modules %}
+            <div class="bg-card border border-border rounded-2xl p-6 hover:shadow-lg transition-all group flex flex-col h-full">
+                <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
+                    <i data-lucide="layout" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">{{ module.titre }}</h3>
+                <p class="text-muted-foreground text-sm line-clamp-3 mb-6 flex-grow">{{ module.description }}</p>
+                
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-border">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {{ module.cours|length }} Cours
+                    </span>
+                    <a href="{{ path('app_module_show', {id: module.id}) }}" class="flex items-center gap-1 text-primary font-bold hover:gap-2 transition-all">
+                        Explorer
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-span-full text-center py-20 bg-muted/30 rounded-3xl border-2 border-dashed border-border">
+                <i data-lucide="layout" class="w-12 h-12 text-muted-foreground mx-auto mb-4"></i>
+                <h3 class="text-xl font-bold text-muted-foreground">Aucun module disponible</h3>
+                <p class="text-muted-foreground mt-2">Le contenu de cette catégorie arrive bientôt !</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
