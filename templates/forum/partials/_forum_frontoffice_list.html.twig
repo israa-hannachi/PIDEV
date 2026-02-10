@@ -1,0 +1,58 @@
+{% if forums|length > 0 %}
+    {% for forum in forums %}
+        <div class="forum-card">
+            <a href="{{ path('forum_show', {'forumId': forum.id}) }}" class="forum-title">
+                {{ forum.titre }}
+            </a>
+            
+            <div class="forum-meta">
+                <div class="forum-creator">
+                    <div class="creator-avatar">
+                        {{ forum.createdBy|first|upper }}
+                    </div>
+                    <span>{{ forum.createdBy }}</span>
+                </div>
+                <div>
+                    <i class="far fa-calendar me-1"></i>
+                    {{ forum.createdAt|date('d/m/Y H:i') }}
+                </div>
+                <div>
+                    {% if forum.isBlocked %}
+                        <span class="forum-status status-blocked">
+                            <i class="fas fa-lock me-1"></i>Bloqué
+                        </span>
+                    {% else %}
+                        <span class="forum-status status-active">
+                            <i class="fas fa-check-circle me-1"></i>Actif
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="forum-description">
+                Rejoignez la discussion sur {{ forum.titre }}. Partagez vos expériences, posez vos questions et apprenez des autres membres de la communauté.
+            </div>
+            
+            <div class="forum-actions">
+                <a href="{{ path('forum_show', {'forumId': forum.id}) }}" class="btn-forum btn-primary-forum">
+                    <i class="fas fa-comments me-2"></i>Voir les discussions
+                </a>
+                <small class="text-muted">
+                    <i class="fas fa-eye me-1"></i>{{ random(100, 999) }} vues
+                </small>
+                <small class="text-muted">
+                    <i class="fas fa-comment me-1"></i>{{ random(10, 99) }} messages
+                </small>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="no-forums">
+        <i class="fas fa-comments"></i>
+        <h3>Aucun forum trouvé</h3>
+        <p>Soyez le premier à créer un forum et lancer la discussion !</p>
+        <a href="{{ path('forum_new') }}" class="btn btn-primary mt-3">
+            <i class="fas fa-plus me-2"></i>Créer le premier forum
+        </a>
+    </div>
+{% endif %}

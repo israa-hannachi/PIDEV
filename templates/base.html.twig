@@ -1,91 +1,421 @@
-{# templates/base.html.twig #}
 <!DOCTYPE html>
-<html>
+<html lang="fr">
+<button id="sidebarToggle" class="sidebar-toggle">
+    ☰
+</button>
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Mon Forum{% endblock %}</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-    {# Bootstrap par CDN #}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{% block title %}NAJA7NI || Dashboard{% endblock %}</title>
 
-    {# Ajout des CSS du template #}
-    {% block stylesheets %}
-        <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-    {% endblock %}
-</head>
-<body class="container mt-4">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}"/>
 
-    {# Bloc pour afficher les messages flash #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label }} mt-2">
-                {{ message }}
-            </div>
-        {% endfor %}
+    <!-- CSRF Tokens -->
+    <meta name="csrf-token" content="{{ csrf_token('edit') }}">
+    {% for discussion in userDiscussions|default([]) %}
+        <meta name="csrf-token-edit-{{ discussion.id }}" content="{{ csrf_token('edit' ~ discussion.id) }}">
     {% endfor %}
 
-    {% block body %}
-    <div style="display:flex; align-items:center; margin-bottom:20px;"> 
-      <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height:70px; margin-right:200px;"> 
-      <h1 style="margin:0; margin-left:20px;">Liste des forums</h1> 
-    </div>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendors.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('assets/css/theme.min.css') }}"/>
+    <style>
+        /* Custom overrides - loaded after theme - MAX SPECIFICITY */
+        html body main#main-content.container-fluid,
+        body > main#main-content.container-fluid {
+            padding-top: 40px !important;
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            margin-top: 0 !important;
+            font-size: 0.85rem !important;
+        }
+        html body h1.mb-4,
+        body > main#main-content h1.mb-4 {
+            margin-bottom: 0.4rem !important;
+            font-size: 1.2rem !important;
+        }
+        html body .mb-3,
+        body > main#main-content .mb-3 {
+            margin-bottom: 0.4rem !important;
+        }
+    </style>
 
-    <a href="{{ path('forum_new') }}" class="btn btn-success mb-3">Créer un nouveau forum</a>
+    {% block stylesheets %}
+    <style>
+        /* ============================================
+           SIDEBAR TRÈS GRAND - VALEURS FIXES
+           ============================================ */
+        .nxl-navigation {
+            background-color: #ffffff !important;
+            max-width: 400px !important;
+            min-width: 100px !important;
+            width: 400px !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 28px !important;
+            height: calc(100vh - 28px) !important;
+            z-index: 1000 !important;
+            margin-left: 0 !important;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Texte du menu très grand */
+        .nxl-navbar .nxl-item > a {
+            background-color: transparent !important;
+            color: #333333 !important;
+            border-radius: 8px !important;
+            padding: 18px 22px !important;
+            font-size: 1.3rem !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        /* Icônes très grandes */
+        .nxl-navigation .nxl-micon {
+            color: #6c757d !important;
+            font-size: 32px !important;
+            margin-right: 20px !important;
+            min-width: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .nxl-navigation .nxl-micon svg {
+            width: 32px !important;
+            height: 32px !important;
+            stroke-width: 2 !important;
+        }
+        
+        /* Label Navigation */
+        .nxl-navbar .nxl-caption label {
+            color: #6c757d !important;
+            font-size: 1.1rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Contenu principal ajusté */
+        main.container-fluid {
+            margin-left: 250px !important;
+            width: calc(100% - 250px) !important;
+            min-height: calc(100vh - 28px) !important;
+        }
+        
+        /* État réduit aussi plus grand */
+        .nxl-navigation.collapsed {
+            margin-left: -330px !important;
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+        }
+        
+        .nxl-navigation.collapsed ~ main#main-content {
+            margin-left: 120px !important;
+            width: calc(100% - 120px) !important;
+        }
+        
+        .nxl-navigation.collapsed .nxl-micon {
+            font-size: 2rem !important;
+            margin-right: 0 !important;
+        }
+        
+        .nxl-navigation.collapsed .nxl-micon svg {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        .nxl-navbar {
+            background-color: #ffffff !important;
+        }
+        .nxl-navbar .nxl-item > a:hover {
+            background-color: #f8f9fa !important;
+            color: #2c3e50 !important;
+        }
+        /* Forums item highlighted */
+        .nxl-navbar .nxl-item.active > a,
+        .nxl-navbar .nxl-item.forum-active > a {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+            font-weight: 500;
+        }
+        .navbar-content {
+            background-color: #ffffff !important;
+        }
+        .nxl-submenu {
+            background-color: #f8f9fa !important;
+        }
+        .nxl-navigation .nxl-mtext {
+            color: #333333 !important;
+            font-weight: 400;
+        }
+        .nxl-navigation .nxl-arrow {
+            color: #6c757d !important;
+        }
+        h1.mb-4 {
+            margin-bottom: 0.4rem !important;
+            font-size: 1.2rem !important;
+        }
+        .mb-3 {
+            margin-bottom: 0.4rem !important;
+        }
 
-    {# Formulaire de recherche et filtres #}
-    <form id="filter-form" class="d-flex mb-3">
-        <input type="text" name="search" class="form-control me-2"
-               placeholder="Rechercher par titre"
-               value="{{ app.request.get('search') }}">
+        /* Header */
+        .nxl-header {
+            padding: 1px 0 !important;
+            min-height: 28px !important;
+            height: 28px !important;
+        }
+        .header-wrapper {
+            padding: 0 3px !important;
+            align-items: center;
+            height: 100%;
+        }
+        .header-left, .header-right {
+            align-items: center;
+        }
+        .user-avtar {
+            width: 20px !important;
+            height: 20px !important;
+        }
+        .b-brand .logo-lg {
+            max-width: 100px !important;
+            height: 24px !important;
+        }
+        .b-brand .logo-sm {
+            max-width: 20px !important;
+            height: 20px !important;
+        }
+        #sidebar-toggle {
+            width: 26px;
+            height: 26px;
+            font-size: 14px;
+        }
+        #mobile-collapse {
+            width: 26px;
+            height: 26px;
+            font-size: 14px;
+        }
+    </style>
+    {% endblock %}
+</head>
 
-        <select name="creator" class="form-select me-2">
-            <option value="">-- Créateur --</option>
-            <option value="Farah" {% if app.request.get('creator') == 'Farah' %}selected{% endif %}>Farah</option>
-            <option value="Isra" {% if app.request.get('creator') == 'Isra' %}selected{% endif %}>Isra</option>
-            <option value="Miriam" {% if app.request.get('creator') == 'Miriam' %}selected{% endif %}>Miriam</option>
-        </select>
+<body>
 
-        <select name="date" class="form-select me-2">
-            <option value="">-- Date --</option>
-            <option value="today" {% if app.request.get('date') == 'today' %}selected{% endif %}>Aujourd'hui</option>
-            <option value="week" {% if app.request.get('date') == 'week' %}selected{% endif %}>Cette semaine</option>
-        </select>
-
-        <select name="direction" class="form-select me-2">
-            <option value="asc" {% if app.request.get('direction') == 'asc' %}selected{% endif %}>Date croissante</option>
-            <option value="desc" {% if app.request.get('direction') == 'desc' %}selected{% endif %}>Date décroissante</option>
-        </select>
-
-        <button type="submit" class="btn btn-primary">Appliquer</button>
-    </form>
-
-    {# Conteneur qui sera rechargé par Ajax #}
-    <div id="forum-list">
-        {% include 'forum/partials/_forum_list.html.twig' with { forums: forums } %}
-    </div>
-
-    {# Script Ajax pour recharger la liste #}
-    <script>
-    document.getElementById('filter-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const params = new URLSearchParams(new FormData(this));
-
-        fetch('{{ path("app_forum_index") }}?' + params.toString(), {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('forum-list').innerHTML = html;
-        });
+<!-- Force sidebar width immediately -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.nxl-navigation');
+        const mainContent = document.querySelector('main#main-content');
+        if (sidebar) {
+            sidebar.style.width = '350px';
+            sidebar.style.maxWidth = '350px';
+            sidebar.style.minWidth = '120px';
+        }
+        if (mainContent) {
+            mainContent.style.marginLeft = '350px';
+            mainContent.style.width = 'calc(100% - 350px)';
+        }
     });
-    </script>
-    {% endblock %}
+</script>
 
-    {# Ajout des JS du template #}
-    {% block javascripts %}
-        <script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-        <script src="{{ asset('assets/js/main.js') }}"></script>
-    {% endblock %}
+<!-- ===================== SIDEBAR ===================== -->
+<nav class="nxl-navigation mob-navigation-active" style="width: 350px !important; max-width: 350px !important; min-width: 120px !important;">
+    <div class="navbar-wrapper">
+        <div class="m-header">
+            <a href="{{ path('app_home') }}" class="b-brand">
+                <img src="{{ asset('assets/images/long logo.png') }}" class="logo logo-lg" style="max-width:160px"/>
+                <img src="{{ asset('assets/images/small.png') }}" class="logo logo-sm"/>
+            </a>
+        </div>
+
+        <div class="navbar-content">
+            <ul class="nxl-navbar">
+
+                <li class="nxl-item nxl-caption">
+                    <label>Navigation</label>
+                </li>
+
+                <!-- Dashboard -->
+                <li class="nxl-item">
+                    <a href="{{ path('app_home') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                        <span class="nxl-mtext">Dashboard</span>
+                    </a>
+                </li>
+
+                <!-- Comptes -->
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="#" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-users"></i></span>
+                        <span class="nxl-mtext">Comptes</span>
+                        <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_user_index') }}">Liste des comptes</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Catégories -->
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="{{ path('app_forum_index') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-list"></i></span>
+                        <span class="nxl-mtext">Catégories</span>
+                    </a>
+                </li>
+
+                <!-- Jeux -->
+                <li class="nxl-item">
+                    <a href="{{ path('app_home') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-play-circle"></i></span>
+                        <span class="nxl-mtext">Jeux</span>
+                    </a>
+                </li>
+
+                <!-- Forum -->
+                <li class="nxl-item nxl-hasmenu {% if app.request.attributes.get('_route') == 'app_forum_frontend' %}forum-active{% endif %}">
+                    <a href="{{ path('app_forum_index') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-message-circle"></i></span>
+                        <span class="nxl-mtext">Forums</span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_forum_index') }}">Administration</a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_forum_frontend') }}">Forum</a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_forum_chatbot') }}">🤖 Chatbot IA</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Events -->
+                <li class="nxl-item">
+                    <a href="{{ path('app_home') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-calendar"></i></span>
+                        <span class="nxl-mtext">Events</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ===================== HEADER ===================== -->
+<header class="nxl-header">
+    <div class="header-wrapper">
+        <div class="header-left">
+            <a href="#" id="sidebar-toggle" title="Réduire/Agrandir le menu">
+                <i class="feather-chevrons-left"></i>
+            </a>
+            <a href="#" id="mobile-collapse">
+                <i class="feather-menu"></i>
+            </a>
+        </div>
+
+        <div class="header-right ms-auto">
+            <div class="dropdown">
+                <a href="#" data-bs-toggle="dropdown">
+                    <img src="{{ asset('assets/images/avatar/1.png') }}" class="user-avtar"/>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="{{ path('app_user_index') }}">
+                        <i class="feather-user"></i> Profil
+                    </a>
+                    <a href="{{ path('app_home')|default('#') }}" class="nxl-link">
+                        <i class="feather-log-out"></i>
+                        <span class="nxl-mtext">Déconnexion</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ===================== MAIN ===================== -->
+<main id="main-content" class="container-fluid">
+    {% block breadcrumb %}{% endblock %}
+    <h1 class="mb-4">{% block page_title %}{% endblock %}</h1>
+    <div class="mb-3">{% block page_actions %}{% endblock %}</div>
+    {% block body %}{% endblock %}
+</main>
+
+<!-- ===================== JS ===================== -->
+{% block javascripts %}
+<script src="{{ asset('assets/vendors/js/vendors.min.js') }}"></script>
+<script src="{{ asset('assets/js/common-init.min.js') }}"></script>
+<script src="{{ asset('assets/js/dashboard-init.min.js') }}"></script>
+<script src="{{ asset('assets/js/theme-customizer-init.min.js') }}"></script>
+<script>
+    // Sidebar toggle avec animation de glissement fluide
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const mobileCollapse = document.getElementById('mobile-collapse');
+        const sidebar = document.querySelector('.nxl-navigation');
+        const mainContent = document.querySelector('main#main-content');
+        
+        if (sidebarToggle && sidebar) {
+            // Force initial state - sidebar open
+            sidebar.classList.remove('collapsed');
+            sidebarToggle.classList.remove('collapsed');
+            
+            // Update main content margin for open sidebar
+            if (mainContent) {
+                mainContent.style.marginLeft = '340px';
+                mainContent.style.width = 'calc(100% - 340px)';
+            }
+            
+            // Toggle function avec animation de glissement
+            function toggleSidebar() {
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    // Open sidebar - glissement vers la droite
+                    sidebar.classList.remove('collapsed');
+                    sidebarToggle.classList.remove('collapsed');
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '340px';
+                        mainContent.style.width = 'calc(100% - 340px)';
+                    }
+                } else {
+                    // Close sidebar - glissement vers la gauche
+                    sidebar.classList.add('collapsed');
+                    sidebarToggle.classList.add('collapsed');
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '90px';
+                        mainContent.style.width = 'calc(100% - 90px)';
+                    }
+                }
+                
+                // Save state
+                localStorage.setItem('sidebarCollapsed', !isCollapsed);
+            }
+            
+            // Event listeners
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleSidebar();
+            });
+            
+            if (mobileCollapse) {
+                mobileCollapse.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleSidebar();
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}
+
 </body>
 </html>

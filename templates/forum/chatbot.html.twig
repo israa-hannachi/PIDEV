@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Chatbot IA - Naja7ni</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .chatbot-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chatbot-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+
+        .message-content {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .message.user .message-time {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            max-width: 80%;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #6c757d;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .chatbot-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chatbot-input input:focus {
+            border-color: #667eea;
+        }
+
+        .chatbot-input button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .chatbot-input button:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-input button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .quick-actions {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-container {
+                margin: 20px;
+                height: calc(100vh - 40px);
+                border-radius: 15px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .chatbot-header h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ path('app_forum_frontend') }}" class="back-link">
+        ← Retour au Forum
+    </a>
+
+    <div class="chatbot-container">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <h2>
+                <span>🤖</span>
+                Chatbot IA - Naja7ni
+            </h2>
+            <div class="chatbot-status">
+                <span class="status-dot"></span>
+                <span>En ligne</span>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="chatbot-messages" id="chatMessages">
+            <!-- Welcome Message -->
+            <div class="message bot">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div>Bonjour ! Je suis votre assistant IA Naja7ni. Je suis là pour vous aider avec vos questions sur l'éducation, les forums, et bien plus encore !</div>
+                    <div class="message-time">08:41</div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="sendQuickMessage('Présente-toi')">👋 Présente-toi</button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('Aide forums')">💬 Aide forums</button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('Cours disponibles')">📚 Cours disponibles</button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('Contact support')">📞 Contact support</button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chatbot-input">
+            <input type="text" id="messageInput" placeholder="Tapez votre message..." onkeypress="handleKeyPress(event)">
+            <button id="sendButton" onclick="sendMessage()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+<script>
+// Chatbot AI responses
+const botResponses = {
+    'présente-toi': 'Je suis Naja7ni, votre assistant IA intelligent. Je suis conçu pour vous aider avec vos questions sur les forums éducatifs, les cours, et vous guider dans votre parcours d\'apprentissage. Je fonctionne grâce à des modèles de langage avancés !',
+    'aide forums': 'Les forums Naja7ni sont des espaces de discussion où vous pouvez poser des questions, partager vos connaissances et interagir avec d\'autres étudiants. Vous pouvez accéder aux différentes catégories comme les mathématiques, l\'informatique, les sciences, etc.',
+    'cours disponibles': 'Actuellement, nous proposons 85 cours dans diverses matières : Mathématiques, Informatique (Développement Web, Programmation Java, SGBD, Réseaux), Sciences, Langues, et bien plus encore. Chaque cours inclut des discussions et ressources.',
+    'contact support': 'Vous pouvez contacter notre support technique de plusieurs manières :\n• Email: support@naja7ni.com\n• Téléphone: +216 70 000 000\n• Via les forums de discussion\n• Formulaire de contact sur le site',
+    'default': 'Je comprends votre question. Pouvez-vous me donner plus de détails ou reformuler autrement ? Je suis là pour vous aider avec les forums, les cours, ou toute autre question sur Naja7ni !'
+};
+
+// Initialize chat
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('messageInput');
+    input.focus();
+});
+
+// Handle Enter key
+function handleKeyPress(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+// Send message
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (message === '') return;
+    
+    // Add user message
+    addMessage(message, 'user');
+    
+    // Clear input
+    input.value = '';
+    
+    // Disable send button
+    const sendButton = document.getElementById('sendButton');
+    sendButton.disabled = true;
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Simulate bot response delay
+    setTimeout(() => {
+        hideTypingIndicator();
+        const response = getBotResponse(message);
+        addMessage(response, 'bot');
+        sendButton.disabled = false;
+        input.focus();
+    }, 1000 + Math.random() * 1000);
+}
+
+// Send quick message
+function sendQuickMessage(message) {
+    document.getElementById('messageInput').value = message;
+    sendMessage();
+}
+
+// Add message to chat
+function addMessage(text, sender) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const typingIndicator = document.getElementById('typingIndicator');
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const avatar = sender === 'user' ? '👤' : '🤖';
+    const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <div>${text}</div>
+            <div class="message-time">${time}</div>
+        </div>
+    `;
+    
+    messagesContainer.insertBefore(messageDiv, typingIndicator);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Get bot response
+function getBotResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Check for exact matches
+    for (const [key, response] of Object.entries(botResponses)) {
+        if (lowerMessage.includes(key)) {
+            return response;
+        }
+    }
+    
+    // Check for keywords
+    if (lowerMessage.includes('bonjour') || lowerMessage.includes('salut') || lowerMessage.includes('hello')) {
+        return 'Bonjour ! Comment puis-je vous aider aujourd\'hui ?';
+    }
+    
+    if (lowerMessage.includes('merci')) {
+        return 'De rien ! Je suis heureux de vous aider. N\'hésitez pas si vous avez d\'autres questions !';
+    }
+    
+    if (lowerMessage.includes('au revoir') || lowerMessage.includes('bye')) {
+        return 'Au revoir ! Passez une excellente journée et à bientôt sur Naja7ni !';
+    }
+    
+    if (lowerMessage.includes('forum')) {
+        return 'Nos forums sont organisés par catégories : Mathématiques, Informatique, Sciences, Langues, etc. Vous pouvez créer des discussions, répondre aux questions et interagir avec la communauté. Souhaitez-vous en savoir plus sur une catégorie spécifique ?';
+    }
+    
+    if (lowerMessage.includes('math') || lowerMessage.includes('mathématiques')) {
+        return 'Dans la catégorie Mathématiques, nous couvrons les statistiques, probabilités, et analyse numérique. Il y a actuellement 85 sujets actifs avec 520 messages. Vous pouvez poser vos questions et obtenir de l\'aide de la communauté !';
+    }
+    
+    if (lowerMessage.includes('programmation') || lowerMessage.includes('java') || lowerMessage.includes('code')) {
+        return 'Nous avons plusieurs forums de programmation : Développement Web, Programmation Java, SGBD, et Réseaux. Chaque forum a des discussions actives où vous pouvez partager vos problèmes et solutions. Quel langage vous intéresse particulièrement ?';
+    }
+    
+    if (lowerMessage.includes('aide') || lowerMessage.includes('comment')) {
+        return 'Je peux vous aider avec :\n• La navigation dans les forums\n• Les cours disponibles\n• Les fonctionnalités de Naja7ni\n• Le support technique\nDites-moi ce dont vous avez besoin spécifiquement !';
+    }
+    
+    // Default response
+    return botResponses.default;
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    indicator.classList.add('active');
+    
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Hide typing indicator
+function hideTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    indicator.classList.remove('active');
+}
+</script>
+</body>
+</html>

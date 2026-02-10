@@ -1,0 +1,940 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forums de Discussion{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Main content area adjustments for front office */
+    main#main-content {
+        background-color: #f8f9fa !important;
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+        padding: 0 !important;
+    }
+    
+    /* Page header */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px 0;
+        margin-bottom: 40px;
+    }
+    
+    .page-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        text-align: center;
+    }
+    
+    /* Container */
+    .forum-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px 40px;
+    }
+    
+    /* Section headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .section-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .section-link:hover {
+        color: #5a6fd8;
+        text-decoration: underline;
+    }
+    
+    /* Statistics Overview */
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .stat-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+    
+    .stat-card:nth-child(1) .stat-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-card:nth-child(2) .stat-icon {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .stat-card:nth-child(3) .stat-icon {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+    
+    .stat-info {
+        flex: 1;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    /* Discussion Management Section */
+    .discussion-management {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 40px;
+    }
+    
+    .discussion-actions-header {
+        margin-bottom: 25px;
+    }
+    
+    .btn-add-discussion {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-add-discussion:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .discussion-list-management {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .discussion-management-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .discussion-management-item:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    .discussion-content {
+        flex: 1;
+    }
+    
+    .discussion-content .discussion-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .discussion-content .discussion-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .discussion-content .discussion-author {
+        color: #667eea;
+        font-weight: 500;
+    }
+    
+    .discussion-content .discussion-stats {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .discussion-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-action {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .btn-edit:hover {
+        background-color: #e0a800;
+        transform: translateY(-1px);
+    }
+    
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    /* Forum Management Section */
+    .forum-management {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 40px;
+    }
+    
+    .management-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .management-card {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+    
+    .management-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .management-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 24px;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .management-add .management-icon {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .management-recent .management-icon {
+        background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    }
+    
+    .management-active .management-icon {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    }
+    
+    .management-blocked .management-icon {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+    
+    .management-content h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 5px 0;
+        color: #2c3e50;
+    }
+    
+    .management-content p {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    .quick-actions {
+        border-top: 1px solid #e9ecef;
+        padding-top: 20px;
+    }
+    
+    .quick-actions h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 15px 0;
+        color: #2c3e50;
+    }
+    
+    .quick-action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .quick-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        color: white;
+        cursor: pointer;
+    }
+    
+    .quick-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        text-decoration: none;
+        color: white;
+    }
+    
+    .quick-btn-primary {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .quick-btn-secondary {
+        background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    }
+    
+    .quick-btn-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+    
+    /* Forum Table Styles */
+    .forum-table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+    
+    .forum-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .forum-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    .forum-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .forum-table tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .status-active {
+        background-color: #28a745;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+    
+    .status-inactive {
+        background-color: #dc3545;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+    
+    .btn-close-table {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .btn-close-table:hover {
+        background: #c82333;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .stats-overview {
+            grid-template-columns: 1fr;
+        }
+        
+        .management-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-action-buttons {
+            justify-content: center;
+        }
+        
+        .discussion-management-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .discussion-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        main#main-content {
+            margin-left: 70px !important;
+            width: calc(100% - 70px) !important;
+        }
+        
+        .nxl-navigation {
+            width: 70px !important;
+            max-width: 70px !important;
+            min-width: 70px !important;
+        }
+        
+        .nxl-navigation .nxl-mtext,
+        .nxl-navigation .nxl-caption {
+            display: none !important;
+        }
+        
+        .page-header {
+            padding: 20px 0;
+        }
+        
+        .page-title {
+            font-size: 2.8rem;
+            text-align: center;
+        }
+        
+        .forum-container {
+            padding: 0 15px 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="forum-container">
+        <h1 class="page-title">Naja7ni</h1>
+        <p class="page-subtitle">Votre Réussite, Note Mission</p>
+    </div>
+</div>
+
+<!-- Forum Table Section (Hidden by default) -->
+<div id="forumTableSection" style="display: none;">
+    <div class="forum-container">
+        <div class="section-header">
+            <h2 class="section-title">Tableau des Forums</h2>
+            <button onclick="hideForumTable()" class="btn-close-table">
+                <i class="feather-x"></i>
+                Fermer
+            </button>
+        </div>
+        
+        <div class="forum-table-container">
+            <table class="forum-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom du Forum</th>
+                        <th>Description</th>
+                        <th>Catégorie</th>
+                        <th>Statut</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Statistiques et Probabilités</td>
+                        <td>Étude des données et analyse statistique pour la prise de décision</td>
+                        <td>Mathématiques</td>
+                        <td><span class="status-active">Actif</span></td>
+                        <td>15/01/2024</td>
+                        <td>
+                            <button class="btn-action btn-edit">Modifier</button>
+                            <button class="btn-action btn-delete">Supprimer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Développement Web</td>
+                        <td>Conception et création de sites et applications web</td>
+                        <td>Informatique</td>
+                        <td><span class="status-active">Actif</span></td>
+                        <td>20/01/2024</td>
+                        <td>
+                            <button class="btn-action btn-edit">Modifier</button>
+                            <button class="btn-action btn-delete">Supprimer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Analyse numérique</td>
+                        <td>Étude des méthodes de calculs approchées</td>
+                        <td>Mathématiques</td>
+                        <td><span class="status-active">Actif</span></td>
+                        <td>25/01/2024</td>
+                        <td>
+                            <button class="btn-action btn-edit">Modifier</button>
+                            <button class="btn-action btn-delete">Supprimer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>SGBD</td>
+                        <td>Étude de la conception et administration des bases de données</td>
+                        <td>Informatique</td>
+                        <td><span class="status-inactive">Inactif</span></td>
+                        <td>30/01/2024</td>
+                        <td>
+                            <button class="btn-action btn-edit">Modifier</button>
+                            <button class="btn-action btn-delete">Supprimer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Réseau</td>
+                        <td>Étude des réseaux informatiques et cybersécurité</td>
+                        <td>Informatique</td>
+                        <td><span class="status-active">Actif</span></td>
+                        <td>05/02/2024</td>
+                        <td>
+                            <button class="btn-action btn-edit">Modifier</button>
+                            <button class="btn-action btn-delete">Supprimer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Programmation Java</td>
+                        <td>Maîtrise du langage Java pour applications performantes</td>
+                        <td>Informatique</td>
+                        <td><span class="status-active">Actif</span></td>
+                        <td>10/02/2024</td>
+                        <td>
+                            <button class="btn-action btn-edit">Modifier</button>
+                            <button class="btn-action btn-delete">Supprimer</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="forum-container">
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    
+    <!-- Statistics Overview -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="feather-users"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">1,247</div>
+                <div class="stat-label">Étudiants</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="feather-book-open"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">85</div>
+                <div class="stat-label">Cours</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="feather-message-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">342</div>
+                <div class="stat-label">Discussions</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gestion des Discussions -->
+    <div class="section-header">
+        <h2 class="section-title">Gestion des Discussions</h2>
+        <a href="#" onclick="showForumTable(); return false;" class="section-link">Voir tout →</a>
+    </div>
+    
+    <div class="discussion-management">
+        <!-- Actions Header -->
+        <div class="discussion-actions-header">
+            <button class="btn-add-discussion" onclick="openAddDiscussionModal()">
+                <i class="feather-plus"></i>
+                <span>Ajouter une discussion</span>
+            </button>
+        </div>
+        
+        <!-- Discussions List -->
+        <div class="discussion-list-management">
+            <!-- Exemples virtuels de discussions éducatives -->
+            <div class="discussion-management-item">
+                <div class="discussion-content">
+                    <div class="discussion-title">Méthode d'apprentissage des probabilités et des statistiques</div>
+                    <div class="discussion-meta">
+                        <span>Par <span class="discussion-author">Israa hannechi</span></span>
+                        <div class="discussion-stats">
+                            <span>👁️ 245 vues</span>
+                            <span>💬 18 réponses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="discussion-actions">
+                    <button class="btn-action btn-edit" onclick="editDiscussion(101)">
+                        <i class="feather-edit"></i>
+                        Modifier
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDiscussion(101)">
+                        <i class="feather-trash-2"></i>
+                        Supprimer
+                    </button>
+                    <input type="hidden" name="csrf_token_101" value="{{ csrf_token('delete101') }}">
+                </div>
+            </div>
+            
+            <div class="discussion-management-item">
+                <div class="discussion-content">
+                    <div class="discussion-title">Les meilleures pratiques pour la programmation java et le développement logiciel</div>
+                    <div class="discussion-meta">
+                        <span>Par <span class="discussion-author">Chahine Mezni</span></span>
+                        <div class="discussion-stats">
+                            <span>👁️ 189 vues</span>
+                            <span>💬 23 réponses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="discussion-actions">
+                    <button class="btn-action btn-edit" onclick="editDiscussion(102)">
+                        <i class="feather-edit"></i>
+                        Modifier
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDiscussion(102)">
+                        <i class="feather-trash-2"></i>
+                        Supprimer
+                    </button>
+                    <input type="hidden" name="csrf_token_102" value="{{ csrf_token('delete102') }}">
+                </div>
+            </div>
+            
+            <div class="discussion-management-item">
+                <div class="discussion-content">
+                    <div class="discussion-title">Outils d'apprentissage de l'analyse numérique</div>
+                    <div class="discussion-meta">
+                        <span>Par <span class="discussion-author">Imen Ghamlouli</span></span>
+                        <div class="discussion-stats">
+                            <span>👁️ 312 vues</span>
+                            <span>💬 34 réponses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="discussion-actions">
+                    <button class="btn-action btn-edit" onclick="editDiscussion(103)">
+                        <i class="feather-edit"></i>
+                        Modifier
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDiscussion(103)">
+                        <i class="feather-trash-2"></i>
+                        Supprimer
+                    </button>
+                    <input type="hidden" name="csrf_token_103" value="{{ csrf_token('delete103') }}">
+                </div>
+            </div>
+            
+            <div class="discussion-management-item">
+                <div class="discussion-content">
+                    <div class="discussion-title">Développement des compétences en bases de données</div>
+                    <div class="discussion-meta">
+                        <span>Par <span class="discussion-author">Isra Dabbebi</span></span>
+                        <div class="discussion-stats">
+                            <span>👁️ 156 vues</span>
+                            <span>💬 27 réponses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="discussion-actions">
+                    <button class="btn-action btn-edit" onclick="editDiscussion(104)">
+                        <i class="feather-edit"></i>
+                        Modifier
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDiscussion(104)">
+                        <i class="feather-trash-2"></i>
+                        Supprimer
+                    </button>
+                    <input type="hidden" name="csrf_token_104" value="{{ csrf_token('delete104') }}">
+                </div>
+            </div>
+            
+            <div class="discussion-management-item">
+                <div class="discussion-content">
+                    <div class="discussion-title">L'importance des réseaux informatiques et de la cybersécurité</div>
+                    <div class="discussion-meta">
+                        <span>Par <span class="discussion-author">Farah Jemmali</span></span>
+                        <div class="discussion-stats">
+                            <span>👁️ 278 vues</span>
+                            <span>💬 31 réponses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="discussion-actions">
+                    <button class="btn-action btn-edit" onclick="editDiscussion(105)">
+                        <i class="feather-edit"></i>
+                        Modifier
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDiscussion(105)">
+                        <i class="feather-trash-2"></i>
+                        Supprimer
+                    </button>
+                    <input type="hidden" name="csrf_token_105" value="{{ csrf_token('delete105') }}">
+                </div>
+            </div>
+            
+            <div class="discussion-management-item">
+                <div class="discussion-content">
+                    <div class="discussion-title">Programmation orientée objet pour créer des applications java</div>
+                    <div class="discussion-meta">
+                        <span>Par <span class="discussion-author">Miriam Kouki</span></span>
+                        <div class="discussion-stats">
+                            <span>👁️ 195 vues</span>
+                            <span>💬 22 réponses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="discussion-actions">
+                    <button class="btn-action btn-edit" onclick="editDiscussion(106)">
+                        <i class="feather-edit"></i>
+                        Modifier
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDiscussion(106)">
+                        <i class="feather-trash-2"></i>
+                        Supprimer
+                    </button>
+                    <input type="hidden" name="csrf_token_106" value="{{ csrf_token('delete106') }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Forum Management Section -->
+    <div class="section-header">
+        <h2 class="section-title">Gestion des Forums</h2>
+        <a href="#" onclick="showForumTable(); return false;" class="section-link">Voir le tableau complet →</a>
+    </div>
+    
+    <div class="forum-management">
+        <div class="management-grid">
+            <!-- Ajouter Forum -->
+            <a href="{{ path('forum_new') }}" class="management-card management-add">
+                <div class="management-icon">
+                    <i class="feather-plus-circle"></i>
+                </div>
+                <div class="management-content">
+                    <h3>Ajouter un Forum</h3>
+                    <p>Créer une nouvelle discussion</p>
+                </div>
+            </a>
+            
+            <!-- Forums Récents -->
+            <a href="{{ path('app_forum_index') }}" class="management-card management-recent">
+                <div class="management-icon">
+                    <i class="feather-clock"></i>
+                </div>
+                <div class="management-content">
+                    <h3>Forums Récents</h3>
+                    <p>Voir les dernières discussions</p>
+                </div>
+            </a>
+            
+            <!-- Forums Actifs -->
+            <a href="{{ path('app_forum_index') }}?filter=active" class="management-card management-active">
+                <div class="management-icon">
+                    <i class="feather-check-circle"></i>
+                </div>
+                <div class="management-content">
+                    <h3>Forums Actifs</h3>
+                    <p>Discussions en cours</p>
+                </div>
+            </a>
+            
+            <!-- Forums Bloqués -->
+            <a href="{{ path('app_forum_index') }}?filter=blocked" class="management-card management-blocked">
+                <div class="management-icon">
+                    <i class="feather-lock"></i>
+                </div>
+                <div class="management-content">
+                    <h3>Forums Bloqués</h3>
+                    <p>Gérer les discussions bloquées</p>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h4>Actions Rapides</h4>
+            <div class="quick-action-buttons">
+                <a href="{{ path('forum_new') }}" class="quick-btn quick-btn-primary">
+                    <i class="feather-plus"></i>
+                    <span>Nouveau Forum</span>
+                </a>
+                <a href="#" onclick="showForumTable(); return false;" class="quick-btn quick-btn-secondary">
+                    <i class="feather-list"></i>
+                    <span>Tous les Forums</span>
+                </a>
+                <a href="{{ path('app_forum_index') }}?filter=blocked" class="quick-btn quick-btn-warning">
+                    <i class="feather-shield"></i>
+                    <span>Modération</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Functions for forum table display
+    window.showForumTable = function() {
+        console.log('showForumTable called');
+        const tableSection = document.getElementById('forumTableSection');
+        console.log('tableSection found:', tableSection);
+        if (tableSection) {
+            tableSection.style.display = 'block';
+            console.log('Table section displayed');
+            // Scroll to the table
+            tableSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            console.error('Table section not found!');
+        }
+    };
+    
+    window.hideForumTable = function() {
+        console.log('hideForumTable called');
+        const tableSection = document.getElementById('forumTableSection');
+        if (tableSection) {
+            tableSection.style.display = 'none';
+            console.log('Table section hidden');
+        }
+    };
+    
+    // Discussion management functions
+    window.openAddDiscussionModal = function() {
+        alert('Fonctionnalité d\'ajout de discussion en cours de développement...');
+    };
+    
+    window.editDiscussion = function(id) {
+        alert('Modification de la discussion ' + id + ' en cours de développement...');
+    };
+    
+    window.deleteDiscussion = function(id) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette discussion ?')) {
+            alert('Suppression de la discussion ' + id + ' en cours de développement...');
+        }
+    };
+});
+</script>
+{% endblock %}

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ForumRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -39,9 +41,13 @@ class Forum
     #[ORM\Column(type: 'boolean')]
     private bool $isBlocked = false;
 
+    #[ORM\OneToMany(mappedBy: 'forum', targetEntity: Message::class, orphanRemoval: true)]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->messages = new ArrayCollection();
     }
 
     // ================= GETTERS & SETTERS =================
@@ -65,4 +71,27 @@ class Forum
 
     public function isBlocked(): bool { return $this->isBlocked; }
     public function setIsBlocked(bool $isBlocked): self { $this->isBlocked = $isBlocked; return $this; }
+
+    public function getMessages(): Collection { return $this->messages; }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setForum($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->removeElement($message)) {
+            if ($message->getForum() === $this) {
+                $message->setForum(null);
+            }
+        }
+
+        return $this;
+    }
 }
