@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Naja7ni - Accueil{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#f8fafc',
+                        foreground: '#0f172a',
+                        sidebar: '#ffffff',
+                        'sidebar-border': '#e2e8f0',
+                        primary: '#6366f1',
+                        secondary: '#ec4899',
+                        accent: '#f59e0b',
+                        muted: '#f1f5f9',
+                        'muted-foreground': '#64748b',
+                        border: '#e1e7ef',
+                        'input-background': '#f1f5f9',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token('authenticate') }}">
+
+    {% block stylesheets %}{% endblock %}
+
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #ffffff;
+            padding-top: 20px;
+            border-right: 1px solid #e2e8f0;
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .nav-link {
+            color: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .sidebar .nav-link.active {
+            background-color: white;
+            color: black;
+        }
+        .sidebar .nav-link i {
+            font-size: 24px;
+            margin-right: 0;
+        }
+        .sidebar-logo {
+            margin-bottom: 30px;
+        }
+        .sidebar-logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        .nav-item.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .nav-item:not(.active):hover {
+            background-color: #f1f5f9;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            z-index: 1000;
+            margin-top: 8px;
+        }
+        
+        .dropdown.show .dropdown-menu {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: #0f172a;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: #6366f1;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <img src="{{ asset('assets/images/logo-small.png') }}" alt="Logo" />
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#">
+                    <i data-lucide="home"></i>
+                    Accueil
+                </a>
+                <a class="nav-link" href="#">
+                    <i data-lucide="user"></i>
+                    Profil
+                </a>
+                <a class="nav-link" href="#">
+                    <i data-lucide="folder"></i>
+                    Catégories
+                </a>
+                <a class="nav-link" href="#">
+                    <i data-lucide="video"></i>
+                    Meet
+                </a>
+                <a class="nav-link" href="#">
+                    <i data-lucide="gamepad-2"></i>
+                    Jeux
+                </a>
+                <a class="nav-link" href="#">
+                    <i data-lucide="calendar"></i>
+                    Events
+                </a>
+                <a class="nav-link" href="http://127.0.0.1:8000/front/forum">
+                    <i data-lucide="message-square"></i>
+                    Forums
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navbar -->
+            <nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+                <div class="flex items-center gap-8">
+                    <a href="{{ path('app_front_forum') }}">
+                        <img src="{{ asset('assets/images/logo-full.png') }}" alt="Naja7ni" class="h-10 object-contain">
+                    </a>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-xl mx-8">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+                        <input type="text" placeholder="Rechercher des cours, modules..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center gap-4">
+                    <a href="{{ path('app_front_forum') }}" class="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl font-semibold hover:bg-primary/20 transition-colors">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span class="hidden md:block hover:text-primary transition">Admin</span>
+                    </a>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
+                        <i data-lucide="bell"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                    </button>
+                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+                        <i data-lucide="settings"
+                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    </button>
+                    <div class="dropdown">
+                        <div
+                            class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+                            onclick="toggleDropdown()">
+                            A
+                        </div>
+                        <ul class="dropdown-menu" id="userDropdown">
+                            <li><a class="dropdown-item" href="/logout">Se déconnecter</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-7xl mx-auto space-y-8">
+                        {% block body %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script>
+        lucide.createIcons();
+        
+        // Gérer le dropdown du bouton "A"
+        function toggleDropdown() {
+            const dropdown = document.querySelector('.dropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Fermer le dropdown quand on clique ailleurs
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.dropdown');
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
+
+</html>

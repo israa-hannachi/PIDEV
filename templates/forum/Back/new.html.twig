@@ -1,0 +1,49 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Créer un Nouveau Forum{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="max-w-4xl mx-auto">
+
+        <h1 class="text-3xl font-bold mb-6">Créer un Nouveau Forum</h1>
+
+        <div class="table-container">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="mb-4">
+                {{ form_label(form.titre, 'Titre') }}
+                {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.titre) }}
+            </div>
+
+            <div class="mb-4">
+                {{ form_label(form.description, 'Description') }}
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <div class="mb-4">
+                {{ form_label(form.etat, 'État') }}
+                {{ form_widget(form.etat, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.etat) }}
+            </div>
+            <div class="mb-4">
+                {{ form_label(form.date_creation, 'Date de création') }}
+                {{ form_widget(form.date_creation, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.date_creation) }}
+            </div>
+            <div class="mb-4">
+                {{ form_label(form.createdBy, 'Créé par') }}
+                {{ form_widget(form.createdBy, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.createdBy) }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Créer
+            </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

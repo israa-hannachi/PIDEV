@@ -1,0 +1,842 @@
+{% extends 'forum/Front/base_front.html.twig' %}
+
+
+
+{% block title %}{{ forum.titre }}{% endblock %}
+
+
+
+{% block body %}
+
+    <!-- Titre du forum -->
+
+    <h1>{{ forum.titre }}</h1>
+
+    {# <p>{{ forum.description }}</p> #}
+
+
+
+    <!-- Formulaire de publication -->
+
+    <h2></h2>
+
+    {{ form_start(form) }}
+
+        {{ form_row(form.createdBy, {'label': 'Votre nom', 'attr': {'placeholder': 'Entrez votre nom...', 'class': 'ckeditor-nom'}}) }}
+
+        {{ form_row(form.contenu, {'label': 'Votre message', 'attr': {'placeholder': 'Écrivez votre commentaire...', 'class': 'ckeditor-contenu'}}) }}
+
+        <button class="btn btn-primary">Publier</button>
+
+    {{ form_end(form) }}
+
+
+
+    <!-- Script CKEditor -->
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+
+    <script>
+
+        // Attendre que le DOM soit chargé
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Initialiser CKEditor pour le champ nom
+
+            const nomTextarea = document.querySelector('textarea[name="message[createdBy]"]');
+
+            if (nomTextarea) {
+
+                ClassicEditor
+                    .create(nomTextarea, {
+
+                        toolbar: {
+
+                            items: [
+                                'Undo','Redo', 
+                                'Bold','Italic', 
+                                'BulletedList','NumberedList', 
+                                'Link','Image','MediaEmbed', 
+                                'insertTable'
+                            ]
+
+                        },
+
+                        height: 60,
+
+                        placeholder: 'Entrez votre nom...'
+
+                    })
+                    .then(editor => {
+                        
+                        // Ajouter un bouton emoji personnalisé pour le champ nom
+                        const emojiButtonNom = document.createElement('button');
+                        emojiButtonNom.type = 'button';
+                        emojiButtonNom.innerHTML = '😊';
+                        emojiButtonNom.title = 'Ajouter un emoji';
+                        emojiButtonNom.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-size: 16px;';
+                        
+                        emojiButtonNom.onclick = () => {
+                            const emojiCategories = {
+
+                                'Humains': ['👶', '🧒', '👦', '👧', '🧑', '👨', '👩', '🧓', '👱', '👼', '👴', '👵', '👲', '👳', '👮', '👯', '👰', '👱', '👲', '👳', '👴', '👵', '👶', '👷', '👸', '👹', '👺', '👻', '�', '��', '👾', '👿', '👨‍🏫', '👩‍🏫', '👨‍🎓', '👩‍🎓', '👨‍🎤', '👩‍🎤', '👨‍🎨', '👩‍🎨', '👨‍🏭', '👩‍🏭', '👨‍🏭', '👩‍🏭', '👨‍🔬', '👩‍🔬', '👨‍💻', '👩‍💻', '👨‍🔧', '👩‍🔧', '👨‍🏗', '👩‍🏗', '👨‍🚀', '👩‍🚀', '👨‍⚕️', '👩‍⚕️', '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '🤖'],
+
+                                'Visages': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'],
+
+                                'Gestes': ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '✋', '🤚', '🖐️', '🖖', '👋', '🤙', '👌', '🤏', '🤞', '🤟', '🤘', '👈', '👉', '👆', '👇', '☝️', '✌️', '🤞', '🤟', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🙏', '🤝', '💪', '🦾', '🦿', '🦶', '🦵', '🦴', '🦿'],
+
+                                'Cœurs': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '⛔', '✅', '☑️', '✔️', '❌', '❎', '➕', '➖', '➗', '✖️', '♾', '💮', '💯', '✔️', '☑️', '🔘', '⚪', '⚫', '🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '🟤', '🟦', '🟧', '🟨', '🟩', '🟪', '🟫'],
+
+                                'Nourriture': ['🍎', '🍏', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🫒', '🧄', '🧅', '🥔', '🍠', '🥐', '🥚', '🧈', '🥓', '🥩', '🍗', '🍖'],
+
+                                'Sports': ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏑', '🏒', '🥍', '🏏', '🥅', '⛳', '🏹', '🎣', '🤿', '🥊', '🥋', '🥌', '🏇', '🏊', '🤸', '🏄', '🚣', '🚴', '🚵', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵', '🎗️', '🎫', '🎟️', '🎪', '🤹', '🎭', '🎨', '🎬', '📽️', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪘', '🎯', '🎳', '🎮', '🎰', '🧩'],
+
+                                'Objets': ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '📽', '🎥', '📺', '📻', '📞', '☎️', '📟', '📠', '⏰', '⏱️', '⏲️', '🕰', '🕳️', '🔑', '🗝️', '🔒', '🔓', '🔏', '🔐', '🔑', '🗝️', '🔨', '🪓', '⛏️', '⚒️', '🛠️', '🗡️', '⚔️', '🔧', '🔩', '⚙️', '🗲', '⛓️', '🧲', '🔫', '💣', '🧨', '🔪', '🗡️', '⚔️', '🏹', '🪣', '🪤', '🪥', '🪦', '🪧', '🪨', '🪩', '🪪', '🪫', '🪬', '🪭', '🪮', '🪯', '🪰', '🪱', '🪲', '🪳', '🪴', '🪵', '🪶', '🪷', '🪸', '🪹', '🪺'],
+                            };
+                            const emojiPickerNom = document.createElement('div');
+                            emojiPickerNom.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 10px; display: none;';
+                            
+                            Object.keys(emojiCategories).forEach(category => {
+                                const categoryHeader = document.createElement('h3');
+                                categoryHeader.textContent = category;
+                                emojiPickerNom.appendChild(categoryHeader);
+                                
+                                const emojis = document.createElement('div');
+                                emojis.style.cssText = 'display: flex; flex-wrap: wrap;';
+                                
+                                emojiCategories[category].forEach(emoji => {
+                                    const emojiButton = document.createElement('button');
+                                    emojiButton.type = 'button';
+                                    emojiButton.textContent = emoji;
+                                    emojiButton.style.cssText = 'margin: 5px; padding: 5px; border: none; border-radius: 5px; cursor: pointer;';
+                                    
+                                    emojiButton.onclick = () => {
+                                        editor.model.change(writer => {
+                                            writer.insertText(emoji, editor.model.document.selection.getFirstPosition());
+                                        });
+                                        emojiPickerNom.style.display = 'none';
+                                    };
+                                    
+                                    emojis.appendChild(emojiButton);
+                                });
+                                
+                                emojiPickerNom.appendChild(emojis);
+                            });
+                            document.body.appendChild(emojiPickerNom);
+                            
+                            emojiButtonNom.onclick = () => {
+                                if (emojiPickerNom.style.display === 'none') {
+                                    emojiPickerNom.style.display = 'block';
+                                    emojiPickerNom.style.top = emojiButtonNom.offsetTop + emojiButtonNom.offsetHeight + 'px';
+                                    emojiPickerNom.style.left = emojiButtonNom.offsetLeft + 'px';
+                                } else {
+                                    emojiPickerNom.style.display = 'none';
+                                }
+                            };
+                        };
+                        
+                        // Ajouter le bouton à la toolbar du champ nom
+                        const toolbarNom = editor.ui.view.toolbar.element;
+                        toolbarNom.appendChild(emojiButtonNom);
+                    })
+
+                    .catch(error => {
+
+                        console.error('Erreur CKEditor nom:', error);
+
+                    });
+
+            }
+
+
+
+            // Initialiser CKEditor pour le champ message
+
+            const contenuTextarea = document.querySelector('textarea[name="message[contenu]"]');
+
+            if (contenuTextarea) {
+
+                ClassicEditor
+
+                    .create(contenuTextarea, {
+
+                        toolbar: {
+
+                            items: [
+
+                                'Undo','Redo', 
+
+                                'Bold','Italic', 
+
+                                'BulletedList','NumberedList', 
+
+                                'Link','Image','MediaEmbed', 
+
+                                'insertTable'
+
+                            ]
+
+                        },
+
+                        table: {
+
+                            contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
+
+                        },
+
+                        height: 200,
+
+                        placeholder: 'Écrivez votre commentaire...'
+
+                    })
+
+                    .then(editor => {
+
+                        // Ajouter un bouton calculatrice
+
+                        const calculatorButton = document.createElement('button');
+
+                        calculatorButton.type = 'button';
+
+                        calculatorButton.innerHTML = '🧮';
+
+                        calculatorButton.title = 'Calculatrice';
+
+                        calculatorButton.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer;';
+
+                        calculatorButton.onclick = () => {
+
+                                const result = prompt('Entrez une expression mathématique (ex: 2+2, 5*3):');
+
+                                if (result) {
+
+                                    try {
+
+                                        const calculated = eval(result);
+
+                                        editor.model.change(writer => {
+
+                                            writer.insertText(calculated.toString(), editor.model.document.selection.getFirstPosition());
+
+                                        });
+
+                                    } catch (e) {
+
+                                        alert('Expression invalide');
+
+                                    }
+
+                                }
+
+                        };
+
+                        
+
+                        // Ajouter un bouton équations mathématiques
+
+                        const mathButton = document.createElement('button');
+
+                        mathButton.type = 'button';
+
+                        mathButton.innerHTML = '∑';
+
+                        mathButton.title = 'Équations mathématiques';
+
+                        mathButton.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer;';
+
+                        mathButton.onclick = () => {
+
+                                const equation = prompt('Entrez une équation mathématique (ex: x^2 + y^2 = z^2):');
+
+                                if (equation) {
+
+                                    editor.model.change(writer => {
+
+                                        const text = `[${equation}]`;
+
+                                        writer.insertText(text, editor.model.document.selection.getFirstPosition());
+
+                                    });
+
+                                }
+
+                        };
+
+                        
+
+                        // Ajouter un bouton emoji personnalisé
+
+                        const emojiButton = document.createElement('button');
+
+                        emojiButton.type = 'button';
+
+                        emojiButton.innerHTML = '😊';
+
+                        emojiButton.title = 'Ajouter un emoji';
+
+                        emojiButton.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-size: 16px;';
+
+                        emojiButton.onclick = () => {
+
+                            const emojiCategories = {
+
+                                'Humains': ['👶', '🧒', '👦', '👧', '🧑', '👨', '👩', '🧓', '👱', '👼', '👴', '👵', '👲', '👳', '👮', '👯', '👰', '👱', '👲', '👳', '👴', '👵', '👶', '👷', '👸', '👹', '👺', '👻', '�', '��', '👾', '👿', '👨‍🏫', '👩‍🏫', '👨‍🎓', '👩‍🎓', '👨‍🎤', '👩‍🎤', '👨‍🎨', '👩‍🎨', '👨‍🏭', '👩‍🏭', '👨‍🏭', '👩‍🏭', '👨‍🔬', '👩‍🔬', '👨‍💻', '👩‍💻', '👨‍🔧', '👩‍🔧', '👨‍🏗', '👩‍🏗', '👨‍🚀', '👩‍🚀', '👨‍⚕️', '👩‍⚕️', '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '🤖'],
+
+                                'Visages': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'],
+
+                                'Gestes': ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '✋', '🤚', '🖐️', '🖖', '👋', '🤙', '👌', '🤏', '🤞', '🤟', '🤘', '👈', '👉', '👆', '👇', '☝️', '✌️', '🤞', '🤟', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🙏', '🤝', '💪', '🦾', '🦿', '🦶', '🦵', '🦴', '🦿'],
+
+                                'Cœurs': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '⛔', '✅', '☑️', '✔️', '❌', '❎', '➕', '➖', '➗', '✖️', '♾', '💮', '💯', '✔️', '☑️', '🔘', '⚪', '⚫', '🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '🟤', '🟦', '🟧', '🟨', '🟩', '🟪', '🟫'],
+
+                                'Nourriture': ['🍎', '🍏', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🫒', '🧄', '🧅', '🥔', '🍠', '🥐', '🥚', '🧈', '🥓', '🥩', '🍗', '🍖'],
+
+                                'Sports': ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏑', '🏒', '🥍', '🏏', '🥅', '⛳', '🏹', '🎣', '🤿', '🥊', '🥋', '🥌', '🏇', '🏊', '🤸', '🏄', '🚣', '🚴', '🚵', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵', '🎗️', '🎫', '🎟️', '🎪', '🤹', '🎭', '🎨', '🎬', '📽️', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸', '🪘', '🎯', '🎳', '🎮', '🎰', '🧩'],
+
+                                'Objets': ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '📽', '🎥', '📺', '📻', '📞', '☎️', '📟', '📠', '⏰', '⏱️', '⏲️', '🕰', '🕳️', '🔑', '🗝️', '🔒', '🔓', '🔏', '🔐', '🔑', '🗝️', '🔨', '🪓', '⛏️', '⚒️', '🛠️', '🗡️', '⚔️', '🔧', '🔩', '⚙️', '🗲', '⛓️', '🧲', '🔫', '💣', '🧨', '🔪', '🗡️', '⚔️', '🏹', '🪣', '🪤', '🪥', '🪦', '🪧', '🪨', '🪩', '🪪', '🪫', '🪬', '🪭', '🪮', '🪯', '🪰', '🪱', '🪲', '🪳', '🪴', '🪵', '🪶', '🪷', '🪸', '🪹', '🪺'],
+                            };
+
+                            const emojiPicker = document.createElement('div');
+
+                            emojiPicker.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 10px;';
+
+                            Object.keys(emojiCategories).forEach(category => {
+
+                                const categoryHeader = document.createElement('h3');
+
+                                categoryHeader.textContent = category;
+
+                                emojiPicker.appendChild(categoryHeader);
+
+                                const emojis = document.createElement('div');
+
+                                emojis.style.cssText = 'display: flex; flex-wrap: wrap;';
+
+                                emojiCategories[category].forEach(emoji => {
+
+                                    const emojiButton = document.createElement('button');
+
+                                    emojiButton.type = 'button';
+
+                                    emojiButton.textContent = emoji;
+
+                                    emojiButton.style.cssText = 'margin: 5px; padding: 5px; border: none; border-radius: 5px; cursor: pointer;';
+
+                                    emojiButton.onclick = () => {
+
+                                        editor.model.change(writer => {
+
+                                            writer.insertText(emoji, editor.model.document.selection.getFirstPosition());
+
+                                        });
+
+                                        emojiPicker.remove();
+
+                                    };
+
+                                    emojis.appendChild(emojiButton);
+
+                                });
+
+                                emojiPicker.appendChild(emojis);
+
+                            });
+
+                            document.body.appendChild(emojiPicker);
+
+                            emojiButton.onclick = () => {
+
+                                emojiPicker.style.top = emojiButton.offsetTop + emojiButton.offsetHeight + 'px';
+
+                                emojiPicker.style.left = emojiButton.offsetLeft + 'px';
+
+                            };
+
+                        };
+
+                        
+
+                        // Ajouter les boutons à la toolbar
+
+                        const toolbar = editor.ui.view.toolbar.element;
+
+                        toolbar.appendChild(calculatorButton);
+
+                        toolbar.appendChild(mathButton);
+
+                        toolbar.appendChild(emojiButton);
+
+                    })
+
+                    .catch(error => {
+
+                        console.error('Erreur CKEditor message:', error);
+
+                    });
+
+            }
+
+        });
+
+    </script>
+
+    <!-- Script pour les fonctionnalités des boutons -->
+    <script>
+        // Stockage des compteurs de likes et dislikes
+        let likeCounts = {};
+        let dislikeCounts = {};
+
+        // Fonction pour incrémenter le compteur de likes
+        function incrementLike(messageId) {
+            if (!likeCounts[messageId]) {
+                likeCounts[messageId] = 0;
+            }
+            likeCounts[messageId]++;
+            document.getElementById('like-count-' + messageId).textContent = likeCounts[messageId];
+        }
+
+        // Fonction pour incrémenter le compteur de dislikes
+        function incrementDislike(messageId) {
+            if (!dislikeCounts[messageId]) {
+                dislikeCounts[messageId] = 0;
+            }
+            dislikeCounts[messageId]++;
+            document.getElementById('dislike-count-' + messageId).textContent = dislikeCounts[messageId];
+        }
+
+
+        // Variables globales pour stocker les instances CKEditor
+        let editEditors = {};
+
+        // Fonction pour afficher/masquer les champs d'édition et initialiser CKEditor
+        function showEditForm(messageId) {
+            const editContainer = document.getElementById('edit-fields-' + messageId);
+            
+            if (editContainer.style.display === 'none') {
+                editContainer.style.display = 'block';
+                
+                // Initialiser CKEditor pour les champs d'édition si ce n'est pas déjà fait
+                if (!editEditors[messageId]) {
+                    setTimeout(() => {
+                        initializeEditEditors(messageId);
+                    }, 100);
+                }
+            } else {
+                editContainer.style.display = 'none';
+            }
+        }
+
+        // Fonction pour initialiser CKEditor pour les champs d'édition
+        function initializeEditEditors(messageId) {
+            // Initialiser CKEditor pour le champ nom
+            const nomTextarea = document.getElementById('edit-name-' + messageId);
+            if (nomTextarea && !editEditors[messageId + '_nom']) {
+                ClassicEditor
+                    .create(nomTextarea, {
+                        toolbar: {
+                            items: [
+                                'Undo','Redo', 
+                                'Bold','Italic', 
+                                'BulletedList','NumberedList', 
+                                'Link','Image','MediaEmbed', 
+                                'insertTable'
+                            ]
+                        },
+                        table: {
+                            contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
+                        },
+                        height: 60,
+                        placeholder: 'Entrez votre nom...'
+                    })
+                    .then(editor => {
+                        editEditors[messageId + '_nom'] = editor;
+                        
+                        // Ajouter un bouton emoji personnalisé pour le champ nom
+                        const emojiButtonNom = document.createElement('button');
+                        emojiButtonNom.type = 'button';
+                        emojiButtonNom.innerHTML = '😊';
+                        emojiButtonNom.title = 'Ajouter un emoji';
+                        emojiButtonNom.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-size: 16px;';
+                        
+                        emojiButtonNom.onclick = () => {
+                            const emojiCategories = {
+                                'Visages': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'],
+                                'Cœurs': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟'],
+                                'Gestes': ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🙏', '🤝', '💪']
+                            };
+                            const emojiPickerNom = document.createElement('div');
+                            emojiPickerNom.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 10px; display: none; z-index: 1000;';
+                            
+                            Object.keys(emojiCategories).forEach(category => {
+                                const categoryHeader = document.createElement('h3');
+                                categoryHeader.textContent = category;
+                                categoryHeader.style.cssText = 'margin: 0 0 5px 0; font-size: 14px;';
+                                emojiPickerNom.appendChild(categoryHeader);
+                                
+                                const emojis = document.createElement('div');
+                                emojis.style.cssText = 'display: flex; flex-wrap: wrap;';
+                                
+                                emojiCategories[category].forEach(emoji => {
+                                    const emojiButton = document.createElement('button');
+                                    emojiButton.type = 'button';
+                                    emojiButton.textContent = emoji;
+                                    emojiButton.style.cssText = 'margin: 2px; padding: 5px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;';
+                                    
+                                    emojiButton.onclick = () => {
+                                        editor.model.change(writer => {
+                                            writer.insertText(emoji, editor.model.document.selection.getFirstPosition());
+                                        });
+                                        emojiPickerNom.style.display = 'none';
+                                    };
+                                    
+                                    emojis.appendChild(emojiButton);
+                                });
+                                
+                                emojiPickerNom.appendChild(emojis);
+                            });
+                            document.body.appendChild(emojiPickerNom);
+                            
+                            emojiButtonNom.onclick = () => {
+                                if (emojiPickerNom.style.display === 'none') {
+                                    emojiPickerNom.style.display = 'block';
+                                    emojiPickerNom.style.top = emojiButtonNom.offsetTop + emojiButtonNom.offsetHeight + 'px';
+                                    emojiPickerNom.style.left = emojiButtonNom.offsetLeft + 'px';
+                                } else {
+                                    emojiPickerNom.style.display = 'none';
+                                }
+                            };
+                        };
+                        
+                        // Ajouter le bouton à la toolbar du champ nom
+                        const toolbarNom = editor.ui.view.toolbar.element;
+                        toolbarNom.appendChild(emojiButtonNom);
+                    })
+                    .catch(error => {
+                        console.error('Erreur CKEditor nom édition:', error);
+                    });
+            }
+
+            // Initialiser CKEditor pour le champ message
+            const contenuTextarea = document.getElementById('edit-message-' + messageId);
+            if (contenuTextarea && !editEditors[messageId + '_contenu']) {
+                ClassicEditor
+                    .create(contenuTextarea, {
+                        toolbar: {
+                            items: [
+                                'Undo','Redo', 
+                                'Bold','Italic', 
+                                'BulletedList','NumberedList', 
+                                'Link','Image','MediaEmbed', 
+                                'insertTable'
+                            ]
+                        },
+                        table: {
+                            contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
+                        },
+                        height: 200,
+                        placeholder: 'Écrivez votre commentaire...'
+                    })
+                    .then(editor => {
+                        editEditors[messageId + '_contenu'] = editor;
+                        
+                        // Ajouter les mêmes fonctionnalités que pour le formulaire principal
+                        const calculatorButton = document.createElement('button');
+                        calculatorButton.type = 'button';
+                        calculatorButton.innerHTML = '🧮';
+                        calculatorButton.title = 'Calculatrice';
+                        calculatorButton.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer;';
+                        
+                        calculatorButton.onclick = () => {
+                            const result = prompt('Entrez une expression mathématique (ex: 2+2, 5*3):');
+                            if (result) {
+                                try {
+                                    const calculated = eval(result);
+                                    editor.model.change(writer => {
+                                        writer.insertText(calculated.toString(), editor.model.document.selection.getFirstPosition());
+                                    });
+                                } catch (e) {
+                                    alert('Expression invalide');
+                                }
+                            }
+                        };
+
+                        const mathButton = document.createElement('button');
+                        mathButton.type = 'button';
+                        mathButton.innerHTML = '∑';
+                        mathButton.title = 'Équations mathématiques';
+                        mathButton.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer;';
+                        
+                        mathButton.onclick = () => {
+                            const equation = prompt('Entrez une équation mathématique (ex: x^2 + y^2 = z^2):');
+                            if (equation) {
+                                editor.model.change(writer => {
+                                    const text = `[${equation}]`;
+                                    writer.insertText(text, editor.model.document.selection.getFirstPosition());
+                                });
+                            }
+                        };
+
+                        const emojiButton = document.createElement('button');
+                        emojiButton.type = 'button';
+                        emojiButton.innerHTML = '😊';
+                        emojiButton.title = 'Ajouter un emoji';
+                        emojiButton.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-size: 16px;';
+                        
+                        emojiButton.onclick = () => {
+                            const emojiCategories = {
+                                'Visages': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'],
+                                'Cœurs': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟'],
+                                'Gestes': ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🙏', '🤝', '💪']
+                            };
+                            
+                            const emojiPicker = document.createElement('div');
+                            emojiPicker.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 10px; z-index: 1000;';
+                            
+                            Object.keys(emojiCategories).forEach(category => {
+                                const categoryHeader = document.createElement('h3');
+                                categoryHeader.textContent = category;
+                                categoryHeader.style.cssText = 'margin: 0 0 5px 0; font-size: 14px;';
+                                emojiPicker.appendChild(categoryHeader);
+                                
+                                const emojis = document.createElement('div');
+                                emojis.style.cssText = 'display: flex; flex-wrap: wrap;';
+                                
+                                emojiCategories[category].forEach(emoji => {
+                                    const emojiButton = document.createElement('button');
+                                    emojiButton.type = 'button';
+                                    emojiButton.textContent = emoji;
+                                    emojiButton.style.cssText = 'margin: 2px; padding: 5px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;';
+                                    
+                                    emojiButton.onclick = () => {
+                                        editor.model.change(writer => {
+                                            writer.insertText(emoji, editor.model.document.selection.getFirstPosition());
+                                        });
+                                        emojiPicker.remove();
+                                    };
+                                    
+                                    emojis.appendChild(emojiButton);
+                                });
+                                
+                                emojiPicker.appendChild(emojis);
+                            });
+                            
+                            document.body.appendChild(emojiPicker);
+                            
+                            emojiButton.onclick = () => {
+                                emojiPicker.style.top = emojiButton.offsetTop + emojiButton.offsetHeight + 'px';
+                                emojiPicker.style.left = emojiButton.offsetLeft + 'px';
+                            };
+                        };
+                        
+                        // Ajouter les boutons à la toolbar
+                        const toolbar = editor.ui.view.toolbar.element;
+                        toolbar.appendChild(calculatorButton);
+                        toolbar.appendChild(mathButton);
+                        toolbar.appendChild(emojiButton);
+                    })
+                    .catch(error => {
+                        console.error('Erreur CKEditor message édition:', error);
+                    });
+            }
+        }
+
+        // Fonction pour sauvegarder le message modifié
+        async function saveEditedMessage(messageId) {
+            console.log('Tentative de sauvegarde pour le message ID:', messageId);
+            
+            const nomEditor = editEditors[messageId + '_nom'];
+            const contenuEditor = editEditors[messageId + '_contenu'];
+            
+            console.log('Éditeurs disponibles:', {
+                nomEditor: !!nomEditor,
+                contenuEditor: !!contenuEditor,
+                allEditors: editEditors
+            });
+            
+            if (!nomEditor || !contenuEditor) {
+                console.error('Éditeurs CKEditor non initialisés');
+                alert('Veuillez attendre que les éditeurs soient chargés...');
+                return;
+            }
+            
+            const newName = nomEditor.getData();
+            const newMessage = contenuEditor.getData();
+            
+            console.log('Données à sauvegarder:', { newName, newMessage });
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            console.log('CSRF Token:', csrfToken);
+
+            try {
+                // Récupérer le forumId depuis l'URL actuelle
+                const forumId = window.location.pathname.split('/').pop();
+                const response = await fetch('/front/forum/' + forumId + '/message/' + messageId + '/edit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'createdBy': newName,
+                        'contenu': newMessage,
+                        '_token': csrfToken || ''
+                    })
+                });
+
+                console.log('Réponse du serveur:', response.status, response.statusText);
+
+                if (response.ok) {
+                    // Recharger la page pour afficher le message mis à jour
+                    window.location.reload();
+                } else {
+                    console.error('Erreur de réponse:', response.status, response.statusText);
+                    alert('Erreur lors de la sauvegarde: ' + response.statusText);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur réseau: ' + error.message);
+            }
+        }
+
+        // Fonction pour supprimer un message (déjà existante)
+        function submitDelete(messageId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+                // Soumettre le formulaire de suppression
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/front/forum/message/' + messageId + '/delete';
+                
+                // Ajouter le token CSRF si nécessaire
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                if (csrfToken) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '_token';
+                    tokenInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(tokenInput);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+
+
+    
+
+
+{# ✅ Messages flash affichés UNE SEULE FOIS #}
+
+{% for type, messages in app.flashes %}
+
+    {% for flashMessage in messages %}
+
+        <div class="alert alert-{{ type == 'success' ? 'success' : 'info' }} alert-dismissible fade show mb-2" role="alert" style="font-size: 0.875rem; padding: 0.5rem 0.75rem;">
+
+            {{ flashMessage }}
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.75rem;"></button>
+
+        </div>
+
+    {% endfor %}
+
+{% endfor %}
+
+
+
+<!-- Liste des messages -->
+
+<h2>Messages</h2>
+
+{% if forum.messages is not empty %}
+
+    <ul>
+
+        {% for message in forum.messages %}
+
+            <li class="mb-6">
+
+                <strong class="mb-2" id="message-author-{{ message.id }}">{{ message.createdBy|raw }}</strong>
+
+                <p class="mb-3" id="message-content-{{ message.id }}">{{ message.contenu|raw|nl2br }}</p>
+
+                <div class="message-actions">
+
+                    <div class="flex gap-2 flex-wrap">
+
+                        <!-- Bouton J'aime -->
+                        <button type="button" onclick="incrementLike({{ message.id }})" class="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                            </svg>
+                            J'aime (<span id="like-count-{{ message.id }}">0</span>)
+                        </button>
+
+                        <!-- Bouton Je n'aime pas -->
+                        <button type="button" onclick="incrementDislike({{ message.id }})" class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" transform="rotate(180 10 10)"/>
+                            </svg>
+                            Je n'aime pas (<span id="dislike-count-{{ message.id }}">0</span>)
+                        </button>
+
+                        <!-- Bouton Éditer -->
+                        <button type="button" onclick="showEditForm({{ message.id }})" class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.38-2.827-2.828z"/>
+                            </svg>
+                            Éditer
+                        </button>
+
+                        <!-- Bouton Supprimer -->
+                        <button type="button" onclick="submitDelete({{ message.id }})" class="flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full hover:bg-amber-200 transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0A1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd"/>
+                            </svg>
+                            Supprimer
+                        </button>
+
+                        <!-- Conteneur pour les champs d'édition avec CKEditor (caché par défaut) -->
+                        <div id="edit-fields-{{ message.id }}" style="display: none; margin-top: 10px;" class="w-full">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Votre nom</label>
+                                <textarea id="edit-name-{{ message.id }}" class="ckeditor-edit-nom mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">{{ message.createdBy|raw }}</textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Votre description</label>
+                                <textarea id="edit-message-{{ message.id }}" rows="4" class="ckeditor-edit-contenu mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">{{ message.contenu|raw }}</textarea>
+                            </div>
+                            <button type="button" onclick="saveEditedMessage({{ message.id }})" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Publier</button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </li>
+
+        {% endfor %}
+
+    </ul>
+
+{% else %}
+
+    <p>Aucun message pour ce forum.</p>
+
+{% endif %}
+
+
+
+    <!-- Liens de navigation -->
+
+    <hr>
+
+    <a href="{{ path('app_forum_index') }}"></a>
+
+    <a href="{{ path('app_forum_edit', {'id': forum.id}) }}"></a>
+
+    {{ include('forum/_delete_form.html.twig') }}
+
+{% endblock %}
+
