@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_forum_delete', {'id': forum.id}) }}" 
+      onsubmit="return confirm('Are you sure you want to delete this item?');"
+      data-turbo="false">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ forum.id) }}">
+    <button type="submit" class="btn">Delete</button>
+</form>

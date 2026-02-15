@@ -1,0 +1,251 @@
+{% extends 'forum/Front/base_front.html.twig' %}
+
+{% block title %}Forums{% endblock %}
+
+{% block body %}
+
+<div class="p-8 min-h-full">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Forums de Discussion</h1>
+                <p class="text-muted-foreground">Échangez avec la communauté</p>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <div class="relative">
+                <input type="text" id="forumSearch" placeholder="Rechercher dans les forums..." class="w-full px-4 py-3 pl-10 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <svg class="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-6">Catégories du Forum</h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                {% set categories = {} %}
+                {% for forum in forums %}
+                    {% if forum.categorie %}
+                        {% set categorieName = forum.categorie %}
+                        {# Normalize category names for matching #}
+                        {% if categorieName|lower == 'réseaux informatiques' or categorieName|lower == 'réseau' %}
+                            {% set categorieName = 'Réseau' %}
+                        {% elseif categorieName|lower == 'analyse numérique' %}
+                            {% set categorieName = 'Analyse Numérique' %}
+                        {% elseif categorieName|lower == 'sgbd' or categorieName|lower == 'base de données' %}
+                            {% set categorieName = 'SGBD' %}
+                        {% elseif categorieName|lower == 'théorie des langages' or categorieName|lower == 'langages' %}
+                            {% set categorieName = 'Théorie des langages' %}
+                        {% endif %}
+                        
+                        {% if categories[categorieName] is not defined %}
+                            {% set categories = categories|merge({(categorieName): {'forums': [], 'totalMessages': 0, 'totalSujets': 0}}) %}
+                        {% endif %}
+                        {% set categories = categories|merge({(categorieName): {
+                            'forums': categories[categorieName].forums|merge([forum]),
+                            'totalMessages': categories[categorieName].totalMessages + forum.messages|length,
+                            'totalSujets': categories[categorieName].totalSujets + 1
+                        }}) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if categories['Réseau'] is not defined %}
+                    {% set categories = categories|merge({'Réseau': {'forums': [], 'totalMessages': 0, 'totalSujets': 0}}) %}
+                {% endif %}
+                {% if categories['Analyse Numérique'] is not defined %}
+                    {% set categories = categories|merge({'Analyse Numérique': {'forums': [], 'totalMessages': 0, 'totalSujets': 0}}) %}
+                {% endif %}
+                {% if categories['SGBD'] is not defined %}
+                    {% set categories = categories|merge({'SGBD': {'forums': [], 'totalMessages': 0, 'totalSujets': 0}}) %}
+                {% endif %}
+                {% if categories['Théorie des langages'] is not defined %}
+                    {% set categories = categories|merge({'Théorie des langages': {'forums': [], 'totalMessages': 0, 'totalSujets': 0}}) %}
+                {% endif %}
+                {% if categories['Environnement & Stratégies de l\'entreprise'] is not defined %}
+                    {% set categories = categories|merge({'Environnement & Stratégies de l\'entreprise': {'forums': [], 'totalMessages': 0, 'totalSujets': 0}}) %}
+                {% endif %}
+
+                {% for categorieName, data in categories %}
+                    <div class="bg-white rounded-xl shadow-sm border border-border p-6 hover:shadow-md transition-shadow">
+                        <div class="flex flex-col items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                                {% if categorieName == 'Analyse Numérique' %}
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                {% elseif categorieName == 'Réseau' %}
+                                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                {% elseif categorieName == 'SGBD' %}
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 0c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                                    </svg>
+                                {% elseif categorieName == 'Environnement & Stratégies de l\'entreprise' %}
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-7-7l-2 2m9 14l-7-7m7 7l-2 2M9 3v18m6-18v18"></path>
+                                    </svg>
+                                {% else %}
+                                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            <div class="text-center">
+                                <h3 class="font-bold text-lg">{{ categorieName }}</h3>
+                                <p class="text-sm text-muted-foreground">
+                                    {% if categorieName == 'Analyse Numérique' %}Mathématiques et algorithmes
+                                    {% elseif categorieName == 'Réseau' %}Réseau et sécurité
+                                    {% elseif categorieName == 'SGBD' %}Bases de données et SGBD
+                                    {% elseif categorieName == 'Théorie des langages' %}Théorie des langages
+                                    {% elseif categorieName == 'Design' %}Design et UX
+                                    {% elseif categorieName == 'Environnement & Stratégies de l\'entreprise' %}Environnement & Stratégies de l'entreprise
+                                    {% else %}Discussions diverses{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-sm text-muted-foreground">
+                            {% if data.forums|length > 0 %}
+                                <span>{{ data.forums|length }} sujets</span>
+                            {% endif %}
+                            {% if data.totalMessages > 0 %}
+                                <span>{{ data.totalMessages }} messages</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6">
+            <h2 class="text-xl font-bold mb-6">Liste des Forums</h2>
+
+            {% if forums|length > 0 %}
+                <div class="space-y-4">
+                    {% for forum in forums %}
+                        <a href="{{ path('app_front_forum_show', {'id': forum.id}) }}"
+                           class="block p-5 border border-border rounded-xl hover:border-primary/30 hover:bg-primary/5 transition-all group">
+
+                            <h3 class="font-bold mb-2 group-hover:text-primary transition-colors text-lg">
+                                {{ forum.titre }}
+                            </h3>
+
+                            <p class="text-muted-foreground mb-3">{{ forum.description }}</p>
+
+                            <div class="flex items-center justify-between text-sm text-muted-foreground">
+                                <div class="flex items-center gap-4">
+                                    <span>📅 {{ forum.dateCreation ? forum.dateCreation|date('d/m/Y') : '' }}</span>
+                                    <span>👤 {{ forum.createdBy ?? 'Anonyme' }}</span>
+                                    <span class="px-3 py-1 text-xs rounded-full
+                                        {% if forum.etat|lower == 'actif' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                        {{ forum.etat }}
+                                    </span>
+                                </div>
+
+                                <span class="text-primary font-medium">Voir →</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center text-muted-foreground py-10">Aucun forum trouvé.</div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('forumSearch');
+    const forumLinks = document.querySelectorAll('.space-y-4 a');
+    const categoryCards = document.querySelectorAll('.grid > div');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        // Search in forums
+        forumLinks.forEach(link => {
+            const title = link.querySelector('h3').textContent.toLowerCase();
+            const description = link.querySelector('p').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                link.style.display = 'block';
+            } else {
+                link.style.display = 'none';
+            }
+        });
+        
+        // Search in categories
+        categoryCards.forEach(card => {
+            const categoryName = card.querySelector('h3').textContent.toLowerCase();
+            const categoryDesc = card.querySelector('p').textContent.toLowerCase();
+            
+            if (categoryName.includes(searchTerm) || categoryDesc.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // If searching for "réseau", highlight and scroll to network category
+        if (searchTerm === 'réseau') {
+            const networkCategory = Array.from(categoryCards).find(card => 
+                card.querySelector('h3').textContent.toLowerCase().includes('réseau')
+            );
+            if (networkCategory) {
+                networkCategory.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                networkCategory.style.border = '2px solid #06b6d4';
+                setTimeout(() => {
+                    networkCategory.style.border = '';
+                }, 2000);
+            }
+        }
+        
+        // If searching for "analyse numérique", highlight and scroll to analysis category
+        if (searchTerm.includes('analyse') || searchTerm.includes('numérique')) {
+            const analysisCategory = Array.from(categoryCards).find(card => 
+                card.querySelector('h3').textContent.toLowerCase().includes('analyse numérique')
+            );
+            if (analysisCategory) {
+                analysisCategory.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                analysisCategory.style.border = '2px solid #3b82f6';
+                setTimeout(() => {
+                    analysisCategory.style.border = '';
+                }, 2000);
+            }
+        }
+    });
+    
+    // Handle Enter key press
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            // Find and click the first matching forum or category
+            const visibleForum = Array.from(forumLinks).find(link => 
+                link.style.display !== 'none'
+            );
+            
+            if (visibleForum) {
+                visibleForum.click();
+            } else {
+                // If no forum matches, try to find matching category
+                const visibleCategory = Array.from(categoryCards).find(card => 
+                    card.style.display !== 'none'
+                );
+                
+                if (visibleCategory) {
+                    visibleCategory.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}

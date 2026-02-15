@@ -1,0 +1,14 @@
+twig:
+    form_themes:
+        - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
+
+fos_ck_editor:
+    default_config: default
+    configs:
+        default:
+            toolbar:
+                - ['Bold', 'Italic', 'Underline']
+                - ['NumberedList', 'BulletedList']
+                - ['Link', 'Unlink']
+                - ['Image', 'Table']
+                - ['Source']

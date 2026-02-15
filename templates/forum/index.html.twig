@@ -1,0 +1,119 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block page_title %}Liste des Jeux{% endblock %}
+
+{% block content %}
+<div class="action-buttons">
+    <button class="btn btn-primary btn-action">
+        <i class="bi bi-plus-circle"></i> NOUVEAU JEU
+    </button>
+    <button class="btn btn-success btn-action">
+        <i class="bi bi-file-pdf"></i> EXPORTER EN PDF
+    </button>
+    <button class="btn btn-success btn-action">
+        <i class="bi bi-file-excel"></i> EXPORTER EN EXCEL
+    </button>
+    <button class="btn btn-success btn-action">
+        <i class="bi bi-file-csv"></i> EXPORTER EN CSV
+    </button>
+</div>
+
+<div class="table-container">
+    <h3 class="mb-4">Liste des Jeux</h3>
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Titre</th>
+                    <th>Type</th>
+                    <th>Niveau</th>
+                    <th>Score Max</th>
+                    <th>duration</th>
+                    <th>tentative</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Quiz Mathématiques</td>
+                    <td>Quiz</td>
+                    <td>Débutant</td>
+                    <td>100</td>
+                    <td>30 min</td>
+                    <td>3</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Jeu de Mémoire</td>
+                    <td>Mémoire</td>
+                    <td>Intermédiaire</td>
+                    <td>150</td>
+                    <td>45 min</td>
+                    <td>5</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Devinettes</td>
+                    <td>Question</td>
+                    <td>Avancé</td>
+                    <td>200</td>
+                    <td>60 min</td>
+                    <td>2</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Course de Vitesse</td>
+                    <td>Réflexe</td>
+                    <td>Débutant</td>
+                    <td>120</td>
+                    <td>20 min</td>
+                    <td>Illimité</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

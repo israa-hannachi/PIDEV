@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block title %}Forum{% endblock %}
+
+
+
+{% block body %}
+
+    <h1>Forum</h1>
+
+
+
+    <table class="table">
+
+        <tbody>
+
+            <tr>
+
+                <th>Id</th>
+
+                <td>{{ forum.id }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Forum_id</th>
+
+                <td>{{ forum.forumId }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Titre</th>
+
+                <td>{{ forum.titre }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Description</th>
+
+                <td>{{ forum.description }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Date_creation</th>
+
+                <td>{{ forum.dateCreation ? forum.dateCreation|date('Y-m-d') : '' }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Etat</th>
+
+                <td>{{ forum.etat }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Created_by</th>
+
+                <td>{{ forum.createdBy }}</td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+
+
+    <h2>Messages publiés</h2> 
+
+    {% if forum.messages is not empty %} 
+
+        <ul> 
+
+            {% for message in forum.messages %} 
+
+                <li> 
+
+                    <strong>{{ message.datePublication|date('d/m/Y H:i') }}</strong> : 
+
+                    {{ message.contenu }} 
+
+                </li> 
+
+            {% endfor %} 
+
+        </ul> 
+
+    {% else %} 
+
+        <p>Aucun message publié pour ce forum.</p> 
+
+    {% endif %}
+
+
+
+    <div style="display: flex; gap: 10px; align-items: center; margin-top: 20px;">
+
+        <a href="{{ path('app_forum_index') }}">back to list</a>
+
+        <a href="{{ path('app_forum_edit', {'id': forum.id}) }}">edit</a>
+
+        {{ include('forum/_delete_form.html.twig') }}
+
+    </div>
+
+{% endblock %}
+

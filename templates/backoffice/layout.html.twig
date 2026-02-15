@@ -1,0 +1,392 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Backoffice{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #ffffff;
+            padding-top: 20px;
+            border-right: 1px solid #e2e8f0;
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .nav-link {
+            color: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .sidebar .nav-link.active {
+            background-color: white;
+            color: black;
+        }
+        .sidebar .nav-link i {
+            font-size: 24px;
+            margin-right: 0;
+        }
+        .sidebar-logo {
+            margin-bottom: 30px;
+        }
+        .sidebar-logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        .main-content {
+            padding: 0;
+            background-color: white;
+            min-height: 100vh;
+            color: black;
+        }
+        .border-border {
+            border-color: #e1e7ef;
+        }
+        .text-muted-foreground {
+            color: #64748b;
+        }
+        .bg-input-background {
+            background-color: #f1f5f9;
+        }
+        .text-primary {
+            color: #6366f1;
+        }
+        .bg-primary\/10 {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+        .hover\:bg-primary\/20:hover {
+            background-color: rgba(99, 102, 241, 0.2);
+        }
+        .focus\:border-primary:focus {
+            border-color: #6366f1;
+        }
+        .focus\:ring-primary\/10:focus {
+            --tw-ring-color: rgba(99, 102, 241, 0.1);
+        }
+        .action-buttons {
+            margin-bottom: 20px;
+        }
+        .btn-action {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .page-title {
+            color: black;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        /* Navbar Styles */
+        .navbar-custom {
+            height: 64px;
+            background-color: white;
+            border-bottom: 1px solid #e1e7ef;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .navbar-container {
+            height: 100%;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .navbar-logo {
+            height: 40px;
+            object-fit: contain;
+        }
+        
+        .navbar-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: black;
+        }
+        
+        .navbar-search {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 32px;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            width: 20px;
+            height: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 16px 8px 40px;
+            background-color: #f1f5f9;
+            border: 1px solid #e1e7ef;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1);
+        }
+        
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .admin-btn:hover {
+            background-color: rgba(99, 102, 241, 0.2);
+        }
+        
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: color 0.2s;
+        }
+        
+        .icon-btn:hover {
+            color: #6366f1;
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(to top right, #a855f7, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            z-index: 1000;
+            margin-top: 8px;
+        }
+        
+        .dropdown.show .dropdown-menu {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: #0f172a;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: #6366f1;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <img src="{{ asset('assets2/images/small.png') }}" alt="Logo" />
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="#">
+                <i data-lucide="home"></i>
+                Accueil
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="user"></i>
+                Profil
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="folder"></i>
+                Catégories
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="video"></i>
+                Meet
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="gamepad-2"></i>
+                Jeux
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="calendar"></i>
+                Events
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="message-square"></i>
+                Forums
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content flex-grow-1">
+        <!-- Top Navbar -->
+        <nav class="navbar-custom">
+            <div class="navbar-container">
+                <!-- Logo + nom -->
+                <div class="navbar-brand">
+                    <img src="{{ asset('assets2/images/long logo.png') }}" alt="Naja7ni" class="navbar-logo">
+                </div>
+
+                <!-- Search Bar -->
+                <div class="navbar-search">
+                    <div class="search-container">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" placeholder="Rechercher des cours, modules..." class="search-input">
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="navbar-actions">
+                    <a href="#" class="admin-btn">
+                        <i data-lucide="layout-dashboard" class="btn-icon"></i>
+                        <span>Admin</span>
+                    </a>
+                    <button class="icon-btn relative">
+                        <i data-lucide="bell" class="btn-icon"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <button class="icon-btn">
+                        <i data-lucide="settings" class="btn-icon"></i>
+                    </button>
+                    <div class="dropdown">
+                        <div class="user-avatar" data-bs-toggle="dropdown" style="cursor: pointer;">A</div>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/logout">Se déconnecter</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        {% block content %}
+        <!-- Content will be injected here -->
+        {% endblock %}
+    </main>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+    lucide.createIcons();
+    
+    // Gérer le dropdown du bouton "A"
+    document.addEventListener('DOMContentLoaded', function() {
+        const userAvatar = document.querySelector('.user-avatar');
+        const dropdown = userAvatar.closest('.dropdown');
+        
+        userAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
+        
+        // Fermer le dropdown quand on clique ailleurs
+        document.addEventListener('click', function() {
+            dropdown.classList.remove('show');
+        });
+        
+        // Empêcher la propagation du clic à l'intérieur du dropdown
+        dropdown.querySelector('.dropdown-menu').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+{% endblock %}
