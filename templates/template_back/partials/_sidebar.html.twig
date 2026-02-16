@@ -2,7 +2,7 @@
 <nav class="nxl-navigation">
     <div class="navbar-wrapper">
         <div class="m-header">
-            <a href="{{ path('app_home') }}" class="b-brand">
+            <a href="{{ path('app_admin_dashboard') }}" class="b-brand">
                 <img src="{{ asset('template_back/assets/images/long logo.png') }}" alt="" class="logo logo-lg" style="max-width:160px;height:auto;" />
                 <img src="{{ asset('template_back/assets/images/small.png') }}" alt="" class="logo logo-sm" />
             </a>
@@ -13,10 +13,44 @@
                     <label>Navigation</label>
                 </li>
 
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="{{ path('app_admin_dashboard') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-home"></i></span>
+                        <span class="nxl-mtext">Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="nxl-item nxl-caption">
+                    <label>CRUD</label>
+                </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-folder"></i></span>
+                        <span class="nxl-mtext">Cours</span>
+                        <span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_admin_categorie_index') }}">Catégories</a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_admin_module_index') }}">Modules</a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_admin_cours_index') }}">Cours</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nxl-item nxl-caption">
+                    <label>Front</label>
+                </li>
+
                 <li class="nxl-item">
-                    <a class="nxl-link" href="{{ path('app_categorie_index') }}">
-                        <span class="nxl-micon"><i class="feather-list"></i></span>
-                        <span class="nxl-mtext">Catégories</span>
+                    <a class="nxl-link" href="{{ path('app_home') }}">
+                        <span class="nxl-micon"><i class="feather-arrow-left"></i></span>
+                        <span class="nxl-mtext">Retour au front</span>
                     </a>
                 </li>
             </ul>

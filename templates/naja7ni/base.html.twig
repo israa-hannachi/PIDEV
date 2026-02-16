@@ -117,7 +117,16 @@
                 <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
                     <i data-lucide="settings" class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
                 </button>
-                <div class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105">A</div>
+                <details class="relative">
+                    <summary class="list-none cursor-pointer">
+                        <div class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all transform hover:scale-105">A</div>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-20">
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="#">Etudiant</a>
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="#">Prof</a>
+                        <a class="block px-4 py-2.5 text-sm hover:bg-muted/30 transition" href="{{ path('app_admin_dashboard') }}">Admin</a>
+                    </div>
+                </details>
             </div>
         </nav>
 

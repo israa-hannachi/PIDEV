@@ -46,26 +46,28 @@
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Ajouter un cours
             </a>
-            <a href="{{ path('app_module_edit', {'id': module.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+            <a href="{{ path('app_module_edit', {'id': module.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-semibold shadow hover:shadow-md transition">
                 <i data-lucide="pencil" class="w-4 h-4"></i>
                 Modifier
             </a>
-            {{ include('module/_delete_form.html.twig') }}
+            {% if not module.creeParAdmin %}
+                {{ include('module/_delete_form.html.twig') }}
+            {% endif %}
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+    <div class="bg-muted/10 rounded-2xl shadow-sm border border-border p-8">
         <div class="flex items-center justify-between gap-6 mb-6">
             <h2 class="text-xl font-bold">Cours ({{ module.cours|length }})</h2>
             <div class="flex items-center gap-3">
-                <a href="{{ path('app_favoris_index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                <a href="{{ path('app_favoris_index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-accent-foreground font-semibold shadow-sm hover:brightness-95 transition">
                     <i data-lucide="star" class="w-4 h-4"></i>
                     Mes favoris
                 </a>
                 {% set _sort = sort_cours|default('date_desc') %}
                 {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Date') %}
                 <details class="relative">
-                    <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                    <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-input-background border border-transparent font-semibold hover:bg-white hover:border-border transition">
                         Trier cours ({{ _sortLabel }})
                     </summary>
                     <div class="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-20">
@@ -95,12 +97,12 @@
                                 <div class="flex items-center gap-2">
                                     <h3 class="font-semibold">{{ cour.titre }}</h3>
                                     {% if cour.ordre is not null %}
-                                        <span class="text-xs text-muted-foreground bg-white px-2 py-0.5 rounded border border-border">#{{ cour.ordre }}</span>
+                                        <span class="text-xs text-muted-foreground bg-input-background px-2 py-0.5 rounded border border-border">#{{ cour.ordre }}</span>
                                     {% endif %}
                                     {% if cour.contenu %}
-                                        <span class="text-xs text-muted-foreground bg-white px-2 py-0.5 rounded border border-border">Texte</span>
+                                        <span class="text-xs text-muted-foreground bg-input-background px-2 py-0.5 rounded border border-border">Texte</span>
                                     {% elseif cour.fichierContenu %}
-                                        <span class="text-xs text-muted-foreground bg-white px-2 py-0.5 rounded border border-border">Fichier</span>
+                                        <span class="text-xs text-muted-foreground bg-input-background px-2 py-0.5 rounded border border-border">Fichier</span>
                                     {% endif %}
                                 </div>
                                 {% if cour.description %}
@@ -110,7 +112,7 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <span class="text-xs text-muted-foreground bg-white px-2 py-1 rounded border border-border">
+                            <span class="text-xs text-muted-foreground bg-input-background px-2 py-1 rounded border border-border">
                                 {% if duree > 0 %}
                                     {% if h > 0 %}{{ h }}h{% endif %}{% if m > 0 %} {{ m }}min{% endif %}
                                     {% if h == 0 and m == 0 %}{{ duree }}min{% endif %}
@@ -125,11 +127,11 @@
                                     <i data-lucide="star" class="w-5 h-5 {{ _isFavori ? 'text-accent' : 'text-muted-foreground' }}"></i>
                                 </button>
                             </form>
-                            <a href="{{ path('app_cours_show', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                            <a href="{{ path('app_cours_show', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-primary/30 text-primary font-semibold hover:bg-primary/5 transition">
                                 <i data-lucide="eye" class="w-4 h-4"></i>
                                 Voir
                             </a>
-                            <a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                            <a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary text-white font-semibold shadow hover:shadow-md transition">
                                 <i data-lucide="settings" class="w-4 h-4"></i>
                                 Modifier
                             </a>

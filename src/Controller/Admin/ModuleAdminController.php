@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
 use App\Entity\Categorie;
 use App\Entity\Module;
-use App\Form\ModuleType;
+use App\Form\Admin\ModuleAdminType;
 use App\Repository\CoursRepository;
 use App\Repository\ModuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/module')]
-final class ModuleController extends AbstractController
+#[Route('/admin/modules')]
+final class ModuleAdminController extends AbstractController
 {
-    #[Route(name: 'app_module_index', methods: ['GET'])]
+    #[Route('', name: 'app_admin_module_index', methods: ['GET'])]
     public function index(Request $request, ModuleRepository $moduleRepository): Response
     {
         $sort = (string) $request->query->get('sort', 'date_desc');
@@ -30,58 +30,50 @@ final class ModuleController extends AbstractController
             $qb->orderBy('m.dateCreation', 'DESC');
         }
 
-        return $this->render('module/index.html.twig', [
+        return $this->render('admin/module/index.html.twig', [
             'modules' => $qb->getQuery()->getResult(),
+            'sort' => $sort,
         ]);
     }
 
-    #[Route('/new', name: 'app_module_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_module_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $module = new Module();
 
         $categorieId = $request->query->get('categorie');
-        if (!$categorieId) {
-            throw $this->createNotFoundException('Création de module: catégorie manquante.');
+        if ($categorieId) {
+            $categorie = $entityManager->find(Categorie::class, $categorieId);
+            if ($categorie) {
+                $module->setCategorie($categorie);
+            }
         }
 
-        $categorie = $entityManager->find(Categorie::class, $categorieId);
-        if (!$categorie) {
-            throw $this->createNotFoundException('Catégorie introuvable.');
-        }
-
-        $module->setCategorie($categorie);
-        
-        $form = $this->createForm(ModuleType::class, $module, [
-            'lock_categorie' => true,
-        ]);
+        $form = $this->createForm(ModuleAdminType::class, $module);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $module->setCreeParAdmin(true);
             $entityManager->persist($module);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_categorie_show', ['id' => $module->getCategorie()->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_module_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('module/new.html.twig', [
+        return $this->render('admin/module/new.html.twig', [
             'module' => $module,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_module_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_module_show', methods: ['GET'])]
     public function show(Request $request, ?Module $module, CoursRepository $coursRepository): Response
     {
         if ($module === null) {
-            return $this->redirectToRoute('app_categorie_index');
+            return $this->redirectToRoute('app_admin_module_index');
         }
 
         $sortCours = (string) $request->query->get('sort_cours', 'date_desc');
-
-        $session = $request->getSession();
-        $favorisIds = (array) $session->get('favoris_ids', []);
-        $favorisIds = array_values(array_unique(array_map('intval', $favorisIds)));
 
         $qb = $coursRepository->createQueryBuilder('co')
             ->andWhere('co.module = :module')
@@ -95,65 +87,47 @@ final class ModuleController extends AbstractController
             $qb->orderBy('co.dateCreation', 'DESC');
         }
 
-        return $this->render('module/show.html.twig', [
+        return $this->render('admin/module/show.html.twig', [
             'module' => $module,
             'cours' => $qb->getQuery()->getResult(),
             'sort_cours' => $sortCours,
-            'favoris_ids' => $favorisIds,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_module_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_module_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ?Module $module, EntityManagerInterface $entityManager): Response
     {
         if ($module === null) {
-            return $this->redirectToRoute('app_categorie_index');
+            return $this->redirectToRoute('app_admin_module_index');
         }
 
-        $form = $this->createForm(ModuleType::class, $module, [
-            'lock_categorie' => true,
-        ]);
+        $form = $this->createForm(ModuleAdminType::class, $module);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_module_show', ['id' => $module->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_module_show', ['id' => $module->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('module/edit.html.twig', [
+        return $this->render('admin/module/edit.html.twig', [
             'module' => $module,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_module_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_module_delete', methods: ['POST'])]
     public function delete(Request $request, ?Module $module, EntityManagerInterface $entityManager): Response
     {
         if ($module === null) {
-            return $this->redirectToRoute('app_categorie_index');
+            return $this->redirectToRoute('app_admin_module_index');
         }
-
-        if ($module->isCreeParAdmin()) {
-            throw $this->createAccessDeniedException('Suppression interdite: ce module a été créé par un administrateur.');
-        }
-
-        $categorieId = $module->getCategorie() ? $module->getCategorie()->getId() : null;
-        $referer = $request->headers->get('referer');
 
         if ($this->isCsrfTokenValid('delete'.$module->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($module);
             $entityManager->flush();
         }
 
-        if ($referer) {
-            return $this->redirect($referer);
-        }
-
-        if ($categorieId) {
-            return $this->redirectToRoute('app_categorie_show', ['id' => $categorieId], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->redirectToRoute('app_module_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_module_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -36,7 +36,7 @@ class Cours
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $contenu = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $fichierContenu = null;
 
     #[ORM\Column]
@@ -61,6 +61,9 @@ class Cours
     #[Assert\NotNull(message: "Le statut (actif/inactif) est obligatoire")]
     private ?bool $actif = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $creeParAdmin = false;
+
     #[ORM\ManyToOne(inversedBy: 'cours')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "Le module est obligatoire")]
@@ -71,6 +74,7 @@ class Cours
         $this->dateCreation = new \DateTime();
         $this->actif = true;
         $this->ordre = 0;
+        $this->creeParAdmin = false;
     }
 
     #[ORM\PreUpdate]
@@ -92,6 +96,18 @@ class Cours
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function isCreeParAdmin(): bool
+    {
+        return $this->creeParAdmin;
+    }
+
+    public function setCreeParAdmin(bool $creeParAdmin): static
+    {
+        $this->creeParAdmin = $creeParAdmin;
 
         return $this;
     }

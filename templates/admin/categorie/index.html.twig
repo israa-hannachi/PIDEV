@@ -1,0 +1,63 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Catégories{% endblock %}
+{% block page_title %}Catégories{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">Catégories</h3>
+            <small class="text-muted">Liste des catégories</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+            <a href="{{ path('app_admin_categorie_new') }}" class="btn btn-primary btn-sm">Nouvelle catégorie</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="btn-group" role="group" aria-label="Tri">
+                    <a class="btn btn-outline-secondary btn-sm {{ sort == 'date_desc' ? 'active' : '' }}" href="{{ path('app_admin_categorie_index', {sort: 'date_desc'}) }}">Date</a>
+                    <a class="btn btn-outline-secondary btn-sm {{ sort == 'alpha_asc' ? 'active' : '' }}" href="{{ path('app_admin_categorie_index', {sort: 'alpha_asc'}) }}">A → Z</a>
+                    <a class="btn btn-outline-secondary btn-sm {{ sort == 'alpha_desc' ? 'active' : '' }}" href="{{ path('app_admin_categorie_index', {sort: 'alpha_desc'}) }}">Z → A</a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom</th>
+                        <th>Actif</th>
+                        <th>Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for categorie in categories %}
+                        <tr>
+                            <td>{{ categorie.id }}</td>
+                            <td class="fw-semibold">{{ categorie.nom }}</td>
+                            <td>{{ categorie.actif ? 'Oui' : 'Non' }}</td>
+                            <td>{{ categorie.dateCreation ? categorie.dateCreation|date('d/m/Y') : '-' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_categorie_show', {'id': categorie.id}) }}">Voir</a>
+                                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_categorie_edit', {'id': categorie.id}) }}">Modifier</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Aucune catégorie.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

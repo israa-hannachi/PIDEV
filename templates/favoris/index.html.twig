@@ -17,7 +17,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="{{ path('app_categorie_index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+            <a href="{{ path('app_categorie_index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted hover:bg-muted/70 transition font-semibold">
                 <i data-lucide="list" class="w-4 h-4"></i>
                 Retour aux catégories
             </a>
@@ -31,7 +31,7 @@
                 {% set _sort = sort|default('date_desc') %}
                 {% set _sortLabel = _sort == 'alpha_asc' ? 'A → Z' : (_sort == 'alpha_desc' ? 'Z → A' : 'Date') %}
                 <details class="relative">
-                    <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                    <summary class="list-none cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-input-background border border-transparent font-semibold hover:bg-white hover:border-border transition">
                         Trier ({{ _sortLabel }})
                     </summary>
                     <div class="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-20">
@@ -73,7 +73,7 @@
                                 </button>
                             </form>
                             {% if cour.module and cour.module.categorie %}
-                                <a href="{{ path('app_categorie_show', {'id': cour.module.categorie.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                                <a href="{{ path('app_categorie_show', {'id': cour.module.categorie.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-primary/30 text-primary font-semibold hover:bg-primary/5 transition">
                                     <i data-lucide="eye" class="w-4 h-4"></i>
                                     Voir
                                 </a>

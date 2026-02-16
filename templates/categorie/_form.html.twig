@@ -1,10 +1,10 @@
 {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
     {% if not form.vars.valid %}
-        <div class="p-4 rounded-xl border border-border bg-white text-sm">
+        <div class="p-4 rounded-xl border border-border bg-muted/10 text-sm">
             {{ form_errors(form) }}
         </div>
     {% endif %}
-    <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+    <div class="bg-muted/10 rounded-2xl shadow-sm border border-border p-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
                 {{ form_row(form.nom) }}

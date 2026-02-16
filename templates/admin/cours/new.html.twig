@@ -1,0 +1,21 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Nouveau cours{% endblock %}
+
+{% block page_title %}Nouveau cours{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">Nouveau cours</h3>
+            <small class="text-muted">Créer un cours</small>
+        </div>
+        <a href="{{ path('app_admin_cours_index') }}" class="btn btn-outline-secondary btn-sm">Retour</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {{ include('admin/cours/_form.html.twig', {form: form, button_label: 'Créer'}) }}
+        </div>
+    </div>
+{% endblock %}

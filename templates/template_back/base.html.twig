@@ -20,23 +20,7 @@
     {% endblock %}
 </head>
 <body>
-    <div class="nxl-app">
-        {% include 'template_back/partials/_sidebar.html.twig' %}
-        <div class="nxl-main">
-            {% include 'template_back/partials/_header.html.twig' %}
-            <main class="nxl-content">
-                <div class="main-content">
-                    {% for label, messages in app.flashes %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ label }}" role="alert">{{ message }}</div>
-                        {% endfor %}
-                    {% endfor %}
-
-                    {% block body %}{% endblock %}
-                </div>
-            </main>
-        </div>
-    </div>
+    {% block body %}{% endblock %}
 
     {% block javascripts %}
         <script src="{{ asset('template_back/assets/vendors/js/vendors.min.js') }}"></script>
@@ -46,6 +30,22 @@
         <script src="{{ asset('template_back/assets/js/common-init.min.js') }}"></script>
         <script src="{{ asset('template_back/assets/js/dashboard-init.min.js') }}"></script>
         <script src="{{ asset('template_back/assets/js/theme-customizer-init.min.js') }}"></script>
+
+        <script>
+            $(document).ready(function() {
+                $('.nxl-hasmenu > .nxl-link').on('click', function(e) {
+                    e.preventDefault();
+                    var $parent = $(this).parent();
+                    if ($parent.hasClass('nxl-open')) {
+                        $parent.removeClass('nxl-open');
+                        $parent.find('.nxl-submenu').slideUp();
+                    } else {
+                        $parent.addClass('nxl-open');
+                        $parent.find('.nxl-submenu').slideDown();
+                    }
+                });
+            });
+        </script>
     {% endblock %}
 </body>
 </html>

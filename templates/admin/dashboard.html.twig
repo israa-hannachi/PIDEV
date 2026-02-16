@@ -1,0 +1,44 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="mb-0">Dashboard</h3>
+        <a href="{{ path('app_home') }}" class="btn btn-outline-secondary btn-sm">Retour au front</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Catégories</h5>
+                    <p class="card-text text-muted">Gérer les catégories.</p>
+                    <a href="{{ path('app_admin_categorie_index') }}" class="btn btn-primary">Ouvrir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Modules</h5>
+                    <p class="card-text text-muted">Gérer les modules.</p>
+                    <a href="{{ path('app_admin_module_index') }}" class="btn btn-primary">Ouvrir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Cours</h5>
+                    <p class="card-text text-muted">Gérer les cours.</p>
+                    <a href="{{ path('app_admin_cours_index') }}" class="btn btn-primary">Ouvrir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

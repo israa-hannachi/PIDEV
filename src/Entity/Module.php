@@ -55,6 +55,9 @@ class Module
     #[Assert\NotNull(message: "Le statut (actif/inactif) est obligatoire")]
     private ?bool $actif = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $creeParAdmin = false;
+
     #[ORM\ManyToOne(inversedBy: 'modules')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "La catégorie est obligatoire")]
@@ -71,6 +74,7 @@ class Module
         $this->cours = new ArrayCollection();
         $this->dateCreation = new \DateTime();
         $this->actif = true;
+        $this->creeParAdmin = false;
     }
 
     public function getId(): ?int
@@ -86,6 +90,18 @@ class Module
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function isCreeParAdmin(): bool
+    {
+        return $this->creeParAdmin;
+    }
+
+    public function setCreeParAdmin(bool $creeParAdmin): static
+    {
+        $this->creeParAdmin = $creeParAdmin;
 
         return $this;
     }

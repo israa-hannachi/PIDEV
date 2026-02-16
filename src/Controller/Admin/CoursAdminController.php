@@ -1,31 +1,26 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use App\Entity\Cours;
-use App\Entity\Module;
-use App\Form\CoursType;
+use App\Form\Admin\CoursAdminType;
 use App\Repository\CoursRepository;
 use App\Service\CloudinaryUploader;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/cours')]
-final class CoursController extends AbstractController
+#[Route('/admin/cours')]
+final class CoursAdminController extends AbstractController
 {
-    #[Route(name: 'app_cours_index', methods: ['GET'])]
+    #[Route('', name: 'app_admin_cours_index', methods: ['GET'])]
     public function index(Request $request, CoursRepository $coursRepository): Response
     {
         $sort = (string) $request->query->get('sort', 'date_desc');
-
-        $session = $request->getSession();
-        $favorisIds = (array) $session->get('favoris_ids', []);
-        $favorisIds = array_values(array_unique(array_map('intval', $favorisIds)));
 
         $qb = $coursRepository->createQueryBuilder('co');
         if ($sort === 'alpha_asc') {
@@ -36,32 +31,18 @@ final class CoursController extends AbstractController
             $qb->orderBy('co.dateCreation', 'DESC');
         }
 
-        return $this->render('cours/index.html.twig', [
+        return $this->render('admin/cours/index.html.twig', [
             'cours' => $qb->getQuery()->getResult(),
-            'favoris_ids' => $favorisIds,
+            'sort' => $sort,
         ]);
     }
 
-    #[Route('/new', name: 'app_cours_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_cours_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, CloudinaryUploader $cloudinaryUploader): Response
     {
         $cour = new Cours();
-        
-        $moduleId = $request->query->get('module');
-        if (!$moduleId) {
-            throw $this->createNotFoundException('Création de cours: module manquant.');
-        }
 
-        $module = $entityManager->find(Module::class, $moduleId);
-        if (!$module) {
-            throw $this->createNotFoundException('Module introuvable.');
-        }
-
-        $cour->setModule($module);
-        
-        $form = $this->createForm(CoursType::class, $cour, [
-            'lock_module' => true,
-        ]);
+        $form = $this->createForm(CoursAdminType::class, $cour);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -73,7 +54,7 @@ final class CoursController extends AbstractController
                 } catch (\Throwable $e) {
                     $this->addFlash('danger', 'Upload du fichier impossible: ' . $e->getMessage());
 
-                    return $this->render('cours/new.html.twig', [
+                    return $this->render('admin/cours/new.html.twig', [
                         'cour' => $cour,
                         'form' => $form,
                     ]);
@@ -84,37 +65,29 @@ final class CoursController extends AbstractController
                 $cour->setFichierContenu(null);
             }
 
+            $cour->setCreeParAdmin(true);
+
             $entityManager->persist($cour);
             $entityManager->flush();
 
-            // Rediriger vers la page du module si disponible
-            if ($cour->getModule()) {
-                return $this->redirectToRoute('app_module_show', ['id' => $cour->getModule()->getId()], Response::HTTP_SEE_OTHER);
-            }
-
-            return $this->redirectToRoute('app_cours_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_cours_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('cours/new.html.twig', [
+        return $this->render('admin/cours/new.html.twig', [
             'cour' => $cour,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_cours_show', methods: ['GET'])]
-    public function show(Request $request, Cours $cour): Response
+    #[Route('/{id}', name: 'app_admin_cours_show', methods: ['GET'])]
+    public function show(Cours $cour): Response
     {
-        $session = $request->getSession();
-        $favorisIds = (array) $session->get('favoris_ids', []);
-        $favorisIds = array_values(array_unique(array_map('intval', $favorisIds)));
-
-        return $this->render('cours/show.html.twig', [
+        return $this->render('admin/cours/show.html.twig', [
             'cour' => $cour,
-            'favoris_ids' => $favorisIds,
         ]);
     }
 
-    #[Route('/{id}/pdf', name: 'app_cours_pdf', methods: ['GET'])]
+    #[Route('/{id}/pdf', name: 'app_admin_cours_pdf', methods: ['GET'])]
     public function pdf(Cours $cour): Response
     {
         $contenuRaw = (string) ($cour->getContenu() ?? '');
@@ -148,12 +121,10 @@ final class CoursController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_cours_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_cours_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Cours $cour, EntityManagerInterface $entityManager, CloudinaryUploader $cloudinaryUploader): Response
     {
-        $form = $this->createForm(CoursType::class, $cour, [
-            'lock_module' => true,
-        ]);
+        $form = $this->createForm(CoursAdminType::class, $cour);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -165,7 +136,7 @@ final class CoursController extends AbstractController
                 } catch (\Throwable $e) {
                     $this->addFlash('danger', 'Upload du fichier impossible: ' . $e->getMessage());
 
-                    return $this->render('cours/edit.html.twig', [
+                    return $this->render('admin/cours/edit.html.twig', [
                         'cour' => $cour,
                         'form' => $form,
                     ]);
@@ -185,52 +156,23 @@ final class CoursController extends AbstractController
 
             $entityManager->flush();
 
-            // Rediriger vers la page du module si disponible
-            if ($cour->getModule()) {
-                return $this->redirectToRoute('app_module_show', ['id' => $cour->getModule()->getId()], Response::HTTP_SEE_OTHER);
-            }
-
-            return $this->redirectToRoute('app_cours_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_cours_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('cours/edit.html.twig', [
+        return $this->render('admin/cours/edit.html.twig', [
             'cour' => $cour,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_cours_delete', methods: ['POST'])]
-    public function delete(Request $request, ?Cours $cour, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'app_admin_cours_delete', methods: ['POST'])]
+    public function delete(Request $request, Cours $cour, EntityManagerInterface $entityManager): Response
     {
-        if ($cour === null) {
-            return $this->redirectToRoute('app_cours_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        if ($cour->isCreeParAdmin()) {
-            throw $this->createAccessDeniedException('Suppression interdite: ce cours a été créé par un administrateur.');
-        }
-
-        $deletedId = $cour->getId();
-        $moduleId = $cour->getModule() ? $cour->getModule()->getId() : null;
-        $referer = $request->headers->get('referer');
-
         if ($this->isCsrfTokenValid('delete'.$cour->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($cour);
             $entityManager->flush();
         }
 
-        if ($referer) {
-            $refererPath = (string) (parse_url($referer, PHP_URL_PATH) ?? '');
-            $deletedShowPath = $this->generateUrl('app_cours_show', ['id' => $deletedId]);
-            if ($refererPath !== '' && $refererPath !== $deletedShowPath) {
-                return $this->redirect($referer);
-            }
-        }
-
-        if ($moduleId) {
-            return $this->redirectToRoute('app_module_show', ['id' => $moduleId], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->redirectToRoute('app_cours_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_cours_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -1,0 +1,69 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Module{% endblock %}
+{% block page_title %}Détails module{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">{{ module.titre }}</h3>
+            <small class="text-muted">Cours du module</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_admin_module_index') }}" class="btn btn-outline-secondary btn-sm">Retour</a>
+            <a href="{{ path('app_admin_cours_new') }}" class="btn btn-primary btn-sm">Nouveau cours</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="btn-group" role="group" aria-label="Tri">
+                    <a class="btn btn-outline-secondary btn-sm {{ sort_cours == 'date_desc' ? 'active' : '' }}" href="{{ path('app_admin_module_show', {id: module.id, sort_cours: 'date_desc'}) }}">Date</a>
+                    <a class="btn btn-outline-secondary btn-sm {{ sort_cours == 'alpha_asc' ? 'active' : '' }}" href="{{ path('app_admin_module_show', {id: module.id, sort_cours: 'alpha_asc'}) }}">A → Z</a>
+                    <a class="btn btn-outline-secondary btn-sm {{ sort_cours == 'alpha_desc' ? 'active' : '' }}" href="{{ path('app_admin_module_show', {id: module.id, sort_cours: 'alpha_desc'}) }}">Z → A</a>
+                </div>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_module_edit', {id: module.id}) }}">Modifier module</a>
+                    {% if module.categorie %}
+                        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_categorie_show', {id: module.categorie.id}) }}">Voir catégorie</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Actif</th>
+                        <th>Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for cour in cours %}
+                        <tr>
+                            <td>{{ cour.id }}</td>
+                            <td class="fw-semibold">{{ cour.titre }}</td>
+                            <td>{{ cour.actif ? 'Oui' : 'Non' }}</td>
+                            <td>{{ cour.dateCreation ? cour.dateCreation|date('d/m/Y') : '-' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_cours_show', {id: cour.id}) }}">Voir</a>
+                                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_cours_edit', {id: cour.id}) }}">Modifier</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Aucun cours.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

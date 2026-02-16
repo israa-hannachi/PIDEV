@@ -1,0 +1,117 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Recherche{% endblock %}
+{% block page_title %}Recherche (Cours){% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">Recherche</h3>
+            <small class="text-muted">Recherche avancée dans les cours (backoffice)</small>
+        </div>
+        <a href="{{ path('app_admin_cours_index') }}" class="btn btn-outline-secondary btn-sm">Tous les cours</a>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" action="{{ path('app_admin_search') }}" class="row g-3 align-items-end">
+                <div class="col-12 col-lg-4">
+                    <label class="form-label">Mot clé</label>
+                    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Titre, description..." />
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    <label class="form-label">Catégorie</label>
+                    <select name="categorie" class="form-select">
+                        <option value="">Toutes</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {{ (categorie_id|default('')) == (cat.id ~ '') ? 'selected' : '' }}>{{ cat.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    <label class="form-label">Module</label>
+                    <select name="module" class="form-select">
+                        <option value="">Tous</option>
+                        {% for mod in modules %}
+                            <option value="{{ mod.id }}" {{ (module_id|default('')) == (mod.id ~ '') ? 'selected' : '' }}>{{ mod.titre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-2">
+                    <label class="form-label">Actif</label>
+                    <select name="actif" class="form-select">
+                        <option value="" {{ actif is empty ? 'selected' : '' }}>Tous</option>
+                        <option value="1" {{ actif == '1' ? 'selected' : '' }}>Oui</option>
+                        <option value="0" {{ actif == '0' ? 'selected' : '' }}>Non</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    <label class="form-label">Tri</label>
+                    <select name="sort" class="form-select">
+                        <option value="date_desc" {{ sort == 'date_desc' ? 'selected' : '' }}>Date (récent)</option>
+                        <option value="alpha_asc" {{ sort == 'alpha_asc' ? 'selected' : '' }}>A → Z</option>
+                        <option value="alpha_desc" {{ sort == 'alpha_desc' ? 'selected' : '' }}>Z → A</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="1" id="include_contenu" name="include_contenu" {{ include_contenu ? 'checked' : '' }}>
+                        <label class="form-check-label" for="include_contenu">Inclure le contenu (texte)</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6 d-flex gap-2 justify-content-end">
+                    <a class="btn btn-outline-secondary" href="{{ path('app_admin_search') }}">Réinitialiser</a>
+                    <button class="btn btn-primary" type="submit">Rechercher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Catégorie</th>
+                        <th>Module</th>
+                        <th>Actif</th>
+                        <th>Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for cour in cours %}
+                        <tr>
+                            <td>{{ cour.id }}</td>
+                            <td class="fw-semibold">{{ cour.titre }}</td>
+                            <td>{{ cour.module and cour.module.categorie ? cour.module.categorie.nom : '-' }}</td>
+                            <td>{{ cour.module ? cour.module.titre : '-' }}</td>
+                            <td>{{ cour.actif ? 'Oui' : 'Non' }}</td>
+                            <td>{{ cour.dateCreation ? cour.dateCreation|date('d/m/Y') : '-' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_cours_show', {id: cour.id}) }}">Voir</a>
+                                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_cours_edit', {id: cour.id}) }}">Modifier</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Aucun résultat.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

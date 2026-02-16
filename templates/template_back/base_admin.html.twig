@@ -1,0 +1,174 @@
+{% extends 'template_back/base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        html, body {
+            margin: 0;
+        }
+
+        .nxl-container {
+            margin: 0;
+            padding: 0;
+            max-width: none;
+            width: 100%;
+        }
+
+        .admin-shell {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .admin-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nxl-navigation {
+            position: sticky;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            flex: 0 0 280px;
+            width: 280px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .nxl-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nxl-header,
+        .nxl-header > .header-wrapper {
+            min-height: 56px !important;
+            height: 56px !important;
+        }
+
+        .nxl-header > .header-wrapper {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .nxl-header .header-left,
+        .nxl-header .header-right {
+            min-height: 56px !important;
+            height: 56px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .nxl-header .nxl-h-item {
+            margin-left: 10px !important;
+        }
+
+        .nxl-header .user-avtar {
+            width: 32px !important;
+            height: 32px !important;
+        }
+
+        .nxl-content {
+            flex: 1 1 auto;
+            min-width: 0;
+            transform: translateY(-18px) !important;
+        }
+
+        .page-header {
+            padding: 10px 16px;
+            margin-bottom: 8px;
+            margin-top: 0 !important;
+        }
+
+        .page-header-title h5 {
+            margin-bottom: 0;
+        }
+
+        .main-content {
+            padding-top: 8px;
+        }
+
+        body.sidebar-collapsed .nxl-navigation {
+            flex-basis: 84px;
+            width: 84px;
+        }
+
+        body.sidebar-collapsed .nxl-navigation .logo-lg {
+            display: none;
+        }
+
+        body.sidebar-collapsed .nxl-navigation .nxl-mtext,
+        body.sidebar-collapsed .nxl-navigation .nxl-caption,
+        body.sidebar-collapsed .nxl-navigation .nxl-arrow,
+        body.sidebar-collapsed .nxl-navigation .nxl-submenu {
+            display: none !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .nxl-navigation {
+                position: fixed;
+                z-index: 1000;
+                transform: translateX(0);
+                transition: transform 200ms ease;
+            }
+
+            body.sidebar-collapsed .nxl-navigation {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="nxl-container admin-shell">
+        {% include 'template_back/partials/_sidebar.html.twig' %}
+
+        <div class="admin-main">
+            {% include 'template_back/partials/_header.html.twig' %}
+
+            <div class="nxl-content">
+                <div class="page-header">
+                    <div class="page-header-left d-flex align-items-center">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">{% block page_title %}Dashboard{% endblock %}</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label }}" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% block admin_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var btn = document.getElementById('navigation-toggle');
+            if (!btn) {
+                return;
+            }
+
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.body.classList.toggle('sidebar-collapsed');
+            });
+        })();
+    </script>
+{% endblock %}

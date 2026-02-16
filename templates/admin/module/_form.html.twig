@@ -1,0 +1,30 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_errors(form) }}
+
+    <div class="row g-3">
+        <div class="col-12">
+            {{ form_row(form.titre) }}
+        </div>
+        <div class="col-12">
+            {{ form_row(form.description) }}
+        </div>
+        <div class="col-12 col-md-4">
+            {{ form_row(form.duree) }}
+        </div>
+        <div class="col-12 col-md-4">
+            {{ form_row(form.niveau) }}
+        </div>
+        <div class="col-12 col-md-4">
+            {{ form_row(form.actif) }}
+        </div>
+        <div class="col-12">
+            {{ form_row(form.categorie) }}
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-end gap-2">
+        <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    </div>
+{{ form_end(form) }}

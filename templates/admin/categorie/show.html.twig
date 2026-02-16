@@ -1,0 +1,66 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Catégorie{% endblock %}
+{% block page_title %}Détails catégorie{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">{{ categorie.nom }}</h3>
+            <small class="text-muted">Modules de la catégorie</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_admin_categorie_index') }}" class="btn btn-outline-secondary btn-sm">Retour</a>
+            <a href="{{ path('app_admin_module_new', {categorie: categorie.id}) }}" class="btn btn-primary btn-sm">Nouveau module</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="btn-group" role="group" aria-label="Tri">
+                    <a class="btn btn-outline-secondary btn-sm {{ sort_modules == 'date_desc' ? 'active' : '' }}" href="{{ path('app_admin_categorie_show', {id: categorie.id, sort_modules: 'date_desc'}) }}">Date</a>
+                    <a class="btn btn-outline-secondary btn-sm {{ sort_modules == 'alpha_asc' ? 'active' : '' }}" href="{{ path('app_admin_categorie_show', {id: categorie.id, sort_modules: 'alpha_asc'}) }}">A → Z</a>
+                    <a class="btn btn-outline-secondary btn-sm {{ sort_modules == 'alpha_desc' ? 'active' : '' }}" href="{{ path('app_admin_categorie_show', {id: categorie.id, sort_modules: 'alpha_desc'}) }}">Z → A</a>
+                </div>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_categorie_edit', {id: categorie.id}) }}">Modifier catégorie</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Niveau</th>
+                        <th>Durée</th>
+                        <th>Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for module in modules %}
+                        <tr>
+                            <td>{{ module.id }}</td>
+                            <td class="fw-semibold">{{ module.titre }}</td>
+                            <td>{{ module.niveau }}</td>
+                            <td>{{ module.duree }}</td>
+                            <td>{{ module.dateCreation ? module.dateCreation|date('d/m/Y') : '-' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_module_show', {id: module.id}) }}">Voir</a>
+                                    <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_module_edit', {id: module.id}) }}">Modifier</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Aucun module.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

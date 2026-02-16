@@ -30,7 +30,7 @@
             {% set _isFavori = favoris_ids is defined and (cour.id in favoris_ids) %}
             <form method="post" action="{{ path('app_favoris_toggle', {'id': cour.id}) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('toggle_favori' ~ cour.id) }}">
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition" title="{{ _isFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent/15 border border-accent/30 text-foreground font-semibold hover:bg-accent/25 transition" title="{{ _isFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
                     <i data-lucide="star" class="w-4 h-4 {{ _isFavori ? 'text-accent' : 'text-muted-foreground' }}"></i>
                     Favori
                 </button>
@@ -41,15 +41,17 @@
                     Exporter PDF
                 </a>
             {% endif %}
-            <a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+            <a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-semibold shadow hover:shadow-md transition">
                 <i data-lucide="pencil" class="w-4 h-4"></i>
                 Modifier
             </a>
-            {{ include('cours/_delete_form.html.twig') }}
+            {% if not cour.creeParAdmin %}
+                {{ include('cours/_delete_form.html.twig') }}
+            {% endif %}
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-border p-8 space-y-6">
+    <div class="bg-muted/10 rounded-2xl shadow-sm border border-border p-8 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
             <div class="p-4 rounded-xl bg-muted/20 border border-border">
                 <div class="text-muted-foreground">Durée</div>
@@ -66,9 +68,10 @@
             {% if cour.contenu %}
                 <div class="p-4 rounded-xl border border-border bg-muted/10 text-sm prose max-w-none">{{ cour.contenu|raw }}</div>
             {% elseif cour.fichierContenu %}
-                {% set fileUrl = asset('uploads/cours_fichiers/' ~ cour.fichierContenu) %}
-                {% set ext = (cour.fichierContenu|split('.')|last)|lower %}
-                <a class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition" href="{{ asset('uploads/cours_fichiers/' ~ cour.fichierContenu) }}" target="_blank" rel="noopener">
+                {% set _isRemote = cour.fichierContenu starts with 'http://' or cour.fichierContenu starts with 'https://' %}
+                {% set fileUrl = _isRemote ? cour.fichierContenu : asset('uploads/cours_fichiers/' ~ cour.fichierContenu) %}
+                {% set ext = (fileUrl|split('?')|first|split('.')|last)|lower %}
+                <a class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition" href="{{ fileUrl }}" target="_blank" rel="noopener">
                     <i data-lucide="download" class="w-4 h-4"></i>
                     Télécharger le fichier
                 </a>
