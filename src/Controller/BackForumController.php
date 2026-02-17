@@ -27,17 +27,6 @@ class BackForumController extends AbstractController
     {
         $forum = new Forum();
         
-        // Pré-remplir le createdBy avec l'utilisateur connecté
-        $user = $this->getUser();
-        if ($user) {
-            $creatorName = method_exists($user, 'getNom') && method_exists($user, 'getPrenom') 
-                ? $user->getNom() . ' ' . $user->getPrenom() 
-                : $user->getUserIdentifier();
-            $forum->setCreatedBy($creatorName);
-        } else {
-            $forum->setCreatedBy('Anonyme');
-        }
-        
         $form = $this->createForm(ForumType::class, $forum);
         $form->handleRequest($request);
 
@@ -49,6 +38,8 @@ class BackForumController extends AbstractController
             
             $em->persist($forum);
             $em->flush();
+
+            $this->addFlash('success', 'Le forum a été créé avec succès !');
 
             return $this->redirectToRoute('app_back_forum_index', [], Response::HTTP_SEE_OTHER);
         }

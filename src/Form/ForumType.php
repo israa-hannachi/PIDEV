@@ -13,19 +13,51 @@ class ForumType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('titre')
-            ->add('description')
+            ->add('titre', null, [
+                'label' => 'Titre',
+                'attr' => [
+                    'placeholder' => 'Entrez le titre du forum (minimum 3 caractères)',
+                    'class' => 'form-control'
+                ],
+                'required' => true,
+            ])
+            ->add('description', null, [
+                'label' => 'Description',
+                'attr' => [
+                    'placeholder' => 'Entrez la description du forum (minimum 10 caractères)',
+                    'rows' => 4,
+                    'class' => 'form-control'
+                ],
+                'required' => true,
+            ])
             ->add('date_creation', null, [
+                'label' => 'Date de création',
                 'widget' => 'single_text',
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'required' => false,
             ])
             ->add('etat', ChoiceType::class, [
+                'label' => 'État',
                 'choices' => [
                     'Actif' => 'actif',
                     'Inactif' => 'inactif',
                 ],
                 'placeholder' => 'Choisir un état',
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'required' => true,
             ])
-            ->add('createdBy')
+            ->add('createdBy', null, [
+                'label' => 'Créé par',
+                'attr' => [
+                    'placeholder' => 'Nom du créateur',
+                    'class' => 'form-control'
+                ],
+                'required' => true,
+            ])
         ;
     }
 

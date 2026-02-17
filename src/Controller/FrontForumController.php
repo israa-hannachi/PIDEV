@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Forum;
 use App\Entity\Message;
 use App\Form\MessageType;
+use App\Form\ForumType;
 use App\Repository\ForumRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,6 +20,45 @@ final class FrontForumController extends AbstractController
     {
         return $this->render('front_forum/index.html.twig', [
             'forums' => $forumRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/front/forum/new', name: 'app_front_forum_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $forum = new Forum();
+        $form = $this->createForm(ForumType::class, $forum);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Définir la date de création si non définie
+            if (!$forum->getDateCreation()) {
+                $forum->setDateCreation(new \DateTimeImmutable());
+            }
+            
+            // Définir l'état par défaut si non défini
+            if (!$forum->getEtat()) {
+                $forum->setEtat('Actif');
+            }
+            
+            // Définir l'auteur si connecté
+            if ($this->getUser()) {
+                $forum->setCreatedBy($this->getUser()->getUsername());
+            } elseif (!$forum->getCreatedBy()) {
+                $forum->setCreatedBy('Anonyme');
+            }
+
+            $entityManager->persist($forum);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Forum créé avec succès !');
+
+            return $this->redirectToRoute('app_front_forum');
+        }
+
+        return $this->render('front_forum/new.html.twig', [
+            'forum' => $forum,
+            'form' => $form->createView(),
         ]);
     }
 

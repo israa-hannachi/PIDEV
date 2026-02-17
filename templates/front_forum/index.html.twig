@@ -24,9 +24,9 @@
             </div>
         </div>
 
-        <div class="mb-8">
+        <div class="mb-8" id="categoriesSection">
             <h2 class="text-2xl font-bold mb-6">Catégories du Forum</h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6" id="categoriesGrid">
                 {% set categories = {} %}
                 {% for forum in forums %}
                     {% if forum.categorie %}
@@ -121,14 +121,15 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-border p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6" id="forumsSection">
             <h2 class="text-xl font-bold mb-6">Liste des Forums</h2>
 
             {% if forums|length > 0 %}
-                <div class="space-y-4">
+                <div class="space-y-4" id="forumsList">
                     {% for forum in forums %}
                         <a href="{{ path('app_front_forum_show', {'id': forum.id}) }}"
-                           class="block p-5 border border-border rounded-xl hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                           class="block p-5 border border-border rounded-xl hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                           data-category="{{ forum.categorie|lower }}">
 
                             <h3 class="font-bold mb-2 group-hover:text-primary transition-colors text-lg">
                                 {{ forum.titre }}
@@ -160,90 +161,52 @@
 </div>
 
 <script>
+// Test simple pour vérifier que le JavaScript fonctionne
+console.log('JavaScript chargé!');
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM chargé!');
+    
     const searchInput = document.getElementById('forumSearch');
-    const forumLinks = document.querySelectorAll('.space-y-4 a');
-    const categoryCards = document.querySelectorAll('.grid > div');
+    console.log('Input trouvé:', searchInput);
+    
+    if (!searchInput) {
+        console.error('Barre de recherche NON TROUVÉE!');
+        return;
+    }
     
     searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
+        console.log('=== RECHERCHE ACTIVÉE ===');
+        console.log('Terme recherché:', searchTerm);
         
-        // Search in forums
-        forumLinks.forEach(link => {
-            const title = link.querySelector('h3').textContent.toLowerCase();
-            const description = link.querySelector('p').textContent.toLowerCase();
+        // Récupérer tous les forums
+        const allForums = document.querySelectorAll('#forumsList a');
+        console.log('Nombre total de forums:', allForums.length);
+        
+        if (searchTerm === '') {
+            console.log('Terme vide - tout afficher');
+            allForums.forEach(forum => forum.style.display = 'block');
+            return;
+        }
+        
+        // Vérifier chaque forum
+        allForums.forEach((forum, index) => {
+            const titleElement = forum.querySelector('h3');
+            const title = titleElement ? titleElement.textContent.trim() : 'PAS DE TITRE';
+            const titleLower = title.toLowerCase();
             
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                link.style.display = 'block';
+            console.log(`Forum ${index}: "${title}"`);
+            console.log(`  - Test: "${titleLower}".startsWith("${searchTerm}") = ${titleLower.startsWith(searchTerm)}`);
+            
+            if (titleLower.startsWith(searchTerm)) {
+                forum.style.display = 'block';
+                console.log('  ✓ AFFICHÉ');
             } else {
-                link.style.display = 'none';
+                forum.style.display = 'none';
+                console.log('  ✗ MASQUÉ');
             }
         });
-        
-        // Search in categories
-        categoryCards.forEach(card => {
-            const categoryName = card.querySelector('h3').textContent.toLowerCase();
-            const categoryDesc = card.querySelector('p').textContent.toLowerCase();
-            
-            if (categoryName.includes(searchTerm) || categoryDesc.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // If searching for "réseau", highlight and scroll to network category
-        if (searchTerm === 'réseau') {
-            const networkCategory = Array.from(categoryCards).find(card => 
-                card.querySelector('h3').textContent.toLowerCase().includes('réseau')
-            );
-            if (networkCategory) {
-                networkCategory.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                networkCategory.style.border = '2px solid #06b6d4';
-                setTimeout(() => {
-                    networkCategory.style.border = '';
-                }, 2000);
-            }
-        }
-        
-        // If searching for "analyse numérique", highlight and scroll to analysis category
-        if (searchTerm.includes('analyse') || searchTerm.includes('numérique')) {
-            const analysisCategory = Array.from(categoryCards).find(card => 
-                card.querySelector('h3').textContent.toLowerCase().includes('analyse numérique')
-            );
-            if (analysisCategory) {
-                analysisCategory.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                analysisCategory.style.border = '2px solid #3b82f6';
-                setTimeout(() => {
-                    analysisCategory.style.border = '';
-                }, 2000);
-            }
-        }
-    });
-    
-    // Handle Enter key press
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const searchTerm = this.value.toLowerCase().trim();
-            
-            // Find and click the first matching forum or category
-            const visibleForum = Array.from(forumLinks).find(link => 
-                link.style.display !== 'none'
-            );
-            
-            if (visibleForum) {
-                visibleForum.click();
-            } else {
-                // If no forum matches, try to find matching category
-                const visibleCategory = Array.from(categoryCards).find(card => 
-                    card.style.display !== 'none'
-                );
-                
-                if (visibleCategory) {
-                    visibleCategory.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        }
     });
 });
 </script>

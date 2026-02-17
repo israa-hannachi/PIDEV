@@ -38,7 +38,7 @@
             </select>
         </div>
         <div class="col-md-3">
-            <button id="applyFilters" class="btn btn-primary">APPLIQUER</button>
+            <button id="applyFilters" class="btn btn-primary" onclick="applyFiltersFunction()">APPLIQUER</button>
         </div>
     </div>
     
@@ -56,7 +56,7 @@
             </thead>
             <tbody>
                 {% for forum in forums %}
-                    <tr data-title="{{ forum.titre|lower }}" data-creator="{{ forum.createdBy ? forum.createdBy|lower : '' }}" data-date="{{ forum.dateCreation ? forum.dateCreation|date('Y-m-d') : '' }}">
+                    <tr data-title="{{ forum.titre|default('')|lower }}" data-creator="{{ forum.createdBy|default('')|lower }}" data-date="{{ forum.dateCreation ? forum.dateCreation|date('Y-m-d') : '' }}">
                         <td>{{ loop.index }}</td>
                         <td>{{ forum.titre }}</td>
                         <td>{{ forum.createdBy ? forum.createdBy }}</td>
@@ -96,73 +96,157 @@
 </div>
 
 <script>
+// Stocker les données originales des forums au chargement
+let originalForumsData = [];
+
+// Debug: Vérifier les attributs data au chargement
 document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('#forumsTable tbody tr[data-title]');
+    console.log('Nombre de lignes trouvées avec data-title:', rows.length);
+    
+    // Stocker les données originales
+    rows.forEach((row, index) => {
+        const forumData = {
+            title: row.dataset.title || '',
+            creator: row.dataset.creator || '',
+            date: row.dataset.date || '',
+            element: row.cloneNode(true) // Cloner l'élément original
+        };
+        originalForumsData.push(forumData);
+        console.log(`Ligne ${index}:`, forumData);
+    });
+    
+    // Ajouter l'écouteur d'événement pour la recherche instantanée
+    const searchInput = document.getElementById('searchTitle');
+    const searchCreatorInput = document.getElementById('searchCreator');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            performInstantSearch();
+        });
+        console.log('Search input instant listener attached');
+    }
+    
+    if (searchCreatorInput) {
+        searchCreatorInput.addEventListener('input', function() {
+            performInstantSearch();
+        });
+        console.log('Search creator input instant listener attached');
+    }
+});
+
+function performInstantSearch() {
+    console.log('Instant search triggered!');
+    
     const searchInput = document.getElementById('searchTitle');
     const searchCreatorInput = document.getElementById('searchCreator');
     const sortOrderSelect = document.getElementById('sortOrder');
-    const applyBtn = document.getElementById('applyFilters');
-    const searchBtn = document.getElementById('searchBtn');
     const tableBody = document.querySelector('#forumsTable tbody');
-    const rows = Array.from(tableBody.querySelectorAll('tr'));
     
-    // Remove the "no results" row from sortable rows
-    const sortableRows = rows.filter(row => !row.querySelector('td[colspan]'));
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const searchCreatorTerm = searchCreatorInput.value.toLowerCase().trim();
+    const sortOrder = sortOrderSelect.value;
     
-    function filterAndSort() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const searchCreatorTerm = searchCreatorInput.value.toLowerCase().trim();
-        const sortOrder = sortOrderSelect.value;
-        
-        // Filter rows
-        let filteredRows = sortableRows.filter(row => {
-            const title = row.dataset.title;
-            const creator = row.dataset.creator;
-            
-            const titleMatch = title.includes(searchTerm);
-            const creatorMatch = creator.includes(searchCreatorTerm);
-            
-            return titleMatch && creatorMatch;
-        });
-        
-        // Sort rows
-        if (sortOrder === 'asc' || sortOrder === 'desc') {
-            filteredRows.sort((a, b) => {
-                const dateA = a.dataset.date ? new Date(a.dataset.date) : new Date('1970-01-01');
-                const dateB = b.dataset.date ? new Date(b.dataset.date) : new Date('1970-01-01');
-                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-            });
-        }
-        
-        // Clear table
+    console.log('Filter values:', { searchTerm, searchCreatorTerm, sortOrder });
+    console.log('Original forums data length:', originalForumsData.length);
+    
+    // Si pas de recherche, restaurer toutes les lignes originales
+    if (!searchTerm && !searchCreatorTerm && !sortOrder) {
         tableBody.innerHTML = '';
-        
-        // Add filtered/sorted rows
-        if (filteredRows.length > 0) {
-            filteredRows.forEach(row => tableBody.appendChild(row));
-        } else {
-            // Show no results message
-            const noResultsRow = document.createElement('tr');
-            noResultsRow.innerHTML = '<td colspan="6" class="text-center text-muted p-5">Aucun forum trouvé.</td>';
-            tableBody.appendChild(noResultsRow);
-        }
+        originalForumsData.forEach(forumData => {
+            tableBody.appendChild(forumData.element.cloneNode(true));
+        });
+        console.log('No search terms, showing all rows');
+        return;
     }
     
-    // Event listeners
-    applyBtn.addEventListener('click', filterAndSort);
-    searchBtn.addEventListener('click', filterAndSort);
-    
-    // Allow search on Enter key
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            filterAndSort();
-        }
+    // Filter rows - recherche par début de titre pour le titre, contient pour le créateur
+    let filteredRows = originalForumsData.filter(forumData => {
+        const title = forumData.title;
+        const creator = forumData.creator;
+        
+        console.log('Checking row:', { title, creator, searchTerm, searchCreatorTerm });
+        
+        // Pour le titre : cherche les titres qui commencent par le terme de recherche
+        const titleMatch = !searchTerm || title.startsWith(searchTerm);
+        // Pour le créateur : cherche les créateurs qui contiennent le terme de recherche
+        const creatorMatch = !searchCreatorTerm || creator.includes(searchCreatorTerm);
+        
+        console.log('Match results:', { titleMatch, creatorMatch });
+        
+        return titleMatch && creatorMatch;
     });
     
-    searchCreatorInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            filterAndSort();
-        }
-    });
+    console.log('Filtered rows count:', filteredRows.length);
+    
+    // Sort rows
+    if (sortOrder === 'asc' || sortOrder === 'desc') {
+        filteredRows.sort((a, b) => {
+            const dateA = a.date ? new Date(a.date) : new Date('1970-01-01');
+            const dateB = b.date ? new Date(b.date) : new Date('1970-01-01');
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    }
+    
+    // Clear table
+    tableBody.innerHTML = '';
+    
+    // Add filtered/sorted rows
+    if (filteredRows.length > 0) {
+        filteredRows.forEach(forumData => {
+            tableBody.appendChild(forumData.element.cloneNode(true));
+        });
+    } else {
+        // Show no results message
+        const noResultsRow = document.createElement('tr');
+        noResultsRow.innerHTML = '<td colspan="6" class="text-center text-muted p-5">Aucun forum trouvé.</td>';
+        tableBody.appendChild(noResultsRow);
+    }
+    
+    console.log('Filter complete, showing', filteredRows.length, 'results');
+}
+
+function applyFiltersFunction() {
+    console.log('Apply button clicked!');
+    performInstantSearch();
+}
+
+// Also add event listeners for search buttons and Enter key
+document.addEventListener('DOMContentLoaded', function() {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchTitle');
+    const searchCreatorInput = document.getElementById('searchCreator');
+    
+    if (searchBtn) {
+        searchBtn.onclick = applyFiltersFunction;
+        console.log('Search button event listener attached');
+    } else {
+        console.log('Search button not found!');
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFiltersFunction();
+            }
+        });
+        console.log('Search input event listener attached');
+    } else {
+        console.log('Search input not found!');
+    }
+    
+    if (searchCreatorInput) {
+        searchCreatorInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFiltersFunction();
+            }
+        });
+        console.log('Search creator input event listener attached');
+    } else {
+        console.log('Search creator input not found!');
+    }
 });
 </script>
 {% endblock %}

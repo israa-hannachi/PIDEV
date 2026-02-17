@@ -31,9 +31,12 @@ class Forum
     private ?\DateTimeImmutable $date_creation = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'L\'état ne peut pas être vide')]
+    #[Assert\Choice(['actif', 'inactif'], message: 'L\'état doit être "actif" ou "inactif"')]
     private ?string $etat = 'Actif';
 
-    #[ORM\OneToMany(mappedBy: 'forum', targetEntity: Message::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'forum', targetEntity: Message::class, cascade: ['persist', 'remove'], fetch: 'EAGER')]
+    #[ORM\OrderBy(['datePublication' => 'ASC'])]
     private Collection $messages;
 
     #[ORM\Column(length: 200)]
