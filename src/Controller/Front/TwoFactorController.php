@@ -4,9 +4,10 @@ namespace App\Controller\Front;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\QrCode;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
@@ -19,7 +20,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class TwoFactorController extends AbstractController
 {
     #[Route('/front/security/2fa/enable', name: 'front_2fa_enable')]
-    public function enable(GoogleAuthenticatorInterface $googleAuthenticator, EntityManagerInterface $entityManager): Response
+    public function enable(
+        GoogleAuthenticatorInterface $googleAuthenticator, 
+        EntityManagerInterface $entityManager
+    ): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -34,17 +38,19 @@ class TwoFactorController extends AbstractController
         // Generate QR code
         $qrCodeContent = $googleAuthenticator->getQRContent($user);
         
-        $result = Builder::create()
-            ->writer(new PngWriter())
-            ->writerOptions([])
-            ->data($qrCodeContent)
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(ErrorCorrectionLevel::High)
-            ->size(300)
-            ->margin(10)
-            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->build();
+        $qrCode = new QrCode(
+            data: $qrCodeContent,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: new Color(0, 0, 0),
+            backgroundColor: new Color(255, 255, 255)
+        );
 
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
         $qrCodeDataUri = $result->getDataUri();
 
         return $this->render('front/security/2fa_enable.html.twig', [
