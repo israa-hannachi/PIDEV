@@ -21,6 +21,14 @@
                             class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
                         <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
                     </button>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_home') }}" 
+                            class="p-2.5 hover:bg-warning/10 rounded-xl transition-colors group" 
+                            title="Admin Dashboard">
+                            <i data-lucide="layout-dashboard"
+                                class="w-5 h-5 text-warning group-hover:text-warning transition-colors"></i>
+                        </a>
+                    {% endif %}
                     <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
                         <i data-lucide="settings"
                             class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
