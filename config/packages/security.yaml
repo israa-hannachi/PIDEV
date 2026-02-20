@@ -49,12 +49,16 @@ security:
     access_control:
         - { path: ^/front/login, roles: PUBLIC_ACCESS }
         - { path: ^/front/register, roles: PUBLIC_ACCESS }
+        - { path: ^/front/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/front/reset-password, roles: PUBLIC_ACCESS }
         - { path: ^/front/connect/, roles: PUBLIC_ACCESS }
         - { path: ^/front$, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/dashboard, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/comptes, roles: ROLE_ADMIN }
         - { path: ^/user, roles: ROLE_ADMIN }
-        - { path: ^/$, roles: ROLE_ADMIN }
+        - { path: ^/front, roles: ROLE_USER }
 
 when@test:
     security:
