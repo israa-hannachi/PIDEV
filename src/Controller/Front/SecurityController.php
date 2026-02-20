@@ -3,6 +3,9 @@
 namespace App\Controller\Front;
 
 use App\Entity\User;
+use App\Form\ForgotPasswordType;
+use App\Form\ResetPasswordType;
+use App\Service\PasswordResetService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,5 +83,58 @@ class SecurityController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    #[Route('/front/forgot-password', name: 'front_forgot_password', methods: ['GET', 'POST'])]
+    public function forgotPassword(Request $request, PasswordResetService $passwordResetService): Response
+    {
+        $form = $this->createForm(ForgotPasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+            
+            if ($passwordResetService->generateAndSendResetCode($email)) {
+                $this->addFlash('success', 'A password reset code has been sent to your email address.');
+                return $this->redirectToRoute('front_reset_password', ['email' => $email]);
+            } else {
+                $this->addFlash('error', 'No account found with this email address.');
+            }
+        }
+
+        return $this->render('front/security/forgot_password.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/front/reset-password', name: 'front_reset_password', methods: ['GET', 'POST'])]
+    public function resetPassword(Request $request, PasswordResetService $passwordResetService): Response
+    {
+        $email = $request->query->get('email') ?? $request->request->get('email');
+        
+        if (!$email) {
+            $this->addFlash('error', 'Email address is required.');
+            return $this->redirectToRoute('front_forgot_password');
+        }
+
+        $form = $this->createForm(ResetPasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $code = $form->get('code')->getData();
+            $newPassword = $form->get('password')->getData();
+            
+            if ($passwordResetService->resetPassword($email, $code, $newPassword)) {
+                $this->addFlash('success', 'Your password has been reset successfully. Please login with your new password.');
+                return $this->redirectToRoute('front_login');
+            } else {
+                $this->addFlash('error', 'Invalid or expired reset code. Please request a new one.');
+            }
+        }
+
+        return $this->render('front/security/reset_password.html.twig', [
+            'form' => $form->createView(),
+            'email' => $email
+        ]);
     }
 }

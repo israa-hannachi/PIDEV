@@ -8,6 +8,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     profiles_directory: '%kernel.project_dir%/public/uploads/profiles'
+    mailer.from_email: 'naja7ni.service@gmail.com'
+    mailer.from_name: 'Naja7ni Platform'
 
 services:
     # default configuration for services in *this* file
@@ -19,6 +21,12 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    # Configure MailingService with parameters
+    App\Service\MailingService:
+        arguments:
+            $fromEmail: '%mailer.from_email%'
+            $fromName: '%mailer.from_name%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

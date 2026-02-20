@@ -54,6 +54,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $coverPicture = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $resetTokenExpiresAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $googleAuthenticatorSecret = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $biometricDescriptor = null;
+
     public function __construct()
     {
         $this->date_creation = new \DateTime();
@@ -219,5 +231,59 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $emailHash = md5(strtolower(trim($this->email)));
         return "https://www.gravatar.com/avatar/{$emailHash}?s={$size}&d=mp";
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): static
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeInterface $resetTokenExpiresAt): static
+    {
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
+        return $this;
+    }
+
+    public function getGoogleAuthenticatorSecret(): ?string
+    {
+        return $this->googleAuthenticatorSecret;
+    }
+
+    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): static
+    {
+        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
+        return $this;
+    }
+
+    public function getBiometricDescriptor(): ?string
+    {
+        return $this->biometricDescriptor;
+    }
+
+    public function setBiometricDescriptor(?string $biometricDescriptor): static
+    {
+        $this->biometricDescriptor = $biometricDescriptor;
+        return $this;
+    }
+
+    public function isGoogleAuthenticatorEnabled(): bool
+    {
+        return $this->googleAuthenticatorSecret !== null;
+    }
+
+    public function getGoogleAuthenticatorUsername(): string
+    {
+        return $this->email;
     }
 }
