@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -77,6 +78,17 @@ class CoursType extends AbstractType
                 'label' => 'Cours actif',
                 'required' => false,
                 'attr' => ['class' => 'h-4 w-4 rounded border-border text-primary focus:ring-primary/20']
+            ])
+            ->add('visible', CheckboxType::class, [
+                'label' => 'Visible pour les étudiants',
+                'required' => false,
+                'attr' => ['class' => 'h-4 w-4 rounded border-border text-primary focus:ring-primary/20']
+            ])
+            ->add('visibleFrom', DateTimeType::class, [
+                'label' => 'Date de visibilité',
+                'required' => false,
+                'widget' => 'single_text',
+                'attr' => ['class' => 'w-full px-4 py-2.5 bg-white rounded-xl border border-border focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition'],
             ])
             ->add('module', EntityType::class, [
                 'class' => Module::class,

@@ -40,6 +40,12 @@
             <div class="md:col-span-2">
                 {{ form_row(form.actif) }}
             </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.visible) }}
+            </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.visibleFrom) }}
+            </div>
         </div>
 
         <div class="mt-8 flex items-center justify-end gap-3">
@@ -63,5 +69,11 @@
                 branding: false
             });
         }
+
+        document.addEventListener('submit', function (e) {
+            if (e.target && e.target.tagName === 'FORM' && window.tinymce && typeof window.tinymce.triggerSave === 'function') {
+                window.tinymce.triggerSave();
+            }
+        }, true);
     </script>
 {{ form_end(form) }}

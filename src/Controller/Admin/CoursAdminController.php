@@ -165,6 +165,35 @@ final class CoursAdminController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/visibility', name: 'app_admin_cours_visibility', methods: ['POST'])]
+    public function updateVisibility(Request $request, Cours $cour, EntityManagerInterface $entityManager): Response
+    {
+        if (!$this->isCsrfTokenValid('cours_visibility' . $cour->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('CSRF token invalide.');
+        }
+
+        $visibleRaw = $request->request->get('visible');
+        $visible = $visibleRaw === '1' || $visibleRaw === 'true' || $visibleRaw === 1;
+        $cour->setVisible($visible);
+
+        $visibleFromRaw = trim((string) $request->request->get('visibleFrom', ''));
+        if ($visibleFromRaw === '') {
+            $cour->setVisibleFrom(null);
+        } else {
+            try {
+                $cour->setVisibleFrom(new \DateTime($visibleFromRaw));
+            } catch (\Throwable $e) {
+                $this->addFlash('danger', 'Date de visibilité invalide.');
+                return $this->redirectToRoute('app_admin_cours_index');
+            }
+        }
+
+        $entityManager->flush();
+        $this->addFlash('success', 'Visibilité mise à jour.');
+
+        return $this->redirectToRoute('app_admin_cours_index');
+    }
+
     #[Route('/{id}', name: 'app_admin_cours_delete', methods: ['POST'])]
     public function delete(Request $request, Cours $cour, EntityManagerInterface $entityManager): Response
     {

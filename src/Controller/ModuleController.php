@@ -38,6 +38,8 @@ final class ModuleController extends AbstractController
     #[Route('/new', name: 'app_module_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        throw $this->createAccessDeniedException('Création de module indisponible sur le front office.');
+
         $module = new Module();
 
         $categorieId = $request->query->get('categorie');
@@ -78,6 +80,7 @@ final class ModuleController extends AbstractController
         }
 
         $sortCours = (string) $request->query->get('sort_cours', 'date_desc');
+        $now = new \DateTime();
 
         $session = $request->getSession();
         $favorisIds = (array) $session->get('favoris_ids', []);
@@ -85,7 +88,11 @@ final class ModuleController extends AbstractController
 
         $qb = $coursRepository->createQueryBuilder('co')
             ->andWhere('co.module = :module')
-            ->setParameter('module', $module);
+            ->andWhere('co.visible = :visible')
+            ->andWhere('co.visibleFrom IS NULL OR co.visibleFrom <= :now')
+            ->setParameter('module', $module)
+            ->setParameter('visible', true)
+            ->setParameter('now', $now);
 
         if ($sortCours === 'alpha_asc') {
             $qb->orderBy('co.titre', 'ASC');
@@ -106,6 +113,8 @@ final class ModuleController extends AbstractController
     #[Route('/{id}/edit', name: 'app_module_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ?Module $module, EntityManagerInterface $entityManager): Response
     {
+        throw $this->createAccessDeniedException('Modification de module indisponible sur le front office.');
+
         if ($module === null) {
             return $this->redirectToRoute('app_categorie_index');
         }
@@ -130,6 +139,8 @@ final class ModuleController extends AbstractController
     #[Route('/{id}', name: 'app_module_delete', methods: ['POST'])]
     public function delete(Request $request, ?Module $module, EntityManagerInterface $entityManager): Response
     {
+        throw $this->createAccessDeniedException('Suppression de module indisponible sur le front office.');
+
         if ($module === null) {
             return $this->redirectToRoute('app_categorie_index');
         }

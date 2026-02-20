@@ -46,13 +46,6 @@
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Ajouter un cours
             </a>
-            <a href="{{ path('app_module_edit', {'id': module.id}) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-semibold shadow hover:shadow-md transition">
-                <i data-lucide="pencil" class="w-4 h-4"></i>
-                Modifier
-            </a>
-            {% if not module.creeParAdmin %}
-                {{ include('module/_delete_form.html.twig') }}
-            {% endif %}
         </div>
     </div>
 

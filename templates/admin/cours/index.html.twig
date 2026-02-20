@@ -34,6 +34,8 @@
                         <th>Titre</th>
                         <th>Module</th>
                         <th>Date</th>
+                        <th>Visible</th>
+                        <th>Visible à partir de</th>
                         <th class="text-end">Actions</th>
                     </tr>
                     </thead>
@@ -44,8 +46,20 @@
                             <td class="fw-semibold">{{ cour.titre }}</td>
                             <td>{{ cour.module ? cour.module.titre : '-' }}</td>
                             <td>{{ cour.dateCreation ? cour.dateCreation|date('d/m/Y') : '-' }}</td>
+                            <td>
+                                <form id="cours_visibility_{{ cour.id }}" method="post" action="{{ path('app_admin_cours_visibility', {'id': cour.id}) }}"></form>
+                                <input form="cours_visibility_{{ cour.id }}" type="hidden" name="_token" value="{{ csrf_token('cours_visibility' ~ cour.id) }}">
+                                <select form="cours_visibility_{{ cour.id }}" name="visible" class="form-select form-select-sm" style="width: 110px;">
+                                    <option value="1" {{ cour.visible ? 'selected' : '' }}>Oui</option>
+                                    <option value="0" {{ not cour.visible ? 'selected' : '' }}>Non</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input form="cours_visibility_{{ cour.id }}" type="datetime-local" name="visibleFrom" value="{{ cour.visibleFrom ? cour.visibleFrom|date('Y-m-d\\TH:i') : '' }}" class="form-control form-control-sm" style="min-width: 190px;">
+                            </td>
                             <td class="text-end">
                                 <div class="btn-group" role="group">
+                                    <button form="cours_visibility_{{ cour.id }}" type="submit" class="btn btn-success btn-sm">Appliquer</button>
                                     <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_cours_show', {'id': cour.id}) }}">Voir</a>
                                     <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_cours_edit', {'id': cour.id}) }}">Modifier</a>
                                 </div>
@@ -53,7 +67,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">Aucun cours.</td>
+                            <td colspan="7" class="text-center text-muted py-4">Aucun cours.</td>
                         </tr>
                     {% endfor %}
                     </tbody>

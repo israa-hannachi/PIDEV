@@ -22,12 +22,17 @@ final class CoursController extends AbstractController
     public function index(Request $request, CoursRepository $coursRepository): Response
     {
         $sort = (string) $request->query->get('sort', 'date_desc');
+        $now = new \DateTime();
 
         $session = $request->getSession();
         $favorisIds = (array) $session->get('favoris_ids', []);
         $favorisIds = array_values(array_unique(array_map('intval', $favorisIds)));
 
-        $qb = $coursRepository->createQueryBuilder('co');
+        $qb = $coursRepository->createQueryBuilder('co')
+            ->andWhere('co.visible = :visible')
+            ->andWhere('co.visibleFrom IS NULL OR co.visibleFrom <= :now')
+            ->setParameter('visible', true)
+            ->setParameter('now', $now);
         if ($sort === 'alpha_asc') {
             $qb->orderBy('co.titre', 'ASC');
         } elseif ($sort === 'alpha_desc') {
@@ -104,6 +109,11 @@ final class CoursController extends AbstractController
     #[Route('/{id}', name: 'app_cours_show', methods: ['GET'])]
     public function show(Request $request, Cours $cour): Response
     {
+        $now = new \DateTime();
+        if (!$cour->isVisible() || ($cour->getVisibleFrom() !== null && $cour->getVisibleFrom() > $now)) {
+            throw $this->createNotFoundException('Cours indisponible.');
+        }
+
         $session = $request->getSession();
         $favorisIds = (array) $session->get('favoris_ids', []);
         $favorisIds = array_values(array_unique(array_map('intval', $favorisIds)));

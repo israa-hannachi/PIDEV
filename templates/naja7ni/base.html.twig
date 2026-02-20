@@ -28,6 +28,10 @@
                 <i data-lucide="folder-open" class="w-6 h-6 transition-colors"></i>
                 <span class="text-[11px] font-medium">Catégories</span>
             </a>
+            <a href="{{ path('app_parcours_builder') }}" class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                <i data-lucide="route" class="w-6 h-6 transition-colors"></i>
+                <span class="text-[11px] font-medium">Parcours</span>
+            </a>
             <a href="{{ asset('edu/meet.html') }}" class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
                 <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
                 <span class="text-[11px] font-medium">Meet</span>
@@ -146,6 +150,8 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+{{ importmap('app') }}
 <script src="{{ asset('naja7ni/assets/js/main.js') }}"></script>
 </body>
 </html>

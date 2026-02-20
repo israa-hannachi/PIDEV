@@ -25,6 +25,12 @@
         <div class="col-12 col-md-4">
             {{ form_row(form.actif) }}
         </div>
+        <div class="col-12 col-md-4">
+            {{ form_row(form.visible) }}
+        </div>
+        <div class="col-12 col-md-4">
+            {{ form_row(form.visibleFrom) }}
+        </div>
         <div class="col-12">
             {{ form_row(form.module) }}
         </div>
@@ -34,3 +40,11 @@
         <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
     </div>
 {{ form_end(form) }}
+
+<script>
+    document.addEventListener('submit', function (e) {
+        if (e.target && e.target.tagName === 'FORM' && window.tinymce && typeof window.tinymce.triggerSave === 'function') {
+            window.tinymce.triggerSave();
+        }
+    }, true);
+</script>

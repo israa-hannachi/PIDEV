@@ -64,6 +64,12 @@ class Cours
     #[ORM\Column(options: ['default' => false])]
     private bool $creeParAdmin = false;
 
+    #[ORM\Column(options: ['default' => true])]
+    private bool $visible = true;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $visibleFrom = null;
+
     #[ORM\ManyToOne(inversedBy: 'cours')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "Le module est obligatoire")]
@@ -75,6 +81,8 @@ class Cours
         $this->actif = true;
         $this->ordre = 0;
         $this->creeParAdmin = false;
+        $this->visible = true;
+        $this->visibleFrom = null;
     }
 
     #[ORM\PreUpdate]
@@ -96,6 +104,30 @@ class Cours
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function isVisible(): bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): static
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    public function getVisibleFrom(): ?\DateTimeInterface
+    {
+        return $this->visibleFrom;
+    }
+
+    public function setVisibleFrom(?\DateTimeInterface $visibleFrom): static
+    {
+        $this->visibleFrom = $visibleFrom;
 
         return $this;
     }
