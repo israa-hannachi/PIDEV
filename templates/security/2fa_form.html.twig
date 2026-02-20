@@ -1,0 +1,108 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Two-Factor Authentication - naja7ni{% endblock %}
+
+{% block body %}
+<main>
+	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+	
+		<div class="container-fluid">
+			<div class="row">
+				<!-- left -->
+				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+					<div class="p-3 p-lg-5">
+						<!-- Title -->
+						<div class="text-center">
+							<h2 class="fw-bold">Security Verification</h2>
+							<p class="mb-0 h6 fw-light">Enter your authentication code</p>
+						</div>
+						<!-- SVG Image -->
+						<img src="{{ asset("assets/images/element/02.svg") }}" class="mt-5" alt="">
+					</div>
+				</div>
+
+				<!-- Right -->
+				<div class="col-12 col-lg-6 m-auto">
+					<div class="row my-5">
+						<div class="col-sm-10 col-xl-8 m-auto">
+							<!-- Title -->
+							<span class="mb-0 fs-1">🔐</span>
+							<h1 class="fs-2">Two-Factor Authentication</h1>
+							<p class="lead mb-4">Open your authenticator app and enter the 6-digit code</p>
+
+							<!-- Form START -->
+							<form method="POST" action="{{ path('2fa_login_check') }}">
+								<!-- 2FA Code -->
+								<div class="mb-4">
+									<label for="_auth_code" class="form-label">Authentication Code *</label>
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-key"></i></span>
+										<input 
+											type="text" 
+											name="_auth_code" 
+											id="_auth_code" 
+											class="form-control border-0 bg-light rounded-end ps-1" 
+											placeholder="Enter 6-digit code" 
+											autocomplete="one-time-code"
+											inputmode="numeric"
+											maxlength="6"
+											pattern="[0-9]{6}"
+											required 
+											autofocus>
+									</div>
+									<small class="text-muted">Enter the code from Google Authenticator</small>
+								</div>
+
+								<!-- Trust Device -->
+								<div class="form-check mb-4">
+									<input class="form-check-input" type="checkbox" name="_trusted" id="trustDevice">
+									<label class="form-check-label" for="trustDevice">
+										Trust this device for 30 days
+									</label>
+								</div>
+
+								<!-- Button -->
+								<div class="align-items-center mt-0">
+									<div class="d-grid">
+										<button class="btn btn-primary btn-lg mb-0" type="submit">
+											<i class="bi bi-check-circle me-2"></i> Verify Code
+										</button>
+									</div>
+								</div>
+							</form>
+							<!-- Form END -->
+
+							<!-- Help Text -->
+							<div class="mt-4 p-3 bg-light rounded">
+								<h6 class="mb-2"><i class="bi bi-info-circle me-2"></i>Need help?</h6>
+								<p class="mb-0 small text-muted">
+									If you don't have access to your authenticator app, please contact support to regain access to your account.
+								</p>
+							</div>
+
+							<!-- Back to login -->
+							<div class="mt-4 text-center">
+								<span>Having trouble? <a href="{{ path('front_logout') }}">Cancel and logout</a></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+
+<script>
+// Auto-focus the input and format as user types
+const input = document.getElementById('_auth_code');
+input.addEventListener('input', function(e) {
+    // Remove non-numeric characters
+    this.value = this.value.replace(/[^0-9]/g, '');
+    
+    // Auto-submit when 6 digits are entered
+    if (this.value.length === 6) {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

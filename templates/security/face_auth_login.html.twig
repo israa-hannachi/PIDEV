@@ -1,0 +1,195 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Face Login - naja7ni{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<main>
+	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+	
+		<div class="container-fluid">
+			<div class="row">
+				<!-- left -->
+				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+					<div class="p-3 p-lg-5">
+						<div class="text-center">
+							<h2 class="fw-bold">Welcome Back!</h2>
+							<p class="mb-0 h6 fw-light">Login with your face</p>
+						</div>
+						<img src="{{ asset("assets/images/element/02.svg") }}" class="mt-5" alt="">
+					</div>
+				</div>
+
+				<!-- Right -->
+				<div class="col-12 col-lg-6 m-auto">
+					<div class="row my-5">
+						<div class="col-sm-10 col-xl-8 m-auto">
+							<span class="mb-0 fs-1">😀</span>
+							<h1 class="fs-2">Face Login</h1>
+							<p class="lead mb-4">Look at the camera to log in</p>
+
+							<!-- Status Messages -->
+							<div id="statusMessage" class="alert alert-info" style="display:none;"></div>
+
+							<!-- Email Input -->
+							<div class="mb-4">
+								<label for="emailInput" class="form-label">Email Address *</label>
+								<div class="input-group input-group-lg">
+									<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3">
+										<i class="bi bi-envelope-fill"></i>
+									</span>
+									<input type="email" id="emailInput" class="form-control border-0 bg-light rounded-end ps-1" placeholder="Enter your email" required>
+								</div>
+							</div>
+
+							<!-- Video Card -->
+							<div class="card shadow-sm mb-4">
+								<div class="card-body text-center p-4">
+									<div class="position-relative d-inline-block">
+										<video id="video" width="400" height="300" autoplay muted class="border rounded"></video>
+										<canvas id="overlay" class="position-absolute top-0 start-0"></canvas>
+									</div>
+									<div id="loadingModels" class="mt-3">
+										<div class="spinner-border text-primary" role="status">
+											<span class="visually-hidden">Loading...</span>
+										</div>
+										<p class="mt-2">Loading face detection models...</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Action Buttons -->
+							<div class="d-grid gap-2">
+								<button id="loginBtn" class="btn btn-primary btn-lg" disabled>
+									<i class="bi bi-unlock-fill me-2"></i> Login with Face
+								</button>
+								<a href="{{ path('front_login') }}" class="btn btn-outline-secondary">
+									<i class="bi bi-arrow-left me-2"></i> Back to Email Login
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('overlay');
+const loginBtn = document.getElementById('loginBtn');
+const emailInput = document.getElementById('emailInput');
+const statusMessage = document.getElementById('statusMessage');
+const loadingModels = document.getElementById('loadingModels');
+
+let modelsLoaded = false;
+
+function showStatus(message, type = 'info') {
+    statusMessage.className = `alert alert-${type}`;
+    statusMessage.textContent = message;
+    statusMessage.style.display = 'block';
+}
+
+async function loadModels() {
+    try {
+        const MODEL_URL = '/models';
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        modelsLoaded = true;
+        loadingModels.style.display = 'none';
+        loginBtn.disabled = false;
+        showStatus('Models loaded! Enter your email and click Login.', 'success');
+    } catch (error) {
+        loadingModels.style.display = 'none';
+        showStatus('Error loading face detection models. Please refresh the page.', 'danger');
+        console.error('Error loading models:', error);
+    }
+}
+
+async function startVideo() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: 400, height: 300 } 
+        });
+        video.srcObject = stream;
+    } catch (error) {
+        showStatus('Error accessing camera. Please allow camera access.', 'danger');
+        console.error('Error accessing camera:', error);
+    }
+}
+
+async function loginWithFace() {
+    const email = emailInput.value.trim();
+    
+    if (!email) {
+        showStatus('Please enter your email address.', 'warning');
+        return;
+    }
+
+    if (!modelsLoaded) {
+        showStatus('Models not loaded yet. Please wait.', 'warning');
+        return;
+    }
+
+    loginBtn.disabled = true;
+    showStatus('Detecting face...', 'info');
+
+    try {
+        const detection = await faceapi
+            .detectSingleFace(video)
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+        if (!detection) {
+            showStatus('No face detected. Please position your face in the frame.', 'warning');
+            loginBtn.disabled = false;
+            return;
+        }
+
+        // Send descriptor to server for verification
+        const response = await fetch('{{ path('face_auth_verify') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                descriptor: Array.from(detection.descriptor)
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showStatus('Face verified! Logging in...', 'success');
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 1500);
+        } else {
+            showStatus('Face verification failed. Please try again or use email login.', 'danger');
+            loginBtn.disabled = false;
+        }
+    } catch (error) {
+        showStatus('Error during face verification. Please try again.', 'danger');
+        loginBtn.disabled = false;
+        console.error('Error:', error);
+    }
+}
+
+loginBtn.addEventListener('click', loginWithFace);
+
+// Start everything
+startVideo();
+video.addEventListener('loadedmetadata', () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    loadModels();
+});
+</script>
+{% endblock %}

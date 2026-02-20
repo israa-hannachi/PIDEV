@@ -1,0 +1,188 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Register Face - naja7ni{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<main>
+	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+	
+		<div class="container-fluid">
+			<div class="row">
+				<!-- left -->
+				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+					<div class="p-3 p-lg-5">
+						<div class="text-center">
+							<h2 class="fw-bold">Face Recognition Setup</h2>
+							<p class="mb-0 h6 fw-light">Register your face for quick and secure login</p>
+						</div>
+						<img src="{{ asset("assets/images/element/02.svg") }}" class="mt-5" alt="">
+					</div>
+				</div>
+
+				<!-- Right -->
+				<div class="col-12 col-lg-6 m-auto">
+					<div class="row my-5">
+						<div class="col-sm-10 col-xl-8 m-auto">
+							<span class="mb-0 fs-1">📸</span>
+							<h1 class="fs-2">Register Your Face</h1>
+							<p class="lead mb-4">Position your face in the frame and click capture</p>
+
+							<!-- Status Messages -->
+							<div id="statusMessage" class="alert alert-info" style="display:none;"></div>
+
+							<!-- Video Card -->
+							<div class="card shadow-sm mb-4">
+								<div class="card-body text-center p-4">
+									<div class="position-relative d-inline-block">
+										<video id="video" width="400" height="300" autoplay muted class="border rounded"></video>
+										<canvas id="overlay" class="position-absolute top-0 start-0"></canvas>
+									</div>
+									<div id="loadingModels" class="mt-3">
+										<div class="spinner-border text-primary" role="status">
+											<span class="visually-hidden">Loading...</span>
+										</div>
+										<p class="mt-2">Loading face detection models...</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Instructions -->
+							<div class="card shadow-sm mb-4">
+								<div class="card-body">
+									<h5 class="card-title">Instructions</h5>
+									<ol class="mb-0">
+										<li>Position your face in the center of the frame</li>
+										<li>Make sure your face is well-lit</li>
+										<li>Look directly at the camera</li>
+										<li>Click "Capture Face" when ready</li>
+									</ol>
+								</div>
+							</div>
+
+							<!-- Action Buttons -->
+							<div class="d-grid gap-2">
+								<button id="captureBtn" class="btn btn-primary btn-lg" disabled>
+									<i class="bi bi-camera me-2"></i> Capture Face
+								</button>
+								<a href="{{ path('app_front_profile') }}" class="btn btn-outline-secondary">
+									<i class="bi bi-arrow-left me-2"></i> Back to Profile
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('overlay');
+const captureBtn = document.getElementById('captureBtn');
+const statusMessage = document.getElementById('statusMessage');
+const loadingModels = document.getElementById('loadingModels');
+
+let modelsLoaded = false;
+
+function showStatus(message, type = 'info') {
+    statusMessage.className = `alert alert-${type}`;
+    statusMessage.textContent = message;
+    statusMessage.style.display = 'block';
+}
+
+async function loadModels() {
+    try {
+        const MODEL_URL = '/models';
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        modelsLoaded = true;
+        loadingModels.style.display = 'none';
+        captureBtn.disabled = false;
+        showStatus('Models loaded! Position your face and click Capture.', 'success');
+    } catch (error) {
+        loadingModels.style.display = 'none';
+        showStatus('Error loading face detection models. Please refresh the page.', 'danger');
+        console.error('Error loading models:', error);
+    }
+}
+
+async function startVideo() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: 400, height: 300 } 
+        });
+        video.srcObject = stream;
+    } catch (error) {
+        showStatus('Error accessing camera. Please allow camera access.', 'danger');
+        console.error('Error accessing camera:', error);
+    }
+}
+
+async function captureFace() {
+    if (!modelsLoaded) {
+        showStatus('Models not loaded yet. Please wait.', 'warning');
+        return;
+    }
+
+    captureBtn.disabled = true;
+    showStatus('Detecting face...', 'info');
+
+    try {
+        const detection = await faceapi
+            .detectSingleFace(video)
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+        if (!detection) {
+            showStatus('No face detected. Please position your face in the frame.', 'warning');
+            captureBtn.disabled = false;
+            return;
+        }
+
+        // Send descriptor to server
+        const response = await fetch('{{ path('face_auth_save') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                descriptor: Array.from(detection.descriptor)
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showStatus('Face registered successfully! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = '{{ path('app_front_profile') }}';
+            }, 2000);
+        } else {
+            showStatus('Error: ' + result.message, 'danger');
+            captureBtn.disabled = false;
+        }
+    } catch (error) {
+        showStatus('Error processing face. Please try again.', 'danger');
+        captureBtn.disabled = false;
+        console.error('Error:', error);
+    }
+}
+
+captureBtn.addEventListener('click', captureFace);
+
+// Start everything
+startVideo();
+video.addEventListener('loadedmetadata', () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    loadModels();
+});
+</script>
+{% endblock %}
