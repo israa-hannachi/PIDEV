@@ -1,0 +1,44 @@
+<nav class="nxl-navigation">
+    <div class="navbar-wrapper">
+        <div class="m-header">
+            <a href="{{ path('app_meet_index') }}" class="b-brand">
+                <img src="{{ asset('assets/images/logo-full.png') }}" alt="Logo" class="logo logo-lg" style="height: 32px; width: auto; object-fit: contain;">
+                <img src="{{ asset('assets/images/logo-small.png') }}" alt="Logo" class="logo logo-sm" style="height: 32px; width: 32px; object-fit: contain;">
+            </a>
+        </div>
+
+        <div class="navbar-content">
+            <ul class="nxl-navbar">
+                <li class="nxl-item nxl-caption">
+                    <label>Backoffice</label>
+                </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-video"></i></span>
+                        <span class="nxl-mtext">Gestion meet</span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_user_index') }}">
+                                <span class="nxl-mtext">Participants</span>
+                            </a>
+                        </li>
+                        <li class="nxl-item">
+                            <a class="nxl-link" href="{{ path('app_admin_meet_index') }}">
+                                <span class="nxl-mtext">Réunions</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="{{ path('app_calendar') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-calendar"></i></span>
+                        <span class="nxl-mtext">Calendrier</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

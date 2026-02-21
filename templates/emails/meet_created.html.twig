@@ -1,0 +1,26 @@
+<div style="font-family: Arial, sans-serif; line-height: 1.5;">
+    <h2 style="margin: 0 0 12px 0;">Nouvelle réunion</h2>
+
+    <p style="margin: 0 0 10px 0;">Bonjour {{ student.prenom }} {{ student.nom }},</p>
+
+    <p style="margin: 0 0 10px 0;">Vous êtes inscrit(e) à une nouvelle réunion.</p>
+
+    <div style="background: #f6f7f9; border: 1px solid #e5e7eb; padding: 12px; border-radius: 10px; margin: 12px 0;">
+        <div><b>Titre :</b> {{ meet.titre }}</div>
+        <div><b>Professeur :</b> {{ meet.participant.nom }} {{ meet.participant.prenom }}</div>
+        <div><b>Date début :</b> {{ meet.dateDebut ? meet.dateDebut|date('d/m/Y H:i') : '-' }}</div>
+        <div><b>Date fin :</b> {{ meet.dateFin ? meet.dateFin|date('d/m/Y H:i') : '-' }}</div>
+        <div><b>Lien Meet :</b>
+            {% if meet.lienMeet %}
+                <a href="{{ meet.lienMeet }}">{{ meet.lienMeet }}</a>
+            {% else %}
+                -
+            {% endif %}
+        </div>
+    </div>
+
+    <p style="margin: 0 0 10px 0;">Lien pour rejoindre depuis la plateforme :</p>
+    <p style="margin: 0 0 14px 0;"><a href="{{ joinUrl }}">{{ joinUrl }}</a></p>
+
+    <p style="margin: 0;">Cordialement,<br>Naja7ni</p>
+</div>

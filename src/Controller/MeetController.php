@@ -9,12 +9,21 @@ use App\Repository\MeetRepository;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Twig\Environment;
 
 #[Route('/meet')]
 class MeetController extends AbstractController
@@ -30,6 +39,55 @@ class MeetController extends AbstractController
             'participants' => $participantRepository->findAll(),
             'search_course' => $course,
             'search_teacher' => $teacher,
+        ]);
+    }
+
+    #[Route('/data', name: 'app_meet_data', methods: ['GET'])]
+    public function data(Request $request, MeetRepository $meetRepository, CsrfTokenManagerInterface $csrfTokenManager): JsonResponse
+    {
+        $course = $request->query->get('course');
+        $teacher = $request->query->get('teacher');
+        $sort = $request->query->get('sort');
+        $dir = $request->query->get('dir');
+
+        $items = [];
+        $now = new \DateTimeImmutable();
+        $meets = $meetRepository->searchCalendarAjax($course, $teacher, null, $sort, $dir);
+        foreach ($meets as $meet) {
+            if (!$meet instanceof Meet) {
+                continue;
+            }
+
+            $dateDebut = $meet->getDateDebut();
+            $dateFin = $meet->getDateFin();
+            $isEnded = $dateFin !== null && $dateFin < $now;
+            $isNotStarted = $dateDebut !== null && $dateDebut > $now;
+
+            $p = $meet->getParticipant();
+            $items[] = [
+                'id' => $meet->getId(),
+                'titre' => $meet->getTitre(),
+                'profNom' => $p ? $p->getNom() : null,
+                'profPrenom' => $p ? $p->getPrenom() : null,
+                'profInitial' => $p && $p->getNom() ? mb_strtoupper(mb_substr($p->getNom(), 0, 1)) : null,
+                'dateDebut' => $dateDebut ? $dateDebut->format('d/m/Y H:i') : null,
+                'dateDebutTime' => $dateDebut ? $dateDebut->format('H:i') : null,
+                'dateFin' => $dateFin ? $dateFin->format('d/m/Y H:i') : null,
+                'timestampDebut' => $dateDebut ? $dateDebut->getTimestamp() : null,
+                'timestampFin' => $dateFin ? $dateFin->getTimestamp() : null,
+                'participantsCount' => $meet->getParticipants()->count(),
+                'isEnded' => $isEnded,
+                'isNotStarted' => $isNotStarted,
+                'joinUrl' => $this->generateUrl('app_meet_join', ['id' => $meet->getId()]),
+                'showUrl' => $this->generateUrl('app_meet_show', ['id' => $meet->getId()]),
+                'editUrl' => $this->generateUrl('app_meet_edit', ['id' => $meet->getId()]),
+                'deleteUrl' => $this->generateUrl('app_meet_delete', ['id' => $meet->getId()]),
+                'deleteToken' => $csrfTokenManager->getToken('delete' . $meet->getId())->getValue(),
+            ];
+        }
+
+        return new JsonResponse([
+            'items' => $items,
         ]);
     }
 
@@ -122,7 +180,7 @@ class MeetController extends AbstractController
     }
 
     #[Route('/new', name: 'app_meet_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository, MailerInterface $mailer, Environment $twig): Response
     {
         $meet = new Meet();
         $meet->setCreatedAt(new \DateTime());
@@ -144,7 +202,91 @@ class MeetController extends AbstractController
             $entityManager->persist($meet);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Meet créé avec succès!');
+            $teacherMailer = $mailer;
+            $fromAddress = null;
+            $smtpEmail = $participant ? trim((string) $participant->getSmtpEmail()) : '';
+            if ($smtpEmail === '' && $participant) {
+                $smtpEmail = trim((string) $participant->getEmail());
+            }
+            $smtpAppPassword = $participant ? (string) $participant->getSmtpAppPassword() : '';
+            $smtpAppPassword = preg_replace('/\s+/', '', $smtpAppPassword ?? '') ?? '';
+
+            if ($participant && $participant->getRole() === 'enseignant' && $smtpEmail !== '' && trim($smtpAppPassword) !== '') {
+                $dsn = sprintf(
+                    'smtp://%s:%s@smtp.gmail.com:587?encryption=tls&auth_mode=login',
+                    rawurlencode($smtpEmail),
+                    rawurlencode($smtpAppPassword)
+                );
+                $transport = Transport::fromDsn($dsn);
+                $teacherMailer = new Mailer($transport);
+                $fromAddress = new Address($smtpEmail, trim((string) ($participant->getNom() . ' ' . $participant->getPrenom())));
+            } else {
+                $fromEmailRaw = '';
+                if (isset($_SERVER['MAILER_FROM'])) {
+                    $fromEmailRaw = trim((string) $_SERVER['MAILER_FROM']);
+                }
+                if ($fromEmailRaw === '' && isset($_ENV['MAILER_FROM'])) {
+                    $fromEmailRaw = trim((string) $_ENV['MAILER_FROM']);
+                }
+                if ($fromEmailRaw === '') {
+                    $fromEmailRaw = trim((string) getenv('MAILER_FROM'));
+                }
+                if ($fromEmailRaw === '') {
+                    $fromEmailRaw = 'no-reply@naja7ni.com';
+                }
+
+                $fromAddress = Address::create($fromEmailRaw);
+                if ($participant && $participant->getRole() === 'enseignant') {
+                    $this->addFlash('error', 'Email non envoyé: l\'enseignant n\'a pas configuré SMTP (Gmail) (app password manquant).');
+                }
+            }
+
+            $joinUrl = $this->generateUrl('app_meet_join', ['id' => $meet->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            $sentCount = 0;
+            $failedCount = 0;
+            foreach ($meet->getParticipants() as $student) {
+                if (!$student instanceof Participant) {
+                    continue;
+                }
+                if ($student->getRole() !== 'etudiant') {
+                    continue;
+                }
+
+                $to = trim((string) $student->getEmail());
+                if ($to === '') {
+                    continue;
+                }
+
+                try {
+                    $html = $twig->render('emails/meet_created.html.twig', [
+                        'meet' => $meet,
+                        'student' => $student,
+                        'joinUrl' => $joinUrl,
+                    ]);
+
+                    $email = (new Email())
+                        ->from($fromAddress)
+                        ->to(new Address($to, trim((string) ($student->getNom() . ' ' . $student->getPrenom()))))
+                        ->subject('Nouvelle réunion: ' . (string) ($meet->getTitre() ?? ''))
+                        ->html($html);
+
+                    $teacherMailer->send($email);
+                    $sentCount++;
+                } catch (TransportExceptionInterface $e) {
+                    $failedCount++;
+                }
+            }
+
+            if ($failedCount > 0) {
+                $this->addFlash('error', sprintf('Meet créé, mais %d email(s) n\'ont pas pu être envoyés.', $failedCount));
+            } elseif ($sentCount > 0) {
+                $this->addFlash('success', sprintf('Meet créé et %d email(s) envoyés aux étudiants.', $sentCount));
+            }
+
+            if ($sentCount === 0 && $failedCount === 0) {
+                $this->addFlash('success', 'Meet créé avec succès!');
+            }
 
             return $this->redirectToRoute('app_meet_index', [], Response::HTTP_SEE_OTHER);
         }

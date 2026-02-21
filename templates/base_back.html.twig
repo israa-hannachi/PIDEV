@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Naja7ni - Backoffice{% endblock %}
+
+{% block stylesheets %}
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('back-assets/assets/images/favicon.ico') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('back-assets/assets/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('back-assets/assets/vendors/css/vendors.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('back-assets/assets/vendors/css/daterangepicker.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('back-assets/assets/css/theme.min.css') }}" />
+{% endblock %}
+
+{% block body %}
+    {% include 'back/partials/_sidebar.html.twig' %}
+    {% include 'back/partials/_navbar.html.twig' %}
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">{% block page_title %}Backoffice{% endblock %}</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                {% block admin_content %}{% endblock %}
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('back-assets/assets/vendors/js/vendors.min.js') }}"></script>
+    <script src="{{ asset('back-assets/assets/vendors/js/daterangepicker.min.js') }}"></script>
+    <script src="{{ asset('back-assets/assets/vendors/js/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('back-assets/assets/vendors/js/circle-progress.min.js') }}"></script>
+
+    <script src="{{ asset('back-assets/assets/js/common-init.min.js') }}"></script>
+    <script src="{{ asset('back-assets/assets/js/dashboard-init.min.js') }}"></script>
+    <script src="{{ asset('back-assets/assets/js/theme-customizer-init.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.nxl-hasmenu > .nxl-link').on('click', function(e) {
+                e.preventDefault();
+                var $parent = $(this).parent();
+                if ($parent.hasClass('nxl-open')) {
+                    $parent.removeClass('nxl-open');
+                    $parent.find('.nxl-submenu').slideUp();
+                } else {
+                    $parent.addClass('nxl-open');
+                    $parent.find('.nxl-submenu').slideDown();
+                }
+            });
+        });
+    </script>
+
+    {% block page_javascripts %}{% endblock %}
+{% endblock %}

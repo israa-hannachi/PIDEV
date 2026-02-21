@@ -1,0 +1,366 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}MediaPipe Face Landmarker Demo{% endblock %}
+
+{% block body %}
+<div class="p-6 min-h-full">
+    <div class="max-w-5xl mx-auto">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold">Face landmark detection (MediaPipe FaceLandmarker)</h1>
+            <p class="text-muted-foreground mt-1">Clique sur "Enable webcam" puis autorise la caméra.</p>
+        </div>
+
+        <div id="doomscrollOverlay" class="hidden" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72);">
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px;">
+                <div style="max-width: 560px; width: 100%; background: #fff; border-radius: 16px; padding: 20px; border: 1px solid rgba(0,0,0,0.08);">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="fw-semibold" style="font-size: 18px;">Attention</div>
+                        <button type="button" id="doomscrollClose" class="btn btn-sm btn-light">Fermer</button>
+                    </div>
+                    <div class="text-muted mt-2">On dirait que tu regardes ton téléphone.</div>
+                    <div class="mt-3 d-flex justify-content-end gap-2">
+                        <button type="button" id="doomscrollResume" class="btn btn-primary">Reprendre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-start gap-4">
+            <div class="flex-1 min-w-[320px]">
+                <button id="webcamButton" type="button" class="btn btn-primary px-4 py-2 rounded-lg">Enable webcam</button>
+                <div class="mt-3" style="background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 10px;">
+                    <div class="d-flex flex-wrap gap-2 align-items-end">
+                        <div style="min-width:160px;">
+                            <div class="text-muted" style="font-size:12px;">Timer (s)</div>
+                            <input id="doomTimer" type="number" value="20" min="1" step="1" class="form-control form-control-sm" />
+                        </div>
+                        <div style="min-width:160px;">
+                            <div class="text-muted" style="font-size:12px;">Iris threshold</div>
+                            <input id="irisThreshold" type="number" value="0.65" min="0" max="1" step="0.01" class="form-control form-control-sm" />
+                        </div>
+                        <div style="min-width:160px;">
+                            <div class="text-muted" style="font-size:12px;">Head threshold</div>
+                            <input id="headThreshold" type="number" value="0.22" min="0" max="1" step="0.01" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                    <div class="text-muted mt-2" style="font-size:12px;">Astuce: clique une fois sur la page pour débloquer le son.</div>
+                </div>
+                <div class="mt-4" style="position: relative; width: 100%; max-width: 720px;">
+                    <video id="webcam" autoplay playsinline style="width: 100%; transform: rotateY(180deg);"></video>
+                    <canvas id="output_canvas" style="position:absolute;left:0;top:0;transform: rotateY(180deg);"></canvas>
+                </div>
+                <div id="status" class="mt-3 text-sm text-muted-foreground"></div>
+            </div>
+
+            <div class="flex-1 min-w-[260px]">
+                <div class="font-semibold mb-2">Blendshapes (top)</div>
+                <div id="video-blend-shapes" class="text-sm" style="max-height: 420px; overflow:auto; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 10px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script type="module">
+    const statusEl = document.getElementById('status');
+    function setStatus(msg) {
+        if (statusEl) statusEl.textContent = msg;
+    }
+
+    const overlayEl = document.getElementById('doomscrollOverlay');
+    const closeBtn = document.getElementById('doomscrollClose');
+    const resumeBtn = document.getElementById('doomscrollResume');
+    const doomTimerInput = document.getElementById('doomTimer');
+    const irisThresholdInput = document.getElementById('irisThreshold');
+    const headThresholdInput = document.getElementById('headThreshold');
+
+    function showOverlay() {
+        if (!overlayEl) return;
+        overlayEl.classList.remove('hidden');
+    }
+
+    function hideOverlay() {
+        if (!overlayEl) return;
+        overlayEl.classList.add('hidden');
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', hideOverlay);
+    if (resumeBtn) resumeBtn.addEventListener('click', hideOverlay);
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function ensureAudioUnlocked() {
+        try {
+            if (!AudioContext) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        } catch (e) {
+        }
+    }
+
+    function playAlertSound() {
+        try {
+            ensureAudioUnlocked();
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'square';
+            o.frequency.value = 880;
+            g.gain.value = 0.06;
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.start();
+            setTimeout(() => o.stop(), 250);
+        } catch (e) {
+        }
+    }
+
+    document.addEventListener('click', ensureAudioUnlocked, { once: true, capture: true });
+
+    let faceLandmarker = null;
+    let runningMode = 'IMAGE';
+    let webcamRunning = false;
+    let lastVideoTime = -1;
+
+    const video = document.getElementById('webcam');
+    const canvasElement = document.getElementById('output_canvas');
+    const canvasCtx = canvasElement.getContext('2d');
+    const webcamButton = document.getElementById('webcamButton');
+    const blendShapesContainer = document.getElementById('video-blend-shapes');
+
+    function hasGetUserMedia() {
+        return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    }
+
+    function drawBlendShapes(container, blendShapes) {
+        if (!container) return;
+        if (!blendShapes || !blendShapes.length || !blendShapes[0] || !blendShapes[0].categories) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const categories = blendShapes[0].categories
+            .slice()
+            .sort((a, b) => (b.score || 0) - (a.score || 0))
+            .slice(0, 15);
+
+        container.innerHTML = categories.map((shape) => {
+            const name = shape.displayName || shape.categoryName || 'unknown';
+            const score = (shape.score || 0);
+            const w = Math.round(score * 100);
+            return `
+                <div style="display:flex; align-items:center; gap:8px; margin: 6px 0;">
+                    <div style="width:140px; text-align:right; font-size:12px;">${name}</div>
+                    <div style="flex:1; height:12px; background:rgba(0,0,0,0.08); border-radius:6px; overflow:hidden;">
+                        <div style="width:${w}%; height:100%; background:#007f8b;"></div>
+                    </div>
+                    <div style="width:60px; font-variant-numeric: tabular-nums; font-size:12px;">${score.toFixed(4)}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function createFaceLandmarker() {
+        setStatus('Loading MediaPipe...');
+
+        let vision;
+        try {
+            vision = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+        } catch (e) {
+            setStatus('Failed to import MediaPipe. Disable AdBlock/VPN then reload.');
+            return;
+        }
+
+        const { FaceLandmarker, FilesetResolver, DrawingUtils } = vision;
+
+        let filesetResolver;
+        try {
+            filesetResolver = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+        } catch (e) {
+            setStatus('Failed to load WASM files. Disable AdBlock/VPN then reload.');
+            return;
+        }
+
+        try {
+            faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+                baseOptions: {
+                    modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+                    delegate: 'GPU',
+                },
+                outputFaceBlendshapes: true,
+                runningMode,
+                numFaces: 1,
+            });
+        } catch (e) {
+            setStatus('Failed to init model. Check console/network.');
+            return;
+        }
+
+        setStatus('Ready.');
+        return { FaceLandmarker, DrawingUtils };
+    }
+
+    async function enableCam() {
+        if (!faceLandmarker) {
+            setStatus('Wait: model not loaded yet.');
+            return;
+        }
+
+        webcamRunning = !webcamRunning;
+        webcamButton.textContent = webcamRunning ? 'Disable webcam' : 'Enable webcam';
+
+        if (!webcamRunning) {
+            const stream = video.srcObject;
+            if (stream && stream.getTracks) {
+                stream.getTracks().forEach((t) => t.stop());
+            }
+            video.srcObject = null;
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            return;
+        }
+
+        const constraints = { video: true };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+        video.addEventListener('loadeddata', predictWebcam);
+    }
+
+    let drawingUtils;
+    let FaceLandmarkerRef;
+
+    async function predictWebcam() {
+        if (!webcamRunning || !faceLandmarker) return;
+
+        if (runningMode === 'IMAGE') {
+            runningMode = 'VIDEO';
+            await faceLandmarker.setOptions({ runningMode });
+        }
+
+        const videoWidth = video.videoWidth || 640;
+        const videoHeight = video.videoHeight || 480;
+
+        canvasElement.width = videoWidth;
+        canvasElement.height = videoHeight;
+        canvasElement.style.width = video.clientWidth + 'px';
+        canvasElement.style.height = video.clientHeight + 'px';
+
+        const nowMs = performance.now();
+
+        let results = null;
+        if (lastVideoTime !== video.currentTime) {
+            lastVideoTime = video.currentTime;
+            results = faceLandmarker.detectForVideo(video, nowMs);
+        }
+
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        let irisDownScore = null;
+        let headDownScore = null;
+
+        if (results && results.faceLandmarks) {
+            for (const landmarks of results.faceLandmarks) {
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_RIGHT_EYE, { color: '#FF3030', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_RIGHT_EYEBROW, { color: '#FF3030', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_LEFT_EYE, { color: '#30FF30', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_LEFT_EYEBROW, { color: '#30FF30', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_FACE_OVAL, { color: '#E0E0E0', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_LIPS, { color: '#E0E0E0', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_RIGHT_IRIS, { color: '#FF3030', lineWidth: 1 });
+                drawingUtils.drawConnectors(landmarks, FaceLandmarkerRef.FACE_LANDMARKS_LEFT_IRIS, { color: '#30FF30', lineWidth: 1 });
+
+                const leftIrisIdx = [468, 469, 470, 471, 472];
+                const rightIrisIdx = [473, 474, 475, 476, 477];
+                const leftEyeTop = 159;
+                const leftEyeBottom = 145;
+                const rightEyeTop = 386;
+                const rightEyeBottom = 374;
+
+                const leftTopY = landmarks[leftEyeTop] ? landmarks[leftEyeTop].y : null;
+                const leftBotY = landmarks[leftEyeBottom] ? landmarks[leftEyeBottom].y : null;
+                const rightTopY = landmarks[rightEyeTop] ? landmarks[rightEyeTop].y : null;
+                const rightBotY = landmarks[rightEyeBottom] ? landmarks[rightEyeBottom].y : null;
+
+                if (leftTopY !== null && leftBotY !== null && rightTopY !== null && rightBotY !== null) {
+                    const avgY = (lm, idx) => idx.reduce((s, i) => s + (lm[i] ? lm[i].y : 0), 0) / idx.length;
+                    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+
+                    const leftIrisY = avgY(landmarks, leftIrisIdx);
+                    const rightIrisY = avgY(landmarks, rightIrisIdx);
+
+                    const leftNorm = clamp01((leftIrisY - leftTopY) / Math.max(0.00001, (leftBotY - leftTopY)));
+                    const rightNorm = clamp01((rightIrisY - rightTopY) / Math.max(0.00001, (rightBotY - rightTopY)));
+                    irisDownScore = (leftNorm + rightNorm) / 2;
+
+                    const noseTip = 1;
+                    const noseY = landmarks[noseTip] ? landmarks[noseTip].y : null;
+                    const eyeRefY = (leftTopY + rightTopY) / 2;
+                    headDownScore = noseY === null ? 0 : clamp01((noseY - eyeRefY) / 0.20);
+                }
+            }
+        }
+
+        canvasCtx.restore();
+
+        if (results && results.faceBlendshapes) {
+            drawBlendShapes(blendShapesContainer, results.faceBlendshapes);
+        }
+
+        if (irisDownScore !== null && headDownScore !== null) {
+            const timerSeconds = doomTimerInput ? Math.max(1, Number(doomTimerInput.value || 20)) : 20;
+            const lookingDownThreshold = irisThresholdInput ? Number(irisThresholdInput.value || 0.65) : 0.65;
+            const headDownThreshold = headThresholdInput ? Number(headThresholdInput.value || 0.22) : 0.22;
+
+            const isLookingDown = (irisDownScore >= lookingDownThreshold) && (headDownScore >= headDownThreshold);
+            const now = Date.now();
+
+            if (!window.__doomTriggered) {
+                if (isLookingDown) {
+                    if (!window.__doomSince) window.__doomSince = now;
+                    const elapsed = (now - window.__doomSince) / 1000;
+                    if (elapsed >= timerSeconds) {
+                        window.__doomTriggered = true;
+                        playAlertSound();
+                        showOverlay();
+                    }
+                } else {
+                    window.__doomSince = null;
+                }
+            } else {
+                if (!isLookingDown) {
+                    window.__doomTriggered = false;
+                    window.__doomSince = null;
+                    hideOverlay();
+                }
+            }
+        }
+
+        window.requestAnimationFrame(predictWebcam);
+    }
+
+    (async () => {
+        if (!hasGetUserMedia()) {
+            setStatus('getUserMedia is not supported in this browser.');
+            if (webcamButton) webcamButton.disabled = true;
+            return;
+        }
+
+        const refs = await createFaceLandmarker();
+        if (!refs) {
+            if (webcamButton) webcamButton.disabled = true;
+            return;
+        }
+
+        FaceLandmarkerRef = refs.FaceLandmarker;
+        drawingUtils = new refs.DrawingUtils(canvasCtx);
+
+        if (webcamButton) {
+            webcamButton.addEventListener('click', enableCam);
+        }
+    })();
+</script>
+{% endblock %}

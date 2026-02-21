@@ -26,11 +26,35 @@
             </div>
         </div>
 
+        <div id="doomscrollOverlay" class="hidden" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72);">
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px;">
+                <div style="max-width: 560px; width: 100%; background: #fff; border-radius: 16px; padding: 20px; border: 1px solid rgba(0,0,0,0.08);">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="fw-semibold" style="font-size: 18px;">Attention</div>
+                        <button type="button" id="doomscrollClose" class="btn btn-sm btn-light">Fermer</button>
+                    </div>
+                    <div class="text-muted mt-2">On dirait que tu regardes ton téléphone pendant la réunion.</div>
+                    <div class="mt-3 d-flex justify-content-end gap-2">
+                        <button type="button" id="doomscrollResume" class="btn btn-primary">Reprendre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
             <div id="jitsi" class="w-full" style="height: calc(100vh - 220px);"></div>
         </div>
     </div>
 </div>
+
+<div id="concentrationBadge" style="position:fixed;right:12px;bottom:12px;z-index:9998;max-width:420px;background:#fff;color:#b91c1c;padding:12px 14px;border-radius:12px;font-size:18px;line-height:1.15;border:2px solid rgba(185,28,28,0.35);box-shadow:0 10px 28px rgba(0,0,0,0.16);display:none;align-items:center;gap:10px;">
+    <span class="d-inline-flex align-items-center justify-content-center" style="width:34px;height:34px;border-radius:999px;background:rgba(185,28,28,0.10);color:#b91c1c;">
+        <i data-lucide="bell" style="width:18px;height:18px;"></i>
+    </span>
+    <div id="concentrationText" style="font-weight:800;">Vous devez vous concentrer !</div>
+</div>
+
+<div id="doomscrollStatus" style="position:fixed;left:12px;bottom:12px;z-index:9998;max-width:420px;background:rgba(0,0,0,0.72);color:#fff;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.25;display:block;">Doomscroll: initialisation...</div>
 {% endblock %}
 
 {% block javascripts %}
@@ -92,6 +116,359 @@
             api.addEventListener('readyToClose', () => {
                 window.location.href = {{ path('app_meet_index')|json_encode|raw }};
             });
+
+            const overlayEl = document.getElementById('doomscrollOverlay');
+            const closeBtn = document.getElementById('doomscrollClose');
+            const resumeBtn = document.getElementById('doomscrollResume');
+
+            function showOverlay() {
+                if (!overlayEl) return;
+                overlayEl.classList.remove('hidden');
+            }
+
+            function hideOverlay() {
+                if (!overlayEl) return;
+                overlayEl.classList.add('hidden');
+            }
+
+            if (closeBtn) closeBtn.addEventListener('click', hideOverlay);
+            if (resumeBtn) resumeBtn.addEventListener('click', hideOverlay);
         });
+    </script>
+
+    <script type="module">
+        const __doomInit = () => {
+            const overlayEl = document.getElementById('doomscrollOverlay');
+            const closeBtn = document.getElementById('doomscrollClose');
+            const resumeBtn = document.getElementById('doomscrollResume');
+            const statusEl = document.getElementById('doomscrollStatus');
+            const concentrationBadgeEl = document.getElementById('concentrationBadge');
+            const concentrationTextEl = document.getElementById('concentrationText');
+            const userRole = localStorage.getItem('userRole') || 'etudiant';
+
+            let concentrationVisible = false;
+            let concentrationSince = null;
+            const concentrationDelaySeconds = 10.0;
+
+            function setStatus(msg) {
+                if (!statusEl) return;
+                statusEl.style.display = 'block';
+                statusEl.textContent = msg;
+            }
+
+            function setConcentration(iris, head, noFace) {
+                if (!concentrationBadgeEl) return;
+                if (userRole === 'enseignant') {
+                    concentrationBadgeEl.style.display = 'none';
+                    return;
+                }
+
+                const isNoFace = (noFace === true);
+                if (!isNoFace && (iris === null || head === null)) {
+                    concentrationBadgeEl.style.display = 'none';
+                    concentrationVisible = false;
+                    concentrationSince = null;
+                    return;
+                }
+
+                const warningCondition = isNoFace || (head < 0.4000) ||(iris < 0.3000);
+                const now = Date.now();
+
+                if (warningCondition) {
+                    if (concentrationSince === null) concentrationSince = now;
+                    const elapsed = (now - concentrationSince) / 1000;
+                    const shouldShow = elapsed >= concentrationDelaySeconds;
+
+                    concentrationBadgeEl.style.display = shouldShow ? 'flex' : 'none';
+                    if (shouldShow) {
+                        if (concentrationTextEl) concentrationTextEl.textContent = 'Vous devez vous concentrer !';
+                        if (!concentrationVisible) {
+                            playBellSound();
+                        }
+                        concentrationVisible = true;
+                    } else {
+                        concentrationVisible = false;
+                    }
+                } else {
+                    concentrationSince = null;
+                    concentrationVisible = false;
+                    concentrationBadgeEl.style.display = 'none';
+                }
+            }
+
+            setStatus('Doomscroll: init...');
+
+            window.addEventListener('error', (event) => {
+                try {
+                    const msg = event && event.message ? event.message : 'Erreur JS';
+                    setStatus(`Doomscroll: ERREUR: ${msg}`);
+                } catch (e) {
+                }
+            });
+
+            window.addEventListener('unhandledrejection', (event) => {
+                try {
+                    const reason = event && event.reason ? (event.reason.message || String(event.reason)) : 'Promise rejetée';
+                    setStatus(`Doomscroll: ERREUR PROMESSE: ${reason}`);
+                } catch (e) {
+                }
+            });
+
+            function showOverlay() {
+                if (!overlayEl) return;
+                overlayEl.classList.remove('hidden');
+            }
+
+            function hideOverlay() {
+                if (!overlayEl) return;
+                overlayEl.classList.add('hidden');
+            }
+
+            if (closeBtn) closeBtn.addEventListener('click', hideOverlay);
+            if (resumeBtn) resumeBtn.addEventListener('click', hideOverlay);
+
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            let audioCtx = null;
+
+            function ensureAudioUnlocked() {
+                try {
+                    if (!AudioContext) return;
+                    if (!audioCtx) audioCtx = new AudioContext();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch (e) {
+                }
+            }
+
+            function playAlertSound() {
+                try {
+                    ensureAudioUnlocked();
+                    if (!audioCtx || audioCtx.state !== 'running') return;
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'square';
+                    o.frequency.value = 880;
+                    g.gain.value = 0.06;
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.start();
+                    setTimeout(() => o.stop(), 250);
+                } catch (e) {
+                }
+            }
+
+            function playBellSound() {
+                try {
+                    ensureAudioUnlocked();
+                    if (!audioCtx || audioCtx.state !== 'running') return;
+
+                    const now = audioCtx.currentTime;
+                    const g = audioCtx.createGain();
+                    g.gain.setValueAtTime(0.0001, now);
+                    g.gain.exponentialRampToValueAtTime(0.20, now + 0.01);
+                    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+                    g.connect(audioCtx.destination);
+
+                    const o1 = audioCtx.createOscillator();
+                    o1.type = 'sine';
+                    o1.frequency.setValueAtTime(880, now);
+                    o1.frequency.exponentialRampToValueAtTime(660, now + 0.45);
+                    o1.connect(g);
+
+                    const o2 = audioCtx.createOscillator();
+                    o2.type = 'sine';
+                    o2.frequency.setValueAtTime(1320, now);
+                    o2.frequency.exponentialRampToValueAtTime(990, now + 0.45);
+                    o2.connect(g);
+
+                    o1.start(now);
+                    o2.start(now);
+                    o1.stop(now + 0.50);
+                    o2.stop(now + 0.50);
+                } catch (e) {
+                }
+            }
+
+            function clamp01(v) {
+                return Math.max(0, Math.min(1, v));
+            }
+
+            function avgY(landmarks, idx) {
+                let sum = 0;
+                for (const i of idx) sum += (landmarks[i] ? landmarks[i].y : 0);
+                return sum / idx.length;
+            }
+
+            async function startDoomscrollDetection() {
+                const timerSeconds = 20.0;
+                const lookingDownThreshold = 0.65;
+                const headDownThreshold = 0.22;
+                const debounceThreshold = 0.50;
+                const emaAlpha = 0.20;
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    setStatus('Doomscroll: getUserMedia non supporté sur ce navigateur.');
+                    return;
+                }
+
+                let vision;
+                try {
+                    setStatus('Doomscroll: chargement MediaPipe...');
+                    vision = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+                } catch (e) {
+                    setStatus('Doomscroll: import MediaPipe bloqué (AdBlock/VPN?).');
+                    return;
+                }
+
+                const { FaceLandmarker, FilesetResolver } = vision;
+
+                const video = document.createElement('video');
+                video.setAttribute('playsinline', '');
+                video.muted = true;
+                video.style.position = 'fixed';
+                video.style.left = '-9999px';
+                video.style.top = '0';
+                document.body.appendChild(video);
+
+                let stream;
+                try {
+                    setStatus('Doomscroll: demande permission caméra...');
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+                } catch (e) {
+                    setStatus('Doomscroll: caméra refusée / indisponible.');
+                    return;
+                }
+
+                video.srcObject = stream;
+                await new Promise((resolve) => { video.onloadedmetadata = () => resolve(); });
+                try {
+                    await video.play();
+                } catch (e) {
+                    setStatus('Doomscroll: autoplay vidéo bloqué. Clique sur la page puis recharge.');
+                    return;
+                }
+
+                let faceLandmarker;
+                try {
+                    setStatus('Doomscroll: chargement modèle...');
+                    const filesetResolver = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+                    faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+                        baseOptions: {
+                            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+                            delegate: 'GPU',
+                        },
+                        outputFaceBlendshapes: false,
+                        outputFacialTransformationMatrixes: false,
+                        runningMode: 'VIDEO',
+                        numFaces: 1,
+                    });
+                } catch (e) {
+                    setStatus('Doomscroll: modèle/WASM bloqué (AdBlock/VPN?).');
+                    return;
+                }
+
+                setStatus('Doomscroll: prêt. Regarde vers le bas pour tester.');
+
+                const leftIrisIdx = [468, 469, 470, 471, 472];
+                const rightIrisIdx = [473, 474, 475, 476, 477];
+                const leftEyeTop = 159;
+                const leftEyeBottom = 145;
+                const rightEyeTop = 386;
+                const rightEyeBottom = 374;
+                const noseTip = 1;
+
+                let lookingDownSince = null;
+                let triggered = false;
+                let lastVideoTime = -1;
+                let irisEma = null;
+                let headEma = null;
+
+                function tick() {
+                    try {
+                        if (video.currentTime === lastVideoTime) {
+                            requestAnimationFrame(tick);
+                            return;
+                        }
+                        lastVideoTime = video.currentTime;
+
+                        const results = faceLandmarker.detectForVideo(video, performance.now());
+                        const faces = results && results.faceLandmarks ? results.faceLandmarks : null;
+                        if (!faces || !faces[0]) {
+                            lookingDownSince = null;
+                            setConcentration(null, null, true);
+                            setStatus('Doomscroll: visage non détecté (lumière/position).');
+                            requestAnimationFrame(tick);
+                            return;
+                        }
+
+                        const lm = faces[0];
+
+                        const leftTopY = lm[leftEyeTop] ? lm[leftEyeTop].y : null;
+                        const leftBotY = lm[leftEyeBottom] ? lm[leftEyeBottom].y : null;
+                        const rightTopY = lm[rightEyeTop] ? lm[rightEyeTop].y : null;
+                        const rightBotY = lm[rightEyeBottom] ? lm[rightEyeBottom].y : null;
+                        if (leftTopY === null || leftBotY === null || rightTopY === null || rightBotY === null) {
+                            requestAnimationFrame(tick);
+                            return;
+                        }
+
+                        const leftIrisY = avgY(lm, leftIrisIdx);
+                        const rightIrisY = avgY(lm, rightIrisIdx);
+                        const leftNorm = clamp01((leftIrisY - leftTopY) / Math.max(0.00001, (leftBotY - leftTopY)));
+                        const rightNorm = clamp01((rightIrisY - rightTopY) / Math.max(0.00001, (rightBotY - rightTopY)));
+                        const irisDownScore = (leftNorm + rightNorm) / 2;
+
+                        const noseY = lm[noseTip] ? lm[noseTip].y : null;
+                        const eyeRefY = (leftTopY + rightTopY) / 2;
+                        const headDownScore = noseY === null ? 0 : clamp01((noseY - eyeRefY) / 0.20);
+
+                        irisEma = irisEma === null ? irisDownScore : (emaAlpha * irisDownScore + (1 - emaAlpha) * irisEma);
+                        headEma = headEma === null ? headDownScore : (emaAlpha * headDownScore + (1 - emaAlpha) * headEma);
+
+                        setStatus(`Doomscroll: iris=${irisEma.toFixed(3)} head=${headEma.toFixed(3)} | timer=${timerSeconds}s`);
+
+                        setConcentration(irisEma, headEma, false);
+
+                        const isLookingDown = (irisEma >= lookingDownThreshold) && (headEma >= headDownThreshold);
+                        const isLookingUpEnough = irisEma <= debounceThreshold;
+                        const now = Date.now();
+
+                        if (!triggered) {
+                            if (isLookingDown) {
+                                if (lookingDownSince === null) lookingDownSince = now;
+                                const elapsed = (now - lookingDownSince) / 1000;
+                                if (elapsed >= timerSeconds) {
+                                    triggered = true;
+                                    playAlertSound();
+                                    showOverlay();
+                                }
+                            } else {
+                                lookingDownSince = null;
+                            }
+                        } else {
+                            if (isLookingUpEnough) {
+                                triggered = false;
+                                lookingDownSince = null;
+                                hideOverlay();
+                            }
+                        }
+                    } catch (e) {
+                        setStatus('Doomscroll: erreur pendant détection (voir console).');
+                    }
+
+                    requestAnimationFrame(tick);
+                }
+
+                requestAnimationFrame(tick);
+            }
+
+            document.addEventListener('click', ensureAudioUnlocked, { once: true, capture: true });
+            startDoomscrollDetection();
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', __doomInit);
+        } else {
+            __doomInit();
+        }
     </script>
 {% endblock %}

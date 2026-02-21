@@ -1,0 +1,77 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Ajouter un participant{% endblock %}
+
+{% block page_title %}Ajouter un participant{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+        <div>
+            <h4 class="mb-1">Ajouter un participant</h4>
+            <p class="text-muted mb-0">Créer un nouveau participant</p>
+        </div>
+        <a href="{{ path('app_user_index') }}" class="btn btn-light">
+            <i class="feather-arrow-left me-1"></i>
+            Retour
+        </a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="feather-check-circle me-2"></i>
+            <div>{{ message }}</div>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="feather-alert-circle me-2"></i>
+            <div>{{ message }}</div>
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Nom</label>
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
+                    {{ form_errors(form.nom) }}
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Prénom</label>
+                    {{ form_widget(form.prenom, {'attr': {'class': 'form-control', 'placeholder': 'Prénom'}}) }}
+                    {{ form_errors(form.prenom) }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Email</label>
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'exemple@email.com'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Rôle</label>
+                    {{ form_widget(form.role, {'attr': {'class': 'form-select', 'onchange': null}}) }}
+                    {{ form_errors(form.role) }}
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2 pt-2">
+                    <button type="reset" class="btn btn-light">Réinitialiser</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="feather-save me-1"></i>
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

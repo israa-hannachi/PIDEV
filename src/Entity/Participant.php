@@ -37,6 +37,12 @@ class Participant
     #[Assert\Choice(choices: ['etudiant', 'enseignant', 'administrateur'])]
     private ?string $role = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $smtpEmail = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $smtpAppPassword = null;
+
     #[ORM\Column]
     private ?\DateTime $createdAt = null;
 
@@ -114,6 +120,30 @@ class Participant
     public function setRole(string $role): static
     {
         $this->role = $role;
+
+        return $this;
+    }
+
+    public function getSmtpEmail(): ?string
+    {
+        return $this->smtpEmail;
+    }
+
+    public function setSmtpEmail(?string $smtpEmail): static
+    {
+        $this->smtpEmail = $smtpEmail;
+
+        return $this;
+    }
+
+    public function getSmtpAppPassword(): ?string
+    {
+        return $this->smtpAppPassword;
+    }
+
+    public function setSmtpAppPassword(?string $smtpAppPassword): static
+    {
+        $this->smtpAppPassword = $smtpAppPassword;
 
         return $this;
     }

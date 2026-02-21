@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Meet;
 use App\Entity\Participant;
 use App\Form\ParticipantType;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,7 +26,7 @@ class ParticipantController extends AbstractController
     }
 
     #[Route('/data', name: 'app_user_data', methods: ['GET'])]
-    public function data(Request $request, ParticipantRepository $participantRepository): JsonResponse
+    public function data(Request $request, ParticipantRepository $participantRepository, CsrfTokenManagerInterface $csrfTokenManager): JsonResponse
     {
         $q = $request->query->get('q');
         $role = $request->query->get('role');
@@ -33,7 +35,7 @@ class ParticipantController extends AbstractController
 
         $participants = $participantRepository->searchAjax($q, $role, $sort, $dir);
 
-        $data = array_map(static function ($p) {
+        $data = array_map(function ($p) use ($csrfTokenManager) {
             return [
                 'id' => $p->getId(),
                 'nom' => $p->getNom(),
@@ -42,6 +44,7 @@ class ParticipantController extends AbstractController
                 'role' => $p->getRole(),
                 'createdAt' => $p->getCreatedAt() ? $p->getCreatedAt()->format('Y-m-d') : null,
                 'meetsCount' => $p->getMeets()->count(),
+                'deleteToken' => $csrfTokenManager->getToken('delete' . $p->getId())->getValue(),
             ];
         }, $participants);
 
@@ -69,7 +72,7 @@ class ParticipantController extends AbstractController
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('user/new_front.html.twig', [
+        return $this->render('user/new_admin.html.twig', [
             'participant' => $participant,
             'form' => $form,
         ]);
@@ -78,7 +81,7 @@ class ParticipantController extends AbstractController
     #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
     public function show(Participant $participant): Response
     {
-        return $this->render('user/show_front.html.twig', [
+        return $this->render('user/show_admin.html.twig', [
             'participant' => $participant,
         ]);
     }
@@ -97,7 +100,7 @@ class ParticipantController extends AbstractController
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('user/edit_front.html.twig', [
+        return $this->render('user/edit_admin.html.twig', [
             'participant' => $participant,
             'form' => $form,
         ]);
@@ -107,6 +110,14 @@ class ParticipantController extends AbstractController
     public function delete(Request $request, Participant $participant, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$participant->getId(), $request->request->get('_token'))) {
+            $meetCount = $entityManager->getRepository(Meet::class)->count([
+                'participant' => $participant,
+            ]);
+            if ($meetCount > 0) {
+                $this->addFlash('error', 'Suppression impossible: ce participant est responsable d\'une ou plusieurs réunions.');
+                return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            }
+
             $entityManager->remove($participant);
             $entityManager->flush();
 

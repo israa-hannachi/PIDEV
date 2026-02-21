@@ -24,6 +24,11 @@
                     <i data-lucide="home" class="w-6 h-6 transition-colors"></i>
                     <span class="text-[11px] font-medium">Accueil</span>
                 </a>
+                <a href="{{ path('app_user_index') }}"
+                    class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
+                    <i data-lucide="shield" class="w-6 h-6 transition-colors"></i>
+                    <span class="text-[11px] font-medium">Admin</span>
+                </a>
                 <a href="{{ path('app_meet_index') }}"
                     class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group">
                     <i data-lucide="video" class="w-6 h-6 transition-colors"></i>
@@ -58,15 +63,6 @@
                         <i data-lucide="calendar-days"
                             class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
                     </a>
-                    <a href="{{ path('app_user_index') }}" class="p-2.5 hover:bg-muted rounded-xl transition-colors group" title="Admin">
-                        <i data-lucide="shield"
-                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
-                    </a>
-                    <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
-                        <i data-lucide="bell"
-                            class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
-                    </button>
                     <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
                         <i data-lucide="settings"
                             class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>

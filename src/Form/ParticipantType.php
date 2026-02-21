@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class ParticipantType extends AbstractType
 {
@@ -47,6 +48,22 @@ class ParticipantType extends AbstractType
                     'Administrateur' => 'administrateur'
                 ],
                 'attr' => [
+                    'class' => 'form-control'
+                ]
+            ])
+            ->add('smtpEmail', TextType::class, [
+                'label' => 'SMTP (Gmail) - Email',
+                'required' => false,
+                'attr' => [
+                    'placeholder' => 'ex: enseignant@gmail.com',
+                    'class' => 'form-control'
+                ]
+            ])
+            ->add('smtpAppPassword', PasswordType::class, [
+                'label' => 'SMTP (Gmail) - App Password',
+                'required' => false,
+                'attr' => [
+                    'placeholder' => 'Mot de passe d\'application Google',
                     'class' => 'form-control'
                 ]
             ])
