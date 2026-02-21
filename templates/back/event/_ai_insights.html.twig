@@ -1,0 +1,49 @@
+<div class="card border-0 shadow-sm mb-4 bg-light">
+    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+        <h6 class="card-title mb-0 d-flex align-items-center gap-2">
+            <i data-lucide="brain-circuit" class="w-5 h-5 text-primary"></i>
+            AI Intelligence Insights
+        </h6>
+        <span class="badge bg-soft-info text-info">Live Analysis</span>
+    </div>
+    <div class="card-body">
+        <!-- Success Prediction Section -->
+        <div id="ai-success-section" class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fs-13 fw-bold text-dark">Success Probability</span>
+                <span id="ai-success-score" class="badge bg-primary">--%</span>
+            </div>
+            <div class="progress mb-3" style="height: 10px;">
+                <div id="ai-success-progress" class="progress-bar bg-primary" style="width: 0%"></div>
+            </div>
+            <div id="ai-suggestions-list" class="fs-12 text-muted">
+                <p class="mb-0 italic text-center py-2">Complete the form to see predictions...</p>
+            </div>
+        </div>
+
+        <hr class="my-4 opacity-50">
+
+        <!-- Timing Suggestions Section -->
+        <div id="ai-timing-section">
+            <h6 class="fs-12 fw-bold text-uppercase text-muted mb-3">Optimal Timing Slots</h6>
+            <div id="ai-timing-cards" class="row g-2">
+                <div class="col-12 text-center py-3">
+                    <small class="text-muted">Select a category to see best slots</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timing-card {
+        transition: all 0.2s ease;
+        cursor: help;
+    }
+    .timing-card:hover {
+        transform: translateY(-2px);
+    }
+    .score-green { border-left: 4px solid #10b981 !important; background: #f0fdf4; }
+    .score-yellow { border-left: 4px solid #f59e0b !important; background: #fffbeb; }
+    .score-red { border-left: 4px solid #ef4444 !important; background: #fef2f2; }
+</style>

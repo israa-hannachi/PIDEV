@@ -1,0 +1,102 @@
+{# templates/front/layout/navbar.html.twig #}
+<nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-50 sticky top-0">
+    <div class="flex items-center gap-8">
+        <a href="{{ path('app_front_home') }}">
+            <img src="{{ asset('assets/images/logo-full.png') }}" alt="Naja7ni" class="h-10 object-contain">
+        </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="flex-1 max-w-xl mx-8">
+        <div class="relative group">
+            <i data-lucide="search"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+            <input type="text" placeholder="Rechercher des cours, modules, événements..."
+                class="w-full pl-10 pr-4 py-2 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+        </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center gap-4">
+        <!-- Back Office Button -->
+        <a href="{{ path('back_dashboard') }}" 
+           class="flex items-center gap-2 px-4 py-2 bg-ink text-white rounded-xl text-xs font-black hover:bg-primary transition-all shadow-lg shadow-ink/10 active:scale-95 group" 
+           title="Tableau de bord">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 transition-transform group-hover:rotate-12"></i>
+            <span>BACK OFFICE</span>
+        </a>
+
+        <div class="relative group">
+            <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative">
+                <i data-lucide="bell" class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                {% set userNotifications = app.session.get('user_notifications', []) %}
+                {% set unreadCount = 0 %}
+                {% for n in userNotifications %}
+                    {% if not n.read|default(false) %}
+                        {% set unreadCount = unreadCount + 1 %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if unreadCount > 0 %}
+                    <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                {% endif %}
+            </button>
+            
+            <!-- Notifications Dropdown -->
+            <div class="absolute right-0 mt-2 w-80 bg-white border border-border rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100]">
+                <div class="p-4 border-b border-border flex items-center justify-between">
+                    <h5 class="text-xs font-black text-ink uppercase tracking-widest">Notifications</h5>
+                    <span class="text-[10px] text-muted-foreground font-bold">{{ userNotifications|length }} Total</span>
+                </div>
+                <div class="max-height-[320px] overflow-y-auto">
+                    {% for n in userNotifications|reverse %}
+                        <div class="p-4 border-b border-border/50 hover:bg-muted/30 transition-colors">
+                            <div class="flex gap-3">
+                                <div class="w-2 h-2 rounded-full mt-1.5 {{ n.level == 'warning' ? 'bg-amber-400' : (n.level == 'error' ? 'bg-red-400' : 'bg-primary') }}"></div>
+                                <div class="flex-1">
+                                    <p class="text-[11px] text-ink leading-tight font-medium">{{ n.message }}</p>
+                                    <span class="text-[9px] text-muted-foreground mt-1 block tracking-tight italic">{{ n.timestamp|date('d/m H:i') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="p-8 text-center text-muted-foreground">
+                            <i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 opacity-20"></i>
+                            <p class="text-[10px] font-medium tracking-wide">Aucune notification</p>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="p-3 text-center">
+                    <a href="#" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Voir tout</a>
+                </div>
+            </div>
+        </div>
+        
+        <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+            <i data-lucide="settings"
+                class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+        </button>
+
+        {% if app.user %}
+            <div class="flex items-center gap-3">
+                     <!-- User Profile -->
+                     <a href="{{ path('app_profile') }}"
+                   class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105 overflow-hidden">
+                    {% if app.user.profilePicture|default(false) %}
+                        <img src="{{ asset('uploads/profiles/' ~ app.user.profilePicture) }}" alt="Profile" class="w-full h-full object-cover">
+                    {% else %}
+                        {{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
+                    {% endif %}
+                </a>
+                
+                <a href="{{ path('app_logout') }}" class="p-2.5 hover:bg-red-50 text-red-500 rounded-xl transition-colors group" title="Déconnexion">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </a>
+            </div>
+        {% else %}
+            <a href="{{ path('app_login') }}" class="px-6 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all">
+                Connexion
+            </a>
+        {% endif %}
+    </div>
+</nav>

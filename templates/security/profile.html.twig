@@ -1,0 +1,45 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+        <div class="flex items-center gap-6 mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                {% if user.profilePicture|default(false) %}
+                    <img src="{{ asset('uploads/profiles/' ~ user.profilePicture) }}" alt="Profile" class="w-full h-full object-cover rounded-full">
+                {% else %}
+                    {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                {% endif %}
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-foreground">{{ user.firstName }} {{ user.lastName }}</h1>
+                <p class="text-muted-foreground">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 bg-muted/30 rounded-xl">
+                <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Prénom</p>
+                <p class="font-medium text-foreground">{{ user.firstName }}</p>
+            </div>
+            <div class="p-4 bg-muted/30 rounded-xl">
+                <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Nom</p>
+                <p class="font-medium text-foreground">{{ user.lastName }}</p>
+            </div>
+            <div class="p-4 bg-muted/30 rounded-xl md:col-span-2">
+                <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Email</p>
+                <p class="font-medium text-foreground">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-border flex gap-4">
+            <a href="{{ path('app_front_home') }}" class="px-5 py-2.5 bg-muted text-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors">
+                ← Accueil
+            </a>
+            <a href="{{ path('app_logout') }}" class="px-5 py-2.5 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors">
+                Déconnexion
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

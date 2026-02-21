@@ -16,19 +16,16 @@ class RegistrationType extends AbstractType
         $builder
             ->add('visitorName', null, ['label' => 'Nom'])
             ->add('visitorEmail', null, ['label' => 'Email'])
-            ->add('modePaiement', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
+            ->add('notes', null, ['required' => false, 'label' => 'Notes'])
+            ->add('paymentMethod', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
                 'choices' => [
-                    'Gratuit' => 'gratuit',
-                    'Carte Bancaire' => 'carte',
-                    'Espèces' => 'espèces',
-                    'Virement' => 'virement',
-                    'PayPal' => 'paypal',
+                    'Paiement en ligne (Paymee)' => 'paymee',
+                    'Paiement en espèces (Sur place)' => 'espece',
                 ],
-                'label' => 'Mode de paiement'
+                'label' => 'Méthode de paiement',
+                'placeholder' => 'Choisir une méthode',
+                'required' => true,
             ])
-            ->add('montantPaye', null, ['label' => 'Montant à payer'])
-            ->add('notes', null, ['required' => false])
-
         ;
     }
 

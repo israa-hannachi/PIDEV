@@ -1,0 +1,19 @@
+{
+    "status": true,
+    "message": "Success",
+    "code": 50,
+    "data": {
+        "firstname": "Flen",
+        "payment_status": false,
+        "phone": "+21653435158",
+        "cost": 0,
+        "amount": 10,
+        "received_amount": 0,
+        "note": "Test",
+        "token": "79fe1b8b20f391b8d420728c96459089",
+        "lastname": "Fouleni",
+        "email": "test@test.com",
+        "transaction_id": 0,
+        "buyer_id": 0
+    }
+}

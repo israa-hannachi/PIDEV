@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket - {{ event.titre }}</title>
+    <style>
+        @page { margin: 0; }
+        body { 
+            font-family: 'Helvetica', sans-serif; 
+            color: #1e293b; 
+            margin: 0;
+            padding: 40px;
+            background-color: #f8fafc;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .ticket {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .header {
+            background: linear-gradient(135deg, #0FB5A9 0%, #0d9488 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+        .logo { 
+            font-size: 28px; 
+            font-weight: bold; 
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .event-title { 
+            font-size: 24px; 
+            font-weight: bold; 
+            margin: 0;
+            line-height: 1.2;
+        }
+        .body {
+            padding: 40px;
+        }
+        .grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .col {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+        .label { 
+            font-size: 10px; 
+            color: #64748b; 
+            text-transform: uppercase; 
+            font-weight: bold; 
+            margin-bottom: 5px; 
+            letter-spacing: 1px;
+        }
+        .value { 
+            font-size: 15px; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            color: #0f172a;
+        }
+        .qr-section {
+            text-align: center;
+            padding: 30px;
+            background: #f1f5f9;
+            border-top: 2px dashed #cbd5e1;
+        }
+        .qr-placeholder {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border: 8px solid white;
+            display: inline-block;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            padding: 20px;
+            background: white;
+        }
+        .cut-line {
+            height: 0;
+            border-top: 2px dashed #cbd5e1;
+            position: relative;
+            margin: 20px 0;
+        }
+        .badge {
+            background-color: #0FB5A9;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ticket">
+            <div class="header">
+                <div class="logo">NAJA7NI PLATFORM</div>
+                <h1 class="event-title">{{ event.titre }}</h1>
+            </div>
+
+            <div class="body">
+                <div class="grid">
+                    <div class="col">
+                        <div class="label">Participant</div>
+                        <div class="value">{{ registration.visitorName }}</div>
+                        
+                        <div class="label">Lieu</div>
+                        <div class="value">{{ event.lieu }}</div>
+                    </div>
+                    <div class="col">
+                        <div class="label">Date & Heure</div>
+                        <div class="value">{{ event.dateDebut|date('d F, Y @ H:i') }}</div>
+                        
+                        <div class="label">Type de Billet</div>
+                        <div class="value">Accès Standard</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <span class="badge">INSCRIPTION CONFIRMÉE</span>
+                </div>
+            </div>
+
+            <div class="qr-section">
+                <div class="qr-placeholder" style="border: 2px solid #cbd5e1; display: table; margin: 0 auto;">
+                    <div style="display: table-cell; vertical-align: middle; padding: 10px; color: #cbd5e1; font-weight: bold; font-size: 10px;">
+                        SCAN QR CODE<br>NAJA7NI
+                    </div>
+                </div>
+                <div class="label">ID TRANSACTION: #REG-{{ registration.id }}</div>
+            </div>
+            
+            <div class="footer">
+                Ce billet est personnel et non transférable. Présentez-le à l'accueil pour validation.<br>
+                &copy; {{ "now"|date("Y") }} Naja7ni - Tous droits réservés.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

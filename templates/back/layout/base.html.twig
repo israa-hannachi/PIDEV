@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Admin Dashboard" />
+    <meta name="author" content="flexilecode" />
+    
+    <title>{% block title %}NAJA7NI || Dashboard{% endblock %}</title>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/back/images/favicon.ico') }}" />
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0FB5A9',
+                        secondary: '#04B6D5',
+                        accent: '#B3D54C',
+                        muted: '#f0fffe',
+                        border: 'rgba(15, 181, 169, 0.15)',
+                        'ink': '#0f0e17',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block stylesheets %}
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/vendors/css/vendors.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/vendors/css/daterangepicker.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/back/css/theme.min.css') }}" />
+    {% endblock %}
+    <!-- Feather Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.1/feather.min.css">
+    
+    <style>
+        :root {
+            --primary: #0FB5A9;
+            --secondary: #04B6D5;
+            --accent: #B3D54C;
+            --muted-foreground: #718096;
+            --border: rgba(15, 181, 169, 0.15);
+            --ink: #0f0e17;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            overflow-x: hidden;
+            background-color: #f8fafc;
+        }
+
+        .nxl-navigation {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #fff;
+            border-right: 1px solid var(--border);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .m-header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .navbar-content {
+            padding: 20px 0;
+        }
+
+        .nxl-navbar {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nxl-item {
+            padding: 2px 15px;
+        }
+
+        .nxl-item.nxl-caption {
+            padding: 15px 25px 5px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            letter-spacing: 1px;
+        }
+
+        .nxl-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--ink);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nxl-link:hover {
+            background-color: rgba(15, 181, 169, 0.05);
+            color: var(--primary);
+        }
+
+        .nxl-item.active > .nxl-link {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .nxl-micon {
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nxl-micon i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .nxl-arrow {
+            margin-left: auto;
+        }
+
+        .nxl-submenu {
+            list-style: none;
+            padding: 5px 0 5px 45px;
+            display: none;
+        }
+
+        .nxl-item.active .nxl-submenu {
+            display: block;
+        }
+
+        .nxl-submenu .nxl-link {
+            padding: 8px 15px;
+            font-size: 13px;
+        }
+
+        main {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        .nxl-container {
+            /* margin-left: var(--sidebar-width) !important; */ /* Removed as per new main rule */
+            width: calc(100% - var(--sidebar-width)) !important;
+            min-height: 100vh;
+        }
+        .nxl-header {
+            left: var(--sidebar-width) !important;
+            width: calc(100% - var(--sidebar-width)) !important;
+        }
+        @media (max-width: 991px) {
+            .nxl-container {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            #sidebar {
+                display: none; /* Hide custom sidebar on mobile for now as per theme behavior */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% block layout %}
+        {% include 'back/layout/sidebar.html.twig' %}
+        {% include 'back/layout/navbar.html.twig' %}
+
+        <main class="nxl-container">
+            <div class="nxl-content">
+                <div class="page-header">
+                    <div class="page-header-left d-flex align-items-center">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">{% block header_title %}Dashboard{% endblock %}</h5>
+                        </div>
+                        <ul class="breadcrumb">
+            
+                            {% block breadcrumb %}{% endblock %}
+                        </ul>
+                    </div>
+                </div>
+                
+                {% block body %}{% endblock %}
+            </div>
+            
+            <footer class="footer">
+                <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                    <span>Copyright © {{ "now"|date("Y") }}</span>
+                    <span> - NAJA7NI</span>
+                </p>
+            </footer>
+        </main>
+    {% endblock %}
+
+    {% block javascripts %}
+        <script src="{{ asset('assets/back/vendors/js/vendors.min.js') }}"></script>
+        <script src="{{ asset('assets/back/vendors/js/daterangepicker.min.js') }}"></script>
+        <script src="{{ asset('assets/back/vendors/js/apexcharts.min.js') }}"></script>
+        <script src="{{ asset('assets/back/vendors/js/circle-progress.min.js') }}"></script>
+        <script src="{{ asset('assets/back/js/common-init.min.js') }}"></script>
+        <script src="{{ asset('assets/back/js/theme-customizer-init.min.js') }}"></script>
+    {% endblock %}
+</body>
+
+</html>

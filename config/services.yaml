@@ -22,3 +22,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\PythonBridgeService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Service\PaymeeService:
+        arguments:
+            $apiKey: '%env(PAYMEE_API_KEY)%'
+            $apiUrl: '%env(PAYMEE_API_URL)%'
+            $vendorId: '%env(PAYMEE_VENDOR_ID)%'
+

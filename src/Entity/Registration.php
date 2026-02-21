@@ -47,37 +47,20 @@ class Registration
     #[Assert\Type(type: 'bool', message: "La présence doit être un booléen")]
     private ?bool $presence = false;
 
-    #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: "Le mode de paiement est obligatoire")]
-    #[Assert\Choice(
-        choices: ['gratuit', 'carte', 'espèces', 'virement', 'cheque', 'paypal', 'autre'],
-        message: "Le mode de paiement sélectionné n'est pas valide"
-    )]
-    private ?string $modePaiement = null;
-
-    #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2, options: ['default' => 0.00])]
-    #[Assert\NotBlank(message: "Le montant payé est obligatoire")]
-    #[Assert\PositiveOrZero(message: "Le montant payé ne peut pas être négatif")]
-    #[Assert\LessThanOrEqual(value: 99999.99, message: "Le montant payé est trop élevé")]
-    private ?string $montantPaye = '0.00';
-
-    #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: "L'état du paiement est obligatoire")]
-    #[Assert\Choice(
-        choices: ['non_requis', 'en_attente', 'payé', 'remboursé', 'retard', 'echec'],
-        message: "L'état du paiement sélectionné n'est pas valide"
-    )]
-    private ?string $paiementStatut = null;
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(max: 1000, maxMessage: "Les notes ne peuvent pas dépasser {{ limit }} caractères")]
     private ?string $notes = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $paymentMethod = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $paymentToken = null;
 
     public function __construct()
     {
         $this->dateInscription = new \DateTime();
         $this->statut = 'en_attente';
-        $this->paiementStatut = 'en_attente';
     }
 
     #[ORM\PrePersist]
@@ -88,123 +71,111 @@ class Registration
         }
     }
 
-// Getters and Setters
+    // Getters and Setters
 
-public function getId(): ?int
-{
-    return $this->id;
-}
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-public function getEvenement(): ?Event
-{
-    return $this->evenement;
-}
+    public function getEvenement(): ?Event
+    {
+        return $this->evenement;
+    }
 
-public function setEvenement(?Event $evenement): static
-{
-    $this->evenement = $evenement;
+    public function setEvenement(?Event $evenement): static
+    {
+        $this->evenement = $evenement;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getVisitorName(): ?string
-{
-    return $this->visitorName;
-}
+    public function getVisitorName(): ?string
+    {
+        return $this->visitorName;
+    }
 
-public function setVisitorName(string $visitorName): static
-{
-    $this->visitorName = $visitorName;
+    public function setVisitorName(string $visitorName): static
+    {
+        $this->visitorName = $visitorName;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getVisitorEmail(): ?string
-{
-    return $this->visitorEmail;
-}
+    public function getVisitorEmail(): ?string
+    {
+        return $this->visitorEmail;
+    }
 
-public function setVisitorEmail(string $visitorEmail): static
-{
-    $this->visitorEmail = $visitorEmail;
+    public function setVisitorEmail(string $visitorEmail): static
+    {
+        $this->visitorEmail = $visitorEmail;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getDateInscription(): ?\DateTimeInterface
-{
-    return $this->dateInscription;
-}
+    public function getDateInscription(): ?\DateTimeInterface
+    {
+        return $this->dateInscription;
+    }
 
-public function getStatut(): ?string
-{
-    return $this->statut;
-}
+    public function getStatut(): ?string
+    {
+        return $this->statut;
+    }
 
-public function setStatut(string $statut): static
-{
-    $this->statut = $statut;
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getPresence(): ?bool
-{
-    return $this->presence;
-}
+    public function getPresence(): ?bool
+    {
+        return $this->presence;
+    }
 
-public function setPresence(bool $presence): static
-{
-    $this->presence = $presence;
+    public function setPresence(bool $presence): static
+    {
+        $this->presence = $presence;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getModePaiement(): ?string
-{
-    return $this->modePaiement;
-}
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
 
-public function setModePaiement(string $modePaiement): static
-{
-    $this->modePaiement = $modePaiement;
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getMontantPaye(): ?string
-{
-    return $this->montantPaye;
-}
+    public function getPaymentMethod(): ?string
+    {
+        return $this->paymentMethod;
+    }
 
-public function setMontantPaye(string $montantPaye): static
-{
-    $this->montantPaye = $montantPaye;
+    public function setPaymentMethod(?string $paymentMethod): static
+    {
+        $this->paymentMethod = $paymentMethod;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getPaiementStatut(): ?string
-{
-    return $this->paiementStatut;
-}
+    public function getPaymentToken(): ?string
+    {
+        return $this->paymentToken;
+    }
 
-public function setPaiementStatut(string $paiementStatut): static
-{
-    $this->paiementStatut = $paiementStatut;
+    public function setPaymentToken(?string $paymentToken): static
+    {
+        $this->paymentToken = $paymentToken;
 
-    return $this;
-}
-
-public function getNotes(): ?string
-{
-    return $this->notes;
-}
-
-public function setNotes(?string $notes): static
-{
-    $this->notes = $notes;
-
-    return $this;
-}
+        return $this;
+    }
 }

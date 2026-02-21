@@ -1,0 +1,145 @@
+{# templates/front/layout/chatbot.html.twig #}
+<div id="ai-chatbot" class="fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-4 pointer-events-none">
+    <!-- Chat Window (hidden by default) -->
+    <div id="chatbot-window" class="w-80 md:w-96 bg-white rounded-3xl shadow-2xl border border-indigo-100 overflow-hidden flex flex-col opacity-0 translate-y-4 pointer-events-none transition-all duration-300 scale-95 origin-bottom-right">
+        <!-- Header -->
+        <div class="p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <i data-lucide="brain-circuit" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold leading-none">Assistant IA</h4>
+                    <span class="text-[10px] opacity-70">En ligne • Naja7ni</span>
+                </div>
+            </div>
+            <button onclick="toggleAIChat()" class="p-1 hover:bg-white/10 rounded-lg transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chatbot-messages" class="flex-1 h-80 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+            <div class="flex gap-2.5 items-start">
+                <div class="w-8 h-8 rounded-full bg-indigo-600/10 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-indigo-50 shadow-sm">
+                    <p class="text-xs text-slate-700 leading-relaxed">Bonjour ! Comment puis-je vous aider aujourd'hui ? Je peux vous renseigner sur nos événements, les inscriptions ou tout autre sujet lié à Naja7ni.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 bg-white border-t border-slate-100">
+            <form id="chatbot-form" onsubmit="handleChatSubmit(event)" class="flex gap-2">
+                <input type="text" id="chatbot-input" placeholder="Posez votre question..." 
+                    class="flex-1 px-4 py-2 bg-slate-100 border-none rounded-xl text-xs focus:ring-2 focus:ring-indigo-600/20 transition-all outline-none">
+                <button type="submit" class="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Trigger Button -->
+    <button onclick="toggleAIChat()" class="pointer-events-auto p-4 bg-indigo-600 text-white rounded-2xl shadow-2xl hover:bg-indigo-700 hover:scale-110 active:scale-95 transition-all duration-300 group relative">
+        <div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></div>
+        <i data-lucide="brain-circuit" class="w-6 h-6 animate-pulse"></i>
+        <span class="absolute right-full mr-4 px-3 py-2 bg-white text-indigo-900 text-[10px] font-bold rounded-xl shadow-xl border border-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Besoin d'aide ? Discutez avec notre IA !
+        </span>
+    </button>
+</div>
+
+<script>
+    function toggleAIChat() {
+        const win = document.getElementById('chatbot-window');
+        const isOpen = !win.classList.contains('opacity-0');
+        
+        if (isOpen) {
+            win.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none', 'scale-95');
+        } else {
+            win.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none', 'scale-95');
+            document.getElementById('chatbot-input').focus();
+        }
+        lucide.createIcons();
+    }
+
+    async function handleChatSubmit(event) {
+        event.preventDefault();
+        const input = document.getElementById('chatbot-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendMessage('user', message);
+        input.value = '';
+
+        // Typing indicator
+        const typingId = 'typing-' + Date.now();
+        appendTypingIndicator(typingId);
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+            const data = await response.json();
+            
+            removeTypingIndicator(typingId);
+            appendMessage('bot', data.response || "Désolé, je rencontre une petite difficulté technique.");
+        } catch (error) {
+            removeTypingIndicator(typingId);
+            appendMessage('bot', "Oups ! Une erreur est survenue lors de la communication avec l'assistant.");
+        }
+    }
+
+    function appendMessage(role, text) {
+        const container = document.getElementById('chatbot-messages');
+        const div = document.createElement('div');
+        div.className = 'flex gap-2.5 items-start' + (role === 'user' ? ' flex-row-reverse' : '');
+        
+        const icon = role === 'user' ? 'user' : 'bot';
+        const colorClass = role === 'user' ? 'bg-indigo-600' : 'bg-emerald-500';
+        const textBg = role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-indigo-50 shadow-sm rounded-tl-none';
+
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full ${role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-indigo-600/10 text-indigo-600'} flex items-center justify-center flex-shrink-0">
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
+            </div>
+            <div class="${textBg} p-3 rounded-2xl">
+                <p class="text-xs leading-relaxed">${text}</p>
+            </div>
+        `;
+        
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        lucide.createIcons();
+    }
+
+    function appendTypingIndicator(id) {
+        const container = document.getElementById('chatbot-messages');
+        const div = document.createElement('div');
+        div.id = id;
+        div.className = 'flex gap-2.5 items-start';
+        div.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-indigo-600/10 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="bot" class="w-4 h-4"></i>
+            </div>
+            <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-indigo-50 shadow-sm flex gap-1">
+                <div class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
+                <div class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        lucide.createIcons();
+    }
+
+    function removeTypingIndicator(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+</script>

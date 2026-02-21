@@ -1,0 +1,272 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}Calendar - Naja7ni{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+    <style>
+        .calendar-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .event-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-workshop { background: #e7f3ff; color: #0066cc; }
+        .badge-seminar { background: #fff7e6; color: #cc6600; }
+        .badge-conference { background: #f0f0f0; color: #333; }
+        .badge-training { background: #e6f7e6; color: #006600; }
+
+        .event-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        .filter-btn:hover {
+            border-color: #0066cc;
+        }
+
+        .calendar-sidebar {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .event-quick-info {
+            padding: 10px;
+            background: #f5f5f5;
+            border-left: 4px solid #0066cc;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="mb-1">
+                <i class="fas fa-calendar-alt"></i> Educational Calendar
+            </h1>
+            <p class="text-muted">Explore and register for upcoming events</p>
+        </div>
+        <div class="col-lg-4 text-end">
+            {% if is_granted('ROLE_USER') %}
+                <a href="{{ path('calendar_create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Event
+                </a>
+                <a href="{{ path('calendar_my_calendar') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-user-circle"></i> My Calendar
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-primary">Sign In to Create Events</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="calendar-sidebar">
+        <h5>Filter Events</h5>
+        <div class="event-filters">
+            <button class="filter-btn active" data-filter="all">All Events</button>
+            <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+            <button class="filter-btn" data-filter="past">Past</button>
+        </div>
+        
+        <div class="mt-3">
+            <label for="categoryFilter" class="form-label">Category:</label>
+            <select id="categoryFilter" class="form-select form-select-sm">
+                <option value="">All Categories</option>
+                <option value="workshop">Workshop</option>
+                <option value="seminar">Seminar</option>
+                <option value="conference">Conference</option>
+                <option value="training">Training</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Upcoming Events List -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <h3>Featured Events</h3>
+            <div class="row" id="eventsList">
+                {% for event in events[:6] %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100 event-card">
+                            {% if event.image %}
+                                <img src="{{ event.image }}" class="card-img-top" alt="{{ event.titre }}" 
+                                     style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                     style="height: 200px;">
+                                    <i class="fas fa-calendar-alt fa-3x text-secondary"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <span class="event-badge badge-{{ event.categorie }}">
+                                        {{ event.categorie|upper }}
+                                    </span>
+                                </div>
+                                <h5 class="card-title">{{ event.titre }}</h5>
+                                <p class="card-text text-muted small">
+                                    {{ event.description|slice(0, 100) }}...
+                                </p>
+                                
+                                <div class="event-meta small mb-3">
+                                    <div class="mb-2">
+                                        <i class="far fa-calendar"></i>
+                                        {{ event.dateDebut|format_datetime(locale='en', pattern="EEE, MMM d, y") }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ event.lieu }}
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-euro-sign"></i>
+                                        {{ event.prix|number_format(2, '.', ',') }} TND
+                                    </div>
+                                </div>
+
+                                {% if event.recurrenceFrequency %}
+                                    <div class="alert alert-info alert-sm py-1 px-2 small">
+                                        <i class="fas fa-repeat"></i> Repeats {{ event.recurrenceFrequency|lower }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer bg-white">
+                                <a href="{{ path('calendar_show', {'id': event.id}) }}" class="btn btn-sm btn-outline-primary w-100">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Event Details -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="eventModalBody">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="eventModalViewLink" class="btn btn-primary">View Full Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                },
+                events: {
+                    url: '{{ path("calendar_api_events") }}',
+                    failure: function() {
+                        alert('Error loading events!');
+                    }
+                },
+                eventClick: function(info) {
+                    showEventModal(info.event);
+                },
+                height: 'auto',
+                contentHeight: 'auto'
+            });
+
+            calendar.render();
+
+            // Filter handlers
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    calendar.refetchEvents();
+                    
+                    // Update calendar URL with filter
+                    calendar.setOption('events', {
+                        url: '{{ path("calendar_api_events") }}?filter=' + filter,
+                    });
+                });
+            });
+
+            // Category filter
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                const category = this.value;
+                const activeFilterBtn = document.querySelector('.filter-btn.active');
+                const filter = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
+                
+                calendar.setOption('events', {
+                    url: '{{ path("calendar_api_events") }}?filter=' + filter + (category ? '&category=' + category : ''),
+                });
+            });
+        });
+
+        function showEventModal(event) {
+            document.getElementById('eventModalTitle').textContent = event.title;
+            document.getElementById('eventModalViewLink').href = '/calendar/' + event.id;
+            
+            const props = event.extendedProps;
+            const bodyHtml = `
+                <p><strong>Location:</strong> ${props.location}</p>
+                <p><strong>Description:</strong> ${props.description}</p>
+                <p><strong>Category:</strong> <span class="badge bg-info">${props.category}</span></p>
+                <p><strong>Timezone:</strong> ${props.timezone}</p>
+            `;
+            
+            document.getElementById('eventModalBody').innerHTML = bodyHtml;
+            new bootstrap.Modal(document.getElementById('eventModal')).show();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends 'back/layout/base.html.twig' %}
+
+{% block title %}Dashboard - NAJA7NI{% endblock %}
+
+{% block header_title %}Dashboard{% endblock %}
+
+{% block header_right %}
+    <a href="https://developers.paymee.tn/status" target="_blank" class="btn btn-sm btn-soft-primary d-flex align-items-center gap-2 font-bold">
+        <i class="feather-activity"></i>
+        API Status & Documentation
+    </a>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            {# Statistics Cards #}
+    <div class="row">
+        {# Statistics Cards #}
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="avatar-text avatar-md bg-soft-primary text-primary">
+                            <i class="feather-users"></i>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="fs-4 fw-bold mb-0">{{ total_registrations|default(0) }}</h3>
+                            <p class="fs-12 text-muted mb-0">Total Registrations</p>
+                        </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="avatar-text avatar-md bg-soft-success text-success">
+                            <i class="feather-trending-up"></i>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="fs-4 fw-bold mb-0">{{ avg_attendance|round(1) }}</h3>
+                            <p class="fs-12 text-muted mb-0">Avg Attendance / Event</p>
+                        </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="avatar-text avatar-md bg-soft-warning text-warning">
+                            <i class="feather-star"></i>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="fs-4 fw-bold mb-0">{{ best_month.total }}</h3>
+                            <p class="fs-12 text-muted mb-0">Best Month ({{ date('2026-' ~ best_month.month ~ '-01')|date('F') }})</p>
+                        </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 65%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="avatar-text avatar-md bg-soft-info text-info">
+                            <i class="feather-dollar-sign"></i>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="fs-4 fw-bold mb-0">{{ total_revenue|number_format(2) }} DT</h3>
+                            <p class="fs-12 text-muted mb-0">Event Revenue</p>
+                        </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Attendance Trend Chart #}
+        <div class="col-xxl-8">
+            <div class="card stretch stretch-full">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title">Monthly Attendance Trend</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" type="button">2026</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="attendanceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {# AI Alerts Panel #}
+        <div class="col-xxl-4">
+            <div class="card stretch stretch-full">
+                <div class="card-header">
+                    <h5 class="card-title">AI Alerts & Insights</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert-list" style="max-height: 400px; overflow-y: auto;">
+                        {% for alert in alerts %}
+                            <div class="alert alert-{{ alert.type }} alert-dismissible fade show mb-3" role="alert">
+                                <strong>{{ alert.title }}</strong>: {{ alert.message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-5">
+                                <i class="feather-check-circle fs-1 text-success mb-3 d-block"></i>
+                                <p class="text-muted">Tout est sous contrôle. Aucune alerte critique.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Success Predictions #}
+        <div class="col-xxl-6">
+            <div class="card stretch stretch-full">
+                <div class="card-header">
+                    <h5 class="card-title">Event Success Predictions</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Success Score</th>
+                                    <th>Prediction</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in event_predictions %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ item.event.titre }}</div>
+                                            <small class="text-muted">{{ item.event.dateDebut|date('d M') }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress w-100" style="height: 6px;">
+                                                    <div class="progress-bar bg-{{ item.prediction.total_score > 75 ? 'success' : (item.prediction.total_score > 50 ? 'warning' : 'danger') }}" 
+                                                         style="width: {{ item.prediction.total_score }}%"></div>
+                                                </div>
+                                                <span class="fs-12 fw-bold text-dark">{{ item.prediction.total_score }}%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-soft-{{ item.prediction.total_score > 75 ? 'success' : (item.prediction.total_score > 50 ? 'warning' : 'danger') }} 
+                                                        text-{{ item.prediction.total_score > 75 ? 'success' : (item.prediction.total_score > 50 ? 'warning' : 'danger') }}">
+                                                {{ item.prediction.total_score > 75 ? 'Haute Probabilité' : (item.prediction.total_score > 50 ? 'Moyenne' : 'Risqué') }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Timing Suggestions #}
+        <div class="col-xxl-6">
+            <div class="card stretch stretch-full">
+                <div class="card-header">
+                    <h5 class="card-title">Optimal Timing Suggestions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for sug in timing_suggestions %}
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3 text-center bg-light">
+                                    <div class="fs-12 fw-bold text-uppercase text-muted mb-2">{{ sug.day }}</div>
+                                    <div class="fs-14 fw-bolder text-dark mb-2">{{ sug.slot|capitalize }}</div>
+                                    <div class="badge bg-primary mb-1">{{ sug.score }}% Conf.</div>
+                                    <div class="fs-11 text-muted">Taux: {{ sug.attendance_rate }}%</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Registrations',
+                    data: {{ chart_data|json_encode }},
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2563eb',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [5, 5] }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+    </div>
+{% endblock %}

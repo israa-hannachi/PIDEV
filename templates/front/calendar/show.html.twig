@@ -1,0 +1,362 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}{{ event.titre }} - Naja7ni{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Header -->
+            <div class="card mb-4 border-0 shadow-sm">
+                {% if event.image %}
+                    <img src="{{ event.image }}" class="card-img-top" alt="{{ event.titre }}" style="height: 400px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <i class="fas fa-calendar-alt fa-5x text-secondary"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-primary">{{ event.categorie|upper }}</span>
+                        {% if event.statut == 'annulé' %}
+                            <span class="badge bg-danger">CANCELLED</span>
+                        {% elseif event.statut == 'terminé' %}
+                            <span class="badge bg-secondary">COMPLETED</span>
+                        {% else %}
+                            <span class="badge bg-success">UPCOMING</span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="card-title mb-3">{{ event.titre }}</h1>
+
+                    <!-- Event Meta Info -->
+                    <div class="row mb-4 border-bottom pb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-calendar-alt text-primary"></i> Start Date & Time
+                                </h6>
+                                <p class="fs-6">
+                                    {{ event.dateDebut|format_datetime(locale='en', pattern="EEEE, MMMM d, y") }}
+                                    <br>
+                                    <strong>{{ event.dateDebut|format_datetime(locale='en', pattern="h:mm a") }}</strong>
+                                </p>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-calendar-alt text-primary"></i> End Date & Time
+                                </h6>
+                                <p class="fs-6">
+                                    {{ event.dateFin|format_datetime(locale='en', pattern="EEEE, MMMM d, y") }}
+                                    <br>
+                                    <strong>{{ event.dateFin|format_datetime(locale='en', pattern="h:mm a") }}</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-map-marker-alt text-primary"></i> Location
+                                </h6>
+                                <p class="fs-6">{{ event.lieu }}</p>
+                                {% if event.latitude and event.longitude %}
+                                    <a href="https://maps.google.com/maps?q={{ event.latitude }},{{ event.longitude }}" 
+                                       target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-map"></i> View on Map
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-globe text-primary"></i> Timezone
+                                </h6>
+                                <p class="fs-6">{{ event.timeZone }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Details -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-users"></i> Capacity
+                                </h6>
+                                <p class="mb-0">
+                                    <strong>{{ event.inscrits }}</strong> / <strong>{{ event.capacite }}</strong> Registered
+                                </p>
+                                <div class="progress mt-2" style="height: 5px;">
+                                    <div class="progress-bar" style="width: {{ (event.inscrits / event.capacite * 100)|round }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-euro-sign"></i> Price
+                                </h6>
+                                <p class="mb-0">
+                                    <strong>{{ event.prix|number_format(2, '.', ',') }} TND</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="alert alert-secondary">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-clock"></i> Duration
+                                </h6>
+                                <p class="mb-0">
+                                    <strong>{{ ((event.dateFin.timestamp - event.dateDebut.timestamp) / 3600)|round }} hours</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recurring Info -->
+                    {% if event.isRecurring %}
+                        <div class="alert alert-info mt-3">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-repeat"></i> Recurring Event
+                            </h6>
+                            <p class="mb-0">
+                                This event repeats <strong>{{ event.recurrenceFrequency|lower }}</strong> 
+                                for <strong>{{ event.recurrenceCount }}</strong> occurrences.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Description -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-3">About This Event</h3>
+                    <p class="lead">{{ event.description }}</p>
+                </div>
+            </div>
+
+            <!-- Organizer Info -->
+            {% if event.organizerEmail %}
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user-circle"></i> Event Organizer
+                        </h5>
+                        <p>
+                            <strong>Email:</strong> {{ event.organizerEmail }}
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Attendees -->
+            {% if event.attendeesEmails %}
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-users"></i> Attendees
+                        </h5>
+                        <ul class="list-unstyled">
+                            {% for email in event.attendeesEmailsAsArray %}
+                                <li class="mb-2">
+                                    <i class="fas fa-user"></i> {{ email }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4 border-0 shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Actions</h5>
+                    
+                    {% if event.statut != 'annulé' %}
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="{{ path('calendar_download_ical', {'id': event.id}) }}" 
+                               class="btn btn-primary" target="_blank">
+                                <i class="fas fa-download"></i> Download iCal (.ics)
+                            </a>
+
+                            {% if is_granted('ROLE_USER') %}
+                                <a href="{{ path('calendar_edit', {'id': event.id}) }}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Edit Event
+                                </a>
+
+                                <form method="POST" action="{{ path('calendar_cancel', {'id': event.id}) }}" 
+                                      onsubmit="return confirm('Are you sure you want to cancel this event?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ event.id) }}">
+                                    <button type="submit" class="btn btn-danger w-100">
+                                        <i class="fas fa-times"></i> Cancel Event
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Share Options -->
+                    <hr>
+                    <h6 class="mb-3">Share Event</h6>
+                    <div class="d-flex gap-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ app.request.uri }}" 
+                           target="_blank" class="btn btn-outline-primary btn-sm flex-grow-1">
+                            <i class="fab fa-facebook"></i> Share
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ app.request.uri }}&text={{ event.titre }}" 
+                           target="_blank" class="btn btn-outline-info btn-sm flex-grow-1">
+                            <i class="fab fa-twitter"></i> Tweet
+                        </a>
+                        <a href="https://wa.me/?text={{ event.titre }} - {{ app.request.uri }}" 
+                           target="_blank" class="btn btn-outline-success btn-sm flex-grow-1">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Stats -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title mb-3 text-muted">Event Information</h6>
+                    
+                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                        <span><i class="fas fa-eye"></i> Views</span>
+                        <strong>{{ random(100, 1000) }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                        <span><i class="fas fa-users"></i> Registered</span>
+                        <strong>{{ event.inscrits }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-calendar"></i> Created</span>
+                        <strong>{{ event.dateCreation|format_datetime(locale='en', pattern="MMM d, y") }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-4 mb-4">
+        <a href="{{ path('calendar_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Calendar
+        </a>
+    </div>
+
+    <!-- API Testing Panel (Development Only) -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-danger border-3 bg-light">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-flask"></i> API Testing Panel (Dev)
+                        <button class="btn btn-sm btn-light float-end" id="toggleTestPanel" type="button">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </h6>
+                </div>
+                <div class="card-body" id="testPanelContent">
+                    <!-- Chat API Tests -->
+                    <div class="mb-4">
+                        <h6 class="text-danger"><i class="fas fa-comments"></i> Chat API Tests</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-primary w-100" id="testChatGetMessages">
+                                    <i class="fas fa-list"></i> Get Messages
+                                </button>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-primary w-100" id="testChatSend">
+                                    <i class="fas fa-paper-plane"></i> Send Message
+                                </button>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-primary w-100" id="testChatStats">
+                                    <i class="fas fa-chart-bar"></i> Get Stats
+                                </button>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-primary w-100" id="testChatTutoring">
+                                    <i class="fas fa-graduation-cap"></i> Tutoring
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Poster API Tests -->
+                    <div class="mb-4">
+                        <h6 class="text-danger"><i class="fas fa-image"></i> Poster API Tests</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-success w-100" id="testPosterGenerate">
+                                    <i class="fas fa-wand-magic-sparkles"></i> Generate
+                                </button>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-success w-100" id="testPosterGetActive">
+                                    <i class="fas fa-star"></i> Get Active
+                                </button>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-success w-100" id="testPosterVersions">
+                                    <i class="fas fa-history"></i> Get Versions
+                                </button>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <button class="btn btn-sm btn-outline-success w-100" id="testPosterStats">
+                                    <i class="fas fa-chart-bar"></i> Get Stats
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Results -->
+                    <div class="mt-4">
+                        <h6>Test Results:</h6>
+                        <div id="testResults" class="bg-white border rounded p-3" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                            <p class="text-muted">Click any button above to test API endpoints...</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-secondary" id="clearTestResults">
+                            <i class="fas fa-trash"></i> Clear Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Attributes for Event -->
+<div data-event-id="{{ event.id }}" class="d-none"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <!-- AI Features Scripts -->
+    <script src="{{ asset('assets/js/api-tester.js') }}"></script>
+    
+    <script>
+        // Initialize page features
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Event page loaded');
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}{{ action }} Event - Naja7ni{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href='https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/tempusdominus-bootstrap-4.min.css' rel='stylesheet' />
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card border-0 shadow">
+                <div class="card-body p-4">
+                    <h1 class="card-title mb-1">
+                        <i class="fas fa-calendar-plus"></i> {{ action }} Event
+                    </h1>
+                    <p class="text-muted mb-4">Create or edit an event and generate an iCal file</p>
+
+                    {% if form is defined and form %}
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                        
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle"></i> Basic Information
+                            </h5>
+
+                            <div class="mb-3">
+                                {{ form_label(form.titre, 'Event Title') }}
+                                {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.titre) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.description, 'Description') }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.categorie, 'Category') }}
+                                        {{ form_widget(form.categorie, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.categorie) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.statut, 'Status') }}
+                                        {{ form_widget(form.statut, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.statut) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="far fa-calendar"></i> Date & Time
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.dateDebut, 'Start Date & Time') }}
+                                        {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control datetimepicker', 'type': 'datetime-local'}}) }}
+                                        {{ form_errors(form.dateDebut) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.dateFin, 'End Date & Time') }}
+                                        {{ form_widget(form.dateFin, {'attr': {'class': 'form-control datetimepicker', 'type': 'datetime-local'}}) }}
+                                        {{ form_errors(form.dateFin) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.timeZone, 'Timezone') }}
+                                {{ form_widget(form.timeZone, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.timeZone) }}
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-map-marker-alt"></i> Location
+                            </h5>
+
+                            <div class="mb-3">
+                                {{ form_label(form.lieu, 'Location Address') }}
+                                {{ form_widget(form.lieu, {'attr': {'class': 'form-control', 'placeholder': 'Enter event location'}}) }}
+                                {{ form_errors(form.lieu) }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.latitude, 'Latitude') }}
+                                        {{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'readonly': 'readonly'}}) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.longitude, 'Longitude') }}
+                                        {{ form_widget(form.longitude, {'attr': {'class': 'form-control', 'readonly': 'readonly'}}) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="geolocateBtn">
+                                <i class="fas fa-location-arrow"></i> Use Current Location
+                            </button>
+                        </div>
+
+                        <!-- Event Details -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-details"></i> Event Details
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.capacite, 'Capacity') }}
+                                        {{ form_widget(form.capacite, {'attr': {'class': 'form-control', 'min': 1}}) }}
+                                        {{ form_errors(form.capacite) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.prix, 'Price (TND)') }}
+                                        {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.prix) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.image, 'Event Image') }}
+                                {{ form_widget(form.image, {'attr': {'class': 'form-control', 'accept': 'image/*'}}) }}
+                                {{ form_errors(form.image) }}
+                                <small class="text-muted">Max 2MB. Formats: JPG, PNG, WebP</small>
+                            </div>
+                        </div>
+
+                        <!-- Calendar Sharing -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-calendar"></i> Calendar Options
+                            </h5>
+
+                            <div class="mb-3">
+                                {{ form_label(form.organizerEmail, 'Organizer Email') }}
+                                {{ form_widget(form.organizerEmail, {'attr': {'class': 'form-control', 'type': 'email'}}) }}
+                                {{ form_errors(form.organizerEmail) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.attendeesEmails, 'Attendees Emails') }}
+                                {{ form_widget(form.attendeesEmails, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                                {{ form_errors(form.attendeesEmails) }}
+                                <small class="text-muted">
+                                    Separate emails with commas or paste as JSON array. These will be added to the generated iCal file.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Recurring Event -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-repeat"></i> Recurring Events
+                            </h5>
+
+                            <div class="form-check mb-3">
+                                {{ form_widget(form.isRecurring, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.isRecurring, 'This is a recurring event', {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+
+                            <div id="recurrenceOptions" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.recurrenceFrequency, 'Frequency') }}
+                                            {{ form_widget(form.recurrenceFrequency, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.recurrenceFrequency) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.recurrenceCount, 'Number of Occurrences') }}
+                                            {{ form_widget(form.recurrenceCount, {'attr': {'class': 'form-control', 'min': 1}}) }}
+                                            {{ form_errors(form.recurrenceCount) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Example: Select "Weekly" with "5" occurrences to repeat the event every week for 5 times.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                                <i class="fas fa-save"></i> {{ action }} Event
+                            </button>
+                            <a href="{{ path('calendar_index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+
+                        {{ form_rest(form) }}
+                    {{ form_end(form) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src='https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/tempusdominus-bootstrap-4.min.js'></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize datetime pickers
+            const datetimeInputs = document.querySelectorAll('.datetimepicker');
+            datetimeInputs.forEach(input => {
+                // For HTML5 datetime-local, we don't need special libraries
+                // Just ensure they work properly
+            });
+
+            // Toggle recurring options
+            const isRecurringCheckbox = document.querySelector('[name="event[isRecurring]"]');
+            const recurrenceOptions = document.getElementById('recurrenceOptions');
+            
+            if (isRecurringCheckbox) {
+                isRecurringCheckbox.addEventListener('change', function() {
+                    recurrenceOptions.style.display = this.checked ? 'block' : 'none';
+                });
+                
+                // Set initial state
+                if (isRecurringCheckbox.checked) {
+                    recurrenceOptions.style.display = 'block';
+                }
+            }
+
+            // Geolocation
+            document.getElementById('geolocateBtn').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        document.querySelector('[name="event[latitude]"]').value = 
+                            position.coords.latitude.toFixed(6);
+                        document.querySelector('[name="event[longitude]"]').value = 
+                            position.coords.longitude.toFixed(6);
+                        
+                        // Try to get address from reverse geocoding
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.address) {
+                                    const address = data.address;
+                                    const locString = [
+                                        address.road || '',
+                                        address.city || address.town || '',
+                                        address.country || ''
+                                    ].filter(Boolean).join(', ');
+                                    
+                                    if (locString) {
+                                        document.querySelector('[name="event[lieu]"]').value = locString;
+                                    }
+                                }
+                            });
+                    }, function(error) {
+                        alert('Geolocation error: ' + error.message);
+                    });
+                } else {
+                    alert('Geolocation is not supported by your browser');
+                }
+            });
+
+            // Form validation
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'front/events/base_front.html.twig' %}
+
+{% block title %}Assistant IA - Naja7ni{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto py-8">
+    <div class="bg-white rounded-3xl shadow-xl border border-border overflow-hidden h-[700px] flex flex-col">
+        <!-- Header -->
+        <div class="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
+                    <i data-lucide="brain-circuit" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black">Assistant Intelligence Artificielle</h1>
+                    <p class="text-xs opacity-80 font-medium">Posez vos questions sur nos services, événements et bien plus encore.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] font-bold uppercase tracking-widest opacity-80">Système Actif</span>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="full-chat-messages" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/30">
+            <div class="flex gap-4 items-start max-w-[80%]">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-600/10 text-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
+                </div>
+                <div class="bg-white p-5 rounded-3xl rounded-tl-none border border-indigo-50 shadow-sm">
+                    <p class="text-sm text-slate-700 leading-relaxed">Bienvenue sur l'assistant IA de Naja7ni ! Comment puis-je vous aider dans vos recherches ou vos inscriptions aujourd'hui ?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="p-6 bg-white border-t border-border">
+            <form id="full-chat-form" onsubmit="handleFullChatSubmit(event)" class="flex gap-4">
+                <input type="text" id="full-chat-input" placeholder="Type your message here..." 
+                    class="flex-1 px-6 py-4 bg-muted/50 border-2 border-transparent rounded-2xl text-sm focus:bg-white focus:border-primary/30 focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all">
+                <button type="submit" class="px-8 py-4 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transform transition-all active:scale-95 flex items-center gap-2">
+                    <span>Envoyer</span>
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function handleFullChatSubmit(event) {
+        event.preventDefault();
+        const input = document.getElementById('full-chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendFullMessage('user', message);
+        input.value = '';
+
+        const typingId = 'typing-' + Date.now();
+        appendFullTypingIndicator(typingId);
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+            const data = await response.json();
+            
+            removeFullTypingIndicator(typingId);
+            appendFullMessage('bot', data.response || "I encountered an error processing your request.");
+        } catch (error) {
+            removeFullTypingIndicator(typingId);
+            appendFullMessage('bot', "Could not connect to the AI service.");
+        }
+    }
+
+    function appendFullMessage(role, text) {
+        const container = document.getElementById('full-chat-messages');
+        const div = document.createElement('div');
+        div.className = 'flex gap-4 items-start' + (role === 'user' ? ' flex-row-reverse self-end ml-auto max-w-[80%]' : ' max-w-[80%]');
+        
+        const icon = role === 'user' ? 'user' : 'bot';
+        const textBg = role === 'user' ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/10' : 'bg-white text-slate-700 border border-indigo-50 shadow-sm rounded-tl-none';
+
+        div.innerHTML = `
+            <div class="w-10 h-10 rounded-2xl ${role === 'user' ? 'bg-primary/10 text-primary' : 'bg-indigo-600/10 text-indigo-600'} flex items-center justify-center flex-shrink-0 shadow-sm">
+                <i data-lucide="${icon}" class="w-5 h-5"></i>
+            </div>
+            <div class="${textBg} p-5 rounded-3xl">
+                <p class="text-sm leading-relaxed">${text}</p>
+            </div>
+        `;
+        
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        lucide.createIcons();
+    }
+
+    function appendFullTypingIndicator(id) {
+        const container = document.getElementById('full-chat-messages');
+        const div = document.createElement('div');
+        div.id = id;
+        div.className = 'flex gap-4 items-start max-w-[80%]';
+        div.innerHTML = `
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600/10 text-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+            </div>
+            <div class="bg-white p-4 rounded-3xl rounded-tl-none border border-indigo-50 shadow-sm flex gap-1.5 items-center">
+                <div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        lucide.createIcons();
+    }
+
+    function removeFullTypingIndicator(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+</script>
+{% endblock %}

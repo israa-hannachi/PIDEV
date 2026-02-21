@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Naja7ni - Accueil{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#ffffff',
+                        foreground: '#4a5568',
+                        sidebar: '#f7fffe',
+                        'sidebar-border': 'rgba(15, 181, 169, 0.1)',
+                        primary: '#0FB5A9',
+                        secondary: '#04B6D5',
+                        accent: '#B3D54C',
+                        muted: '#f0fffe',
+                        'muted-foreground': '#718096',
+                        border: 'rgba(15, 181, 169, 0.15)',
+                        'input-background': '#f7fffe',
+                        'ink': '#0f0e17',
+                        'ivory': '#fcfaf2',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block stylesheets %}{% endblock %}
+
+    <style>
+        .nav-item.active {
+            background-color: #0FB5A9;
+            color: white;
+        }
+        .nav-item:not(.active):hover {
+            background-color: #f0fffe;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-foreground font-sans">
+    <div class="min-h-screen flex flex-col">
+        <!-- Top Navbar -->
+        {% include 'front/layout/navbar.html.twig' %}
+
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            {% include 'front/layout/sidebar.html.twig' %}
+
+            <!-- Content Area -->
+            <main class="flex-1 bg-muted/30 ml-24 min-h-[calc(100vh-64px)]">
+                <div class="p-8">
+                    <div class="max-w-7xl mx-auto">
+                        {# Flash Messages #}
+                        <div id="flash-container"{% if app.request.attributes.get('_route') == 'app_front_event_show' %} class="hidden"{% endif %}>
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="mb-6 p-4 rounded-2xl flex items-center gap-3 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300
+                                        {{ label == 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
+                                           label == 'error' ? 'bg-red-50 text-red-700 border border-red-100' : 
+                                           label == 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 
+                                           'bg-blue-50 text-blue-700 border border-blue-100' }}">
+                                        <i data-lucide="{{ label == 'success' ? 'check-circle' : label == 'error' ? 'alert-circle' : label == 'warning' ? 'alert-triangle' : 'info' }}" class="w-5 h-5"></i>
+                                        <span class="text-sm font-bold">{{ message }}</span>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+
+                        {% block body %}{% endblock %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    {% include 'front/layout/chatbot.html.twig' %}
+    <script>
+        lucide.createIcons();
+    </script>
+    <!-- Paymee JS SDK -->
+    <script src="https://app.paymee.tn/static/js/checkout.js"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+
+</html>

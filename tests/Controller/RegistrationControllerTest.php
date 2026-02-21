@@ -53,16 +53,13 @@ class RegistrationControllerTest extends WebTestCase
             'registration[dateInscription]' => 'Testing',
             'registration[statut]' => 'Testing',
             'registration[presence]' => 'Testing',
-            'registration[modePaiement]' => 'Testing',
-            'registration[montantPaye]' => 'Testing',
-            'registration[paiementStatut]' => 'Testing',
             'registration[notes]' => 'Testing',
             'registration[evenement]' => 'Testing',
         ]);
 
         self::assertResponseRedirects('/sweet/food/');
 
-        self::assertSame(1, $this->getRepository()->count([]));
+        self::assertSame(1, $this->repository->count([]));
     }
 
     public function testShow(): void
@@ -74,9 +71,6 @@ class RegistrationControllerTest extends WebTestCase
         $fixture->setDateInscription('My Title');
         $fixture->setStatut('My Title');
         $fixture->setPresence('My Title');
-        $fixture->setModePaiement('My Title');
-        $fixture->setMontantPaye('My Title');
-        $fixture->setPaiementStatut('My Title');
         $fixture->setNotes('My Title');
         $fixture->setEvenement('My Title');
 
@@ -100,9 +94,6 @@ class RegistrationControllerTest extends WebTestCase
         $fixture->setDateInscription('Value');
         $fixture->setStatut('Value');
         $fixture->setPresence('Value');
-        $fixture->setModePaiement('Value');
-        $fixture->setMontantPaye('Value');
-        $fixture->setPaiementStatut('Value');
         $fixture->setNotes('Value');
         $fixture->setEvenement('Value');
 
@@ -117,9 +108,6 @@ class RegistrationControllerTest extends WebTestCase
             'registration[dateInscription]' => 'Something New',
             'registration[statut]' => 'Something New',
             'registration[presence]' => 'Something New',
-            'registration[modePaiement]' => 'Something New',
-            'registration[montantPaye]' => 'Something New',
-            'registration[paiementStatut]' => 'Something New',
             'registration[notes]' => 'Something New',
             'registration[evenement]' => 'Something New',
         ]);
@@ -133,9 +121,6 @@ class RegistrationControllerTest extends WebTestCase
         self::assertSame('Something New', $fixture[0]->getDateInscription());
         self::assertSame('Something New', $fixture[0]->getStatut());
         self::assertSame('Something New', $fixture[0]->getPresence());
-        self::assertSame('Something New', $fixture[0]->getModePaiement());
-        self::assertSame('Something New', $fixture[0]->getMontantPaye());
-        self::assertSame('Something New', $fixture[0]->getPaiementStatut());
         self::assertSame('Something New', $fixture[0]->getNotes());
         self::assertSame('Something New', $fixture[0]->getEvenement());
     }
@@ -149,13 +134,8 @@ class RegistrationControllerTest extends WebTestCase
         $fixture->setDateInscription('Value');
         $fixture->setStatut('Value');
         $fixture->setPresence('Value');
-        $fixture->setModePaiement('Value');
-        $fixture->setMontantPaye('Value');
-        $fixture->setPaiementStatut('Value');
         $fixture->setNotes('Value');
         $fixture->setEvenement('Value');
-
-        $this->manager->remove($fixture);
         $this->manager->flush();
 
         $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));

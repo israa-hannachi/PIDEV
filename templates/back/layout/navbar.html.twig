@@ -1,0 +1,126 @@
+{# Top Navbar/Header #}
+<header class="nxl-header">
+    <div class="header-wrapper">
+        {# Header Left #}
+        <div class="header-left d-flex align-items-center gap-4">
+            {# Navigation Trigger #}
+            <a href="javascript:void(0);" class="nxl-head-mobile-toggler" id="mobile-collapse">
+                <div class="hamburger hamburger--arrowturn">
+                    <div class="hamburger-box">
+                        <div class="hamburger-inner"></div>
+                    </div>
+                </div>
+            </a>
+            
+            {# Search Bar #}
+            <div class="nxl-navigation-toggle">
+                <a class="nxl-trigger" href="javascript:void(0);" id="navigation-toggle">
+                    <i class="feather-menu"></i>
+                </a>
+            </div>
+            
+            <div class="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
+                <a href="javascript:void(0);" id="nxl-lavel-mega-menu-open">
+                    <i class="feather-align-left"></i>
+                </a>
+            </div>
+        </div>
+
+        {# Header Right #}
+        <div class="header-right ms-auto">
+            <div class="d-flex align-items-center">
+                {# Search #}
+                <div class="dropdown nxl-h-item nxl-header-search">
+                    <a href="javascript:void(0);" class="nxl-head-link me-0" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <i class="feather-search"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-search-dropdown">
+                        <div class="input-group search-form">
+                            <span class="input-group-text">
+                                <i class="feather-search fs-6 text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control search-input-field" placeholder="Search...">
+                            <span class="input-group-text">
+                                <button type="button" class="btn-close"></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {# Notifications #}
+                <div class="dropdown nxl-h-item">
+                    {% set notifications = app.session.get('admin_notifications', []) %}
+                    <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
+                        <i class="feather-bell"></i>
+                        {% if notifications|length > 0 %}
+                            <span class="badge bg-danger nxl-h-badge">{{ notifications|length }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-notifications-menu">
+                        <div class="d-flex justify-content-between align-items-center notifications-head">
+                            <h6 class="fw-bold text-dark mb-0">Notifications</h6>
+                            {% if notifications|length > 0 %}
+                                <a href="{{ path('back_clear_notifications') }}" class="fs-11 text-success text-end ms-auto">
+                                    Tout effacer
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="notifications-list" style="max-height: 300px; overflow-y: auto;">
+                            {% for notification in notifications|reverse %}
+                                <div class="notifications-item p-3 border-bottom {{ notification.level == 'warning' ? 'bg-soft-warning' : '' }}">
+                                    <div class="notifications-desc">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            {% if notification.type == 'capacity_warning' %}
+                                                <i class="feather-alert-triangle text-warning fs-12"></i>
+                                            {% else %}
+                                                <i class="feather-info text-info fs-12"></i>
+                                            {% endif %}
+                                            <span class="fw-semibold text-dark fs-12">{{ notification.message }}</span>
+                                        </div>
+                                        <small class="fs-11 text-muted">{{ notification.timestamp|date('d/m H:i') }}</small>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="p-4 text-center">
+                                    <p class="text-xs text-muted mb-0">Aucune notification.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                {# User Profile #}
+                <div class="dropdown nxl-h-item">
+                    <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
+                        <img src="{{ asset('assets/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar me-0">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown">
+                        <div class="dropdown-header">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ asset('assets/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar">
+                                <div>
+                                    <h6 class="text-dark mb-0">Admin User <span class="badge bg-soft-success text-success ms-1">PRO</span></h6>
+                                    <span class="fs-12 fw-medium text-muted">admin@naja7ni.com</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="feather-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="feather-settings"></i>
+                            <span>Settings</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="feather-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

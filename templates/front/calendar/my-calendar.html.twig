@@ -1,0 +1,258 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}My Calendar - Naja7ni{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="mb-1">
+                <i class="fas fa-user-calendar"></i> My Calendar
+            </h1>
+            <p class="text-muted">Manage your organized events</p>
+        </div>
+        <div class="col-lg-4 text-end">
+            <a href="{{ path('calendar_create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Event
+            </a>
+            <a href="{{ path('calendar_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-calendar"></i> View Calendar
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="organized-tab" data-bs-toggle="tab" 
+                    data-bs-target="#organized" type="button" role="tab">
+                <i class="fas fa-crown"></i> Organized Events
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" 
+                    data-bs-target="#upcoming" type="button" role="tab">
+                <i class="fas fa-clock"></i> Upcoming
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="past-tab" data-bs-toggle="tab" 
+                    data-bs-target="#past" type="button" role="tab">
+                <i class="fas fa-history"></i> Past Events
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Organized Events -->
+        <div class="tab-pane fade show active" id="organized" role="tabpanel">
+            {% if organized_events|length > 0 %}
+                <div class="row">
+                    {% for event in organized_events %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm event-card">
+                                {% if event.image %}
+                                    <img src="{{ event.image }}" class="card-img-top" alt="{{ event.titre }}" 
+                                         style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                         style="height: 200px;">
+                                        <i class="fas fa-calendar-alt fa-3x text-secondary"></i>
+                                    </div>
+                                {% endif %}
+
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary">{{ event.categorie|upper }}</span>
+                                        {% if event.statut == 'annulé' %}
+                                            <span class="badge bg-danger">CANCELLED</span>
+                                        {% elseif event.statut == 'terminé' %}
+                                            <span class="badge bg-secondary">COMPLETED</span>
+                                        {% else %}
+                                            <span class="badge bg-success">UPCOMING</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <h5 class="card-title">{{ event.titre }}</h5>
+
+                                    <div class="event-meta small mb-3">
+                                        <div class="mb-2">
+                                            <i class="far fa-calendar"></i>
+                                            {{ event.dateDebut|format_datetime(locale='en', pattern="MMM d, y h:mm a") }}
+                                        </div>
+                                        <div class="mb-2">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            {{ event.lieu }}
+                                        </div>
+                                        <div class="mb-2">
+                                            <i class="fas fa-users"></i>
+                                            {{ event.inscrits }} / {{ event.capacite }} Registered
+                                        </div>
+                                    </div>
+
+                                    {% if event.isRecurring %}
+                                        <div class="alert alert-info alert-sm py-1 px-2 small mb-3">
+                                            <i class="fas fa-repeat"></i> Repeats {{ event.recurrenceFrequency|lower }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="card-footer bg-white">
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{{ path('calendar_show', {'id': event.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        {% if event.statut != 'annulé' %}
+                                            <a href="{{ path('calendar_edit', {'id': event.id}) }}" 
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        {% endif %}
+                                        <a href="{{ path('calendar_download_ical', {'id': event.id}) }}" 
+                                           class="btn btn-sm btn-outline-success" target="_blank">
+                                            <i class="fas fa-download"></i> iCal
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-calendar-plus fa-3x mb-3 d-block"></i>
+                    <h5>No Events Organized Yet</h5>
+                    <p class="mb-3">You haven't created any events yet.</p>
+                    <a href="{{ path('calendar_create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Your First Event
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="tab-pane fade" id="upcoming" role="tabpanel">
+            {% set upcoming_events = organized_events|filter(e => e.dateDebut > 'now') %}
+            {% if upcoming_events|length > 0 %}
+                <div class="list-group">
+                    {% for event in upcoming_events|sort((a, b) => a.dateDebut <=> b.dateDebut) %}
+                        <a href="{{ path('calendar_show', {'id': event.id}) }}" 
+                           class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ event.titre }}</h6>
+                                    <p class="mb-1 small text-muted">
+                                        <i class="far fa-calendar"></i> 
+                                        {{ event.dateDebut|format_datetime(locale='en', pattern="EEEE, MMMM d, y h:mm a") }}
+                                    </p>
+                                    <p class="mb-0 small text-muted">
+                                        <i class="fas fa-map-marker-alt"></i> {{ event.lieu }}
+                                    </p>
+                                </div>
+                                <span class="badge bg-success">
+                                    {{ ((event.dateDebut|date('U') - 'now'|date('U')) / 86400)|round }} days
+                                </span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No upcoming events
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Past Events -->
+        <div class="tab-pane fade" id="past" role="tabpanel">
+            {% set past_events = organized_events|filter(e => e.dateFin <= 'now') %}
+            {% if past_events|length > 0 %}
+                <div class="list-group">
+                    {% for event in past_events|sort((a, b) => b.dateDebut <=> a.dateDebut) %}
+                        <a href="{{ path('calendar_show', {'id': event.id}) }}" 
+                           class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ event.titre }}</h6>
+                                    <p class="mb-1 small text-muted">
+                                        <i class="far fa-calendar"></i> 
+                                        {{ event.dateDebut|format_datetime(locale='en', pattern="MMMM d, y") }}
+                                    </p>
+                                    <p class="mb-0 small text-muted">
+                                        <i class="fas fa-users"></i> {{ event.inscrits }} attendees
+                                    </p>
+                                </div>
+                                <span class="badge bg-secondary">Completed</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No past events
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h4 class="text-primary">{{ organized_events|length }}</h4>
+                    <p class="mb-0 text-muted small">Total Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h4 class="text-success">
+                        {% set upcoming_count = organized_events|filter(e => e.dateDebut > 'now')|length %}
+                        {{ upcoming_count }}
+                    </h4>
+                    <p class="mb-0 text-muted small">Upcoming</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h4 class="text-info">
+                        {% set total_registered = 0 %}
+                        {% for event in organized_events %}
+                            {% set total_registered = total_registered + event.inscrits %}
+                        {% endfor %}
+                        {{ total_registered }}
+                    </h4>
+                    <p class="mb-0 text-muted small">Total Registrations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h4 class="text-warning">
+                        {% set recurring_count = organized_events|filter(e => e.isRecurring)|length %}
+                        {{ recurring_count }}
+                    </h4>
+                    <p class="mb-0 text-muted small">Recurring Events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .event-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .event-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+    }
+</style>
+{% endblock %}

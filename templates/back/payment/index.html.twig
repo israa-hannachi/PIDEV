@@ -1,0 +1,159 @@
+{% extends 'back/base_admin.html.twig' %}
+
+{% block title %}Suivi des Paiements{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div class="page-header-left d-flex align-items-center">
+        <div class="page-header-title">
+            <h5 class="m-b-10">Suivi des Paiements</h5>
+        </div>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('back_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item">Paiements</li>
+        </ul>
+    </div>
+</div>
+
+<div class="main-content">
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="avatar-text avatar-lg bg-soft-primary text-primary">
+                            <i class="feather-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="fs-4 fw-bold mb-2">{{ stats.total_revenue|number_format(2, ',', ' ') }} DT</h2>
+                        <p class="text-muted mb-0">Revenu Total Confirmé</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="avatar-text avatar-lg bg-soft-success text-success">
+                            <i class="feather-check-circle"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="fs-4 fw-bold mb-2">{{ stats.confirmed_count }}</h2>
+                        <p class="text-muted mb-0">Transactions Réussies</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="avatar-text avatar-lg bg-soft-warning text-warning">
+                            <i class="feather-clock"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="fs-4 fw-bold mb-2">{{ stats.pending_count }}</h2>
+                        <p class="text-muted mb-0">En Attente de Paiement</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-md-6">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div class="avatar-text avatar-lg bg-soft-info text-info">
+                            <i class="feather-users"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="fs-4 fw-bold mb-2">{{ stats.total_count }}</h2>
+                        <p class="text-muted mb-0">Inscriptions Payantes Totales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card stretch stretch-full">
+                <div class="card-header">
+                    <h5 class="card-title">Transactions Récentes</h5>
+                </div>
+                <div class="card-body custom-card-action p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Réf Inscription</th>
+                                    <th>Participant</th>
+                                    <th>Événement</th>
+                                    <th>Montant</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                    <tr>
+                                        <td><strong>#{{ payment.id }}</strong></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-text avatar-md bg-soft-primary text-primary me-3">{{ payment.visitorName|first|upper }}</div>
+                                                <div>
+                                                    <p class="mb-0 fw-bold">{{ payment.visitorName }}</p>
+                                                    <small class="text-muted">{{ payment.visitorEmail }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-soft-secondary text-secondary">{{ payment.evenement.categorie }}</span>
+                                            <p class="mb-0 small">{{ payment.evenement.titre }}</p>
+                                        </td>
+                                        <td><span class="fw-bold">{{ payment.evenement.prix|number_format(2, ',', ' ') }} DT</span></td>
+                                        <td>{{ payment.dateInscription|date('d/m/Y H:i') }}</td>
+                                        <td>
+                                            {% if payment.statut == 'confirmé' %}
+                                                <span class="badge bg-soft-success text-success">Payé</span>
+                                            {% elseif payment.statut == 'en_attente' %}
+                                                <span class="badge bg-soft-warning text-warning">En attente</span>
+                                            {% else %}
+                                                <span class="badge bg-soft-danger text-danger">{{ payment.statut }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="d-flex justify-content-end gap-2">
+                                                {% if payment.statut == 'en_attente' %}
+                                                    <form action="{{ path('app_back_payment_confirm', {id: payment.id}) }}" method="POST" onsubmit="return confirm('Confirmer manuellement le paiement de ce participant ?');">
+                                                        <button type="submit" class="btn btn-sm btn-success">Confirmer</button>
+                                                    </form>
+                                                {% endif %}
+                                                <a href="{{ path('back_registration_show', {id: payment.id}) }}" class="btn btn-sm btn-light">Détails</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <i class="feather-info fs-1 text-muted mb-3 d-block"></i>
+                                            <p class="text-muted">Aucune transaction trouvée.</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

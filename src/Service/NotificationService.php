@@ -87,6 +87,46 @@ class NotificationService
     }
 
     /**
+     * Add notification to a specific user session
+     */
+    public function addUserNotification(string $message, string $level = 'info'): void
+    {
+        $session = $this->requestStack->getSession();
+        $notifications = $session->get('user_notifications', []);
+        
+        $notifications[] = [
+            'message' => $message,
+            'level' => $level,
+            'timestamp' => new \DateTime(),
+            'read' => false
+        ];
+        
+        if (count($notifications) > 10) {
+            $notifications = array_slice($notifications, -10);
+        }
+        
+        $session->set('user_notifications', $notifications);
+    }
+
+    /**
+     * Get all user notifications
+     */
+    public function getUserNotifications(): array
+    {
+        $session = $this->requestStack->getSession();
+        return $session->get('user_notifications', []);
+    }
+
+    /**
+     * Clear all user notifications
+     */
+    public function clearUserNotifications(): void
+    {
+        $session = $this->requestStack->getSession();
+        $session->remove('user_notifications');
+    }
+
+    /**
      * Get all admin notifications
      */
     public function getAdminNotifications(): array

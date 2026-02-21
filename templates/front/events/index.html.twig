@@ -1,0 +1,865 @@
+{% extends 'front/events/base_front.html.twig' %}
+
+{% block title %}Événements - Naja7ni{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0FB5A9;
+            --secondary: #04B6D5;
+            --accent: #B3D54C;
+            --muted: #718096;
+            --background: #f7fffe;
+            --card: #ffffff;
+            --border: rgba(15, 181, 169, 0.1);
+        }
+
+        body { font-family: 'Satoshi', sans-serif; background: var(--background); color: #4a5568; }
+
+        /* ── Hero Banner ── */
+        .hero-banner {
+            position: relative;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 2rem;
+            padding: 4rem;
+            overflow: hidden;
+            color: #fff;
+        }
+        .hero-banner::before {
+            content: 'ÉVÉNEMENTS';
+            position: absolute;
+            right: -1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Clash Display', sans-serif;
+            font-size: 9rem;
+            font-weight: 700;
+            letter-spacing: -4px;
+            color: rgba(255,255,255,0.04);
+            line-height: 1;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .hero-banner .blob {
+            position: absolute;
+            width: 360px; height: 360px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.25;
+        }
+        .blob-1 { background: white; top: -80px; left: -80px; }
+        .blob-2 { background: var(--accent); bottom: -100px; right: 120px; }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .hero-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: clamp(2.4rem, 5vw, 3.6rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+        }
+        .hero-title span { color: var(--accent); }
+        .hero-subtitle { color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; line-height: 1.7; }
+
+        /* ── Stat Pills ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+
+        .stat-pill {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            padding: 1.4rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-pill:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+        .stat-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-value { font-family: 'Clash Display', sans-serif; font-size: 1.9rem; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+        /* ── Section headers ── */
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .section-count {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            background: var(--border);
+            padding: 2px 10px;
+            border-radius: 100px;
+        }
+
+        /* ── Event Cards ── */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+        @media (max-width: 1024px) { .events-grid { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 640px) { .events-grid { grid-template-columns: 1fr; } }
+
+        .event-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .event-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 30px 60px -12px rgba(15, 181, 169, 0.15);
+            border-color: rgba(15, 181, 169, 0.2);
+        }
+
+        .event-card-img {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: #e8e5e0;
+        }
+        .event-card-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(.22,.61,.36,1);
+        }
+        .event-card:hover .event-card-img img { transform: scale(1.06); }
+
+        .event-card-img-placeholder {
+            display: flex; align-items: center; justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, #f0ece4 0%, #e4dfd6 100%);
+        }
+
+        .tag-price {
+            position: absolute;
+            top: 12px; right: 12px;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+        }
+        .tag-price.paid { background: #0f0e17; color: #fff; }
+        .tag-price.free { background: var(--accent); color: #fff; }
+
+        .tag-category {
+            position: absolute;
+            bottom: 12px; left: 12px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink);
+        }
+
+        .badge-registered {
+            position: absolute;
+            top: 12px; left: 12px; z-index: 10;
+            background: #16a34a;
+            color: #fff;
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .event-card-body { 
+            padding: 1.75rem; 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.25rem;
+        }
+        .event-card-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0;
+            line-height: 1.2;
+            transition: color 0.3s;
+            color: #1a202c;
+        }
+        .event-card:hover .event-card-title { color: var(--primary); }
+
+        .event-meta { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+        .event-meta-item {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.82rem; color: var(--muted); font-weight: 500;
+        }
+        .event-meta-item svg { color: var(--primary); opacity: 0.7; flex-shrink: 0; }
+
+        /* Progress bar */
+        .progress-wrap { margin-top: auto; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; margin-bottom: 4px; }
+        .progress-label-left { text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+        .progress-bar-bg { height: 5px; background: #eceae6; border-radius: 100px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 100px; transition: width 0.6s cubic-bezier(.22,.61,.36,1); }
+
+        .event-card-footer { padding: 0 1.4rem 1.4rem; }
+        .btn-cancel {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: #dc2626;
+            border: 1.5px solid #fecaca;
+            border-radius: 0.875rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-cancel:hover { background: #fef2f2; border-color: #fca5a5; }
+
+        /* ── Calendar ── */
+        .calendar-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .panel-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .panel-title svg { color: var(--primary); }
+
+        .fc .fc-toolbar-title { font-family: 'Clash Display', sans-serif !important; font-size: 1.1rem !important; font-weight: 700 !important; letter-spacing: -0.5px !important; }
+        .fc .fc-button { border-radius: 0.6rem !important; font-weight: 600 !important; font-size: 0.8rem !important; padding: 0.4rem 0.9rem !important; }
+        .fc .fc-button-primary { background-color: var(--ink) !important; border-color: var(--ink) !important; }
+        .fc .fc-button-primary:hover { background-color: var(--primary) !important; border-color: var(--primary) !important; }
+        .fc .fc-button-primary:not(:disabled).fc-button-active { background-color: var(--primary) !important; border-color: var(--primary) !important; }
+        .fc .fc-event { border-radius: 6px !important; padding: 2px 7px !important; font-size: 0.75rem !important; cursor: pointer !important; font-weight: 600 !important; border: none !important; }
+        .fc .fc-daygrid-day:hover { background-color: var(--ivory) !important; }
+        .fc .fc-day-today { background-color: rgba(232,68,31,0.05) !important; }
+        .fc th { font-weight: 700 !important; font-size: 0.75rem !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; color: var(--muted) !important; }
+
+        /* ── Map ── */
+        .map-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            overflow: hidden;
+        }
+        #eventsMap { width: 100%; height: 400px; }
+
+        /* ── Recommendations ── */
+        .reco-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+        @media (max-width: 1024px) { .reco-grid { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 640px) { .reco-grid { grid-template-columns: 1fr; } }
+
+        .reco-card {
+            background: var(--card);
+            border: 1.5px solid rgba(232,68,31,0.15);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .reco-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(15, 181, 169, 0.1); }
+        .reco-card-img { height: 170px; overflow: hidden; background: #f0ece4; }
+        .reco-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .reco-card:hover .reco-card-img img { transform: scale(1.05); }
+        .reco-card-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
+        .reco-badge { display: inline-block; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(15, 181, 169, 0.08); border-radius: 100px; padding: 3px 10px; margin-bottom: 0.6rem; }
+        .reco-title { font-family: 'Clash Display', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: -0.2px; margin-bottom: 0.6rem; }
+        .reco-meta { font-size: 0.78rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
+        .reco-meta-item { display: flex; align-items: center; gap: 0.4rem; }
+        .reco-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+        .reco-price { font-family: 'Clash Display', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--primary); }
+        .btn-reco {
+            padding: 8px 18px;
+            background: var(--ink);
+            color: #fff;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s; background: var(--primary);
+        }
+        .btn-reco:hover { opacity: 0.9; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,14,23,0.6);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: var(--card);
+            border-radius: 2rem;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.25);
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-inner { padding: 2rem; }
+        .modal-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; }
+        .modal-title { font-family: 'Clash Display', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; }
+        .modal-close { padding: 6px; background: var(--ivory); border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+        .modal-close:hover { background: #eceae6; }
+
+        /* Legend dots */
+        .legend { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 5rem 2rem; background: var(--card); border: 1px solid var(--border); border-radius: 2rem; }
+        .empty-state svg { color: var(--muted); opacity: 0.4; }
+        .empty-title { font-family: 'Clash Display', sans-serif; font-size: 1.3rem; font-weight: 700; margin-top: 1rem; }
+        .empty-sub { font-size: 0.875rem; color: var(--muted); margin-top: 0.4rem; }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeInUp 0.5s ease both; }
+        .fade-in-1 { animation-delay: 0.05s; }
+        .fade-in-2 { animation-delay: 0.1s; }
+        .fade-in-3 { animation-delay: 0.15s; }
+        .fade-in-4 { animation-delay: 0.2s; }
+
+        .space-sections > * + * { margin-top: 3rem; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="space-sections" style="padding: 0 0 4rem;">
+
+    {# ── Page Header ── #}
+    <div class="fade-in">
+        <div class="hero-badge">
+            <i data-lucide="layout-grid" style="width:12px;height:12px;"></i>
+            Plateforme Événementielle
+        </div>
+        <h1 class="hero-title" style="color: var(--ink); font-size: 3rem; margin-bottom: 2rem;">
+            Explorez les <span>Événements</span>
+        </h1>
+    </div>
+
+    {# ── Interactive Area (Map & Calendar) ── #}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 fade-in fade-in-1">
+        {# Map (Left) #}
+        <div class="lg:col-span-8">
+            <div class="map-wrap h-full">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="map-pin" style="width:20px;height:20px;"></i>
+                        Carte des événements
+                    </div>
+                </div>
+                <div id="eventsMap" style="height: 450px;"></div>
+            </div>
+        </div>
+
+        {# Calendar (Right) #}
+        <div class="lg:col-span-4">
+            <div class="calendar-wrap h-full">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="calendar" style="width:20px;height:20px;"></i>
+                        Calendrier
+                    </div>
+                </div>
+                <div style="padding: 1rem;">
+                    <div id="eventsCalendar" style="font-size: 0.8rem;"></div>
+                    <div class="legend mt-4" style="justify-content: center;">
+                        <div class="legend-item"><span class="dot" style="background:var(--ink);"></span>Dispo</div>
+                        <div class="legend-item"><span class="dot" style="background:#16a34a;"></span>Inscrit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── My Registered Events Map (New Requirement) ── #}
+    {% if user_registered_event_ids is defined and user_registered_event_ids|length > 0 %}
+    <div class="fade-in fade-in-2 mt-12">
+        <div class="section-header">
+            <h2 class="section-title">Mes Inscriptions</h2>
+            <span class="section-count">{{ user_registered_event_ids|length }}</span>
+        </div>
+        <div class="map-wrap bg-green-50/30 border-green-100">
+            <div class="panel-header border-green-100">
+                <div class="panel-title text-green-700">
+                    <i data-lucide="check-circle" style="width:20px;height:20px;color:#16a34a;"></i>
+                    Mes événements sur la carte
+                </div>
+            </div>
+            <div id="registeredEventsMap" style="height: 300px;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Categories ── #}
+    <div class="fade-in fade-in-2">
+        <div class="flex flex-wrap gap-2 mb-8">
+            <span class="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold cursor-pointer">Tous</span>
+            {% set categories = [] %}
+            {% for event in events %}
+                {% if event.categorie not in categories %}
+                    {% set categories = categories|merge([event.categorie]) %}
+                    <span class="px-4 py-2 bg-white border border-border rounded-full text-xs font-bold text-muted-foreground hover:border-primary hover:text-primary transition-all cursor-pointer">{{ event.categorie }}</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ── All Events ── #}
+    {% if events|length > 0 %}
+    <div class="fade-in fade-in-3">
+        <div class="section-header">
+            <h2 class="section-title">Liste des événements</h2>
+            <span class="section-count">{{ events|length }}</span>
+        </div>
+        <div class="events-grid">
+            {% for event in events %}
+                {% set progress = (event.inscrits / event.capacite * 100)|round %}
+                <div class="event-card">
+
+                    {% if user_registered_event_ids is defined and event.id in user_registered_event_ids|keys %}
+                        <div class="badge-registered">
+                            <i data-lucide="check-circle" style="width:11px;height:11px;"></i> Inscrit
+                        </div>
+                    {% endif %}
+
+                    <a href="{{ path('app_front_event_show', {id: event.id}) }}" style="display:flex;flex-direction:column;flex:1;text-decoration:none;color:inherit;">
+                        <div class="event-card-img">
+                            {% if event.image %}
+                                <img src="{{ asset(event.image) }}" alt="{{ event.titre }}">
+                            {% else %}
+                                <div class="event-card-img-placeholder">
+                                    <i data-lucide="image" style="width:40px;height:40px;opacity:0.25;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="tag-price {{ event.prix > 0 ? 'paid' : 'free' }}">
+                                {{ event.prix > 0 ? event.prix ~ ' DT' : 'GRATUIT' }}
+                            </span>
+                            <span class="tag-category">{{ event.categorie }}</span>
+                        </div>
+
+                        <div class="event-card-body">
+                            <h3 class="event-card-title">{{ event.titre }}</h3>
+                            <div class="event-meta">
+                                <div class="event-meta-item">
+                                    <i data-lucide="calendar" style="width:14px;height:14px;"></i>
+                                    {{ event.dateDebut|date('d M Y à H:i') }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <i data-lucide="map-pin" style="width:14px;height:14px;"></i>
+                                    {{ event.lieu }}
+                                </div>
+                                <div class="event-meta-item">
+                                    <i data-lucide="users" style="width:14px;height:14px;"></i>
+                                    {{ event.inscrits }}/{{ event.capacite }} inscrits
+                                </div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="progress-labels">
+                                    <span class="progress-label-left">Remplissage</span>
+                                    <span style="font-weight:700;font-size:0.7rem;color:{{ progress >= 90 ? '#dc2626' : (progress >= 60 ? '#d97706' : 'var(--primary)') }};">{{ progress }}%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width:{{ progress }}%;background:{{ progress >= 90 ? '#dc2626' : (progress >= 60 ? '#f59e0b' : 'var(--primary)') }};"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {% if user_registered_event_ids is defined and event.id in user_registered_event_ids|keys %}
+                        {% set registrationData = user_registered_event_ids[event.id] %}
+                        <div class="event-card-footer flex flex-col gap-2">
+                            {% if registrationData.status == 'en_attente' %}
+                                <a href="{{ path('app_front_payment_retry', {id: registrationData.id}) }}" class="w-full py-2.5 bg-amber-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-amber-700 transition-all shadow-md active:scale-95">
+                                    <i data-lucide="credit-card" class="w-4 h-4"></i>
+                                    Payer (API)
+                                </a>
+                            {% endif %}
+                            
+                            <form action="{{ path('app_front_registration_cancel', {id: registrationData.id}) }}" method="post"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir annuler votre inscription ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cancel_registration_' ~ registrationData.id) }}">
+                                <button type="submit" class="btn-cancel">
+                                    <i data-lucide="x-circle" style="width:15px;height:15px;"></i>
+                                    Annuler mon inscription
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state fade-in">
+        <i data-lucide="calendar-x" style="width:56px;height:56px;"></i>
+        <div class="empty-title">Aucun événement disponible</div>
+        <p class="empty-sub">Revenez bientôt pour découvrir de nouveaux événements !</p>
+    </div>
+    {% endif %}
+
+    {# ── Recommendations ── #}
+    {% if recommendations is defined and recommendations|length > 0 %}
+    <div class="fade-in mt-12">
+        <div class="section-header">
+            <h2 class="section-title">Recommandé pour vous</h2>
+            <span class="section-count">{{ recommendations|length }}</span>
+        </div>
+        <div class="reco-grid">
+            {% for rec in recommendations %}
+                <div class="reco-card">
+                    <div class="reco-card-img">
+                        {% if rec.event.image %}
+                            <img src="{{ asset(rec.event.image) }}" alt="{{ rec.event.titre }}">
+                        {% else %}
+                            <div style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#f5ede6,#edddd4);">
+                                <i data-lucide="image" style="width:36px;height:36px;opacity:0.25;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="reco-card-body">
+                        <span class="reco-badge">{{ rec.event.categorie }}</span>
+                        <h3 class="reco-title">{{ rec.event.titre }}</h3>
+                        <div class="reco-meta">
+                            <div class="reco-meta-item text-[11px] font-bold text-primary mb-1">
+                                <i data-lucide="sparkles" style="width:13px;height:13px;"></i>
+                                {{ rec.score|round }}% Match &bull; {{ rec.explanation }}
+                            </div>
+                            <div class="reco-meta-item">
+                                <i data-lucide="calendar" style="width:13px;height:13px;color:var(--primary);"></i>
+                                {{ rec.event.dateDebut|date('d M Y') }}
+                            </div>
+                            <div class="reco-meta-item">
+                                <i data-lucide="map-pin" style="width:13px;height:13px;color:var(--primary);"></i>
+                                {{ rec.event.lieu }}
+                            </div>
+                        </div>
+                        <div class="reco-footer">
+                            <span class="reco-price">{{ rec.event.prix > 0 ? rec.event.prix ~ ' DT' : 'GRATUIT' }}</span>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" onclick="markNotInterested({{ rec.event.id }}, this)" class="btn-cancel" style="padding:8px;width:auto;" title="Pas intéressé(e)">
+                                    <i data-lucide="eye-off" style="width:16px;height:16px;"></i>
+                                </button>
+                                <a href="{{ path('app_front_event_show', {id: rec.event.id}) }}" class="btn-reco">Voir →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Collaborative Recommendations ── #}
+    {% if collab_recommendations is defined and collab_recommendations|length > 0 %}
+    <div class="fade-in mt-12">
+        <div class="section-header">
+            <h2 class="section-title">Les personnes comme vous ont aussi participé à</h2>
+            <span class="section-count">{{ collab_recommendations|length }}</span>
+        </div>
+        <div class="reco-grid">
+            {% for rec in collab_recommendations %}
+                <div class="reco-card">
+                    <div class="reco-card-img">
+                        {% if rec.event.image %}
+                            <img src="{{ asset(rec.event.image) }}" alt="{{ rec.event.titre }}">
+                        {% else %}
+                            <div style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#f5ede6,#edddd4);">
+                                <i data-lucide="image" style="width:36px;height:36px;opacity:0.25;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="reco-card-body">
+                        <span class="reco-badge">{{ rec.event.categorie }}</span>
+                        <h3 class="reco-title">{{ rec.event.titre }}</h3>
+                        <div class="reco-meta">
+                            <div class="reco-meta-item text-[11px] font-bold text-primary mb-1">
+                                <i data-lucide="users" style="width:13px;height:13px;"></i>
+                                {{ rec.explanation }}
+                            </div>
+                            <div class="reco-meta-item">
+                                <i data-lucide="calendar" style="width:13px;height:13px;color:var(--primary);"></i>
+                                {{ rec.event.dateDebut|date('d M Y') }}
+                            </div>
+                            <div class="reco-meta-item">
+                                <i data-lucide="map-pin" style="width:13px;height:13px;color:var(--primary);"></i>
+                                {{ rec.event.lieu }}
+                            </div>
+                        </div>
+                        <div class="reco-footer">
+                            <span class="reco-price">{{ rec.event.prix > 0 ? rec.event.prix ~ ' €' : 'GRATUIT' }}</span>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" onclick="markNotInterested({{ rec.event.id }}, this)" class="btn-cancel" style="padding:8px;width:auto;" title="Pas intéressé(e)">
+                                    <i data-lucide="eye-off" style="width:16px;height:16px;"></i>
+                                </button>
+                                <a href="{{ path('app_front_event_show', {id: rec.event.id}) }}" class="btn-reco">Voir →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function markNotInterested(eventId, btnElement) {
+            fetch('/event/' + eventId + '/not-interested', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    const card = btnElement.closest('.reco-card');
+                    card.style.transform = 'scale(0.95)';
+                    card.style.opacity = '0';
+                    setTimeout(() => card.style.display = 'none', 300);
+                } else {
+                    alert('Action impossible: ' + (data.error || 'Erreur inconnue'));
+                }
+            })
+            .catch(err => console.error('Error marking not interested:', err));
+        }
+
+        function openModal(title, bodyHtml) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('eventModal').classList.add('open');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('open');
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            /* ── FullCalendar ── */
+            const calendarEl = document.getElementById('eventsCalendar');
+            const calendarEvents = {{ calendar_events_json is defined ? calendar_events_json|raw : '[]' }};
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'fr',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                },
+                buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', list: 'Liste' },
+                events: calendarEvents,
+                height: 'auto',
+                eventColor: '#0FB5A9',
+                eventClick: function (info) {
+                    const props = info.event.extendedProps;
+                    const eventId = info.event.id;
+                    const isRegistered = props.isUserRegistered;
+                    const regId = props.registrationId;
+                    const price = parseFloat(props.price);
+
+                    let body = `
+                        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(232,68,31,0.08);color:#e8441f;border-radius:100px;padding:4px 12px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;width:fit-content;">${props.category}</div>
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--muted,#7c7a8a);">
+                                <i data-lucide="calendar" style="width:15px;height:15px;color:#e8441f;flex-shrink:0;"></i>
+                                <span>${info.event.start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--muted,#7c7a8a);">
+                                <i data-lucide="map-pin" style="width:15px;height:15px;color:#e8441f;flex-shrink:0;"></i>
+                                <span>${props.location}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--muted,#7c7a8a);">
+                                <i data-lucide="users" style="width:15px;height:15px;color:#e8441f;flex-shrink:0;"></i>
+                                <span>${props.registered}/${props.capacity} inscrits</span>
+                            </div>
+                            <div style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;color:#e8441f;">${price > 0 ? price + ' DT' : 'GRATUIT'}</div>
+                    `;
+
+                    if (isRegistered) {
+                        body += `
+                            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 14px;color:#15803d;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:6px;">
+                                <i data-lucide="check-circle" style="width:15px;height:15px;"></i> Vous êtes inscrit à cet événement
+                            </div>
+                            <div style="display:flex;gap:10px;margin-top:4px;">
+                                <a href="/event/${eventId}" style="flex:1;padding:11px;background:#0f0e17;color:#fff;text-align:center;border-radius:12px;font-weight:700;font-size:0.85rem;text-decoration:none;">Voir détails</a>
+                                <form action="/registration/${regId}/cancel" method="post" style="flex:1;" onsubmit="return confirm('Annuler votre inscription ?')">
+                                    <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-cancel-' + regId + ']')?.content || ''}">
+                                    <button type="submit" style="width:100%;padding:11px;background:transparent;color:#dc2626;border:1.5px solid #fecaca;border-radius:12px;font-weight:700;font-size:0.85rem;cursor:pointer;">Annuler</button>
+                                </form>
+                            </div>
+                        `;
+                    } else {
+                        body += `
+                            <a href="/event/${eventId}" style="display:block;padding:12px;background:#e8441f;color:#fff;text-align:center;border-radius:12px;font-weight:700;font-size:0.875rem;text-decoration:none;margin-top:4px;">Voir & S'inscrire →</a>
+                        `;
+                    }
+
+                    body += '</div>';
+                    openModal(info.event.title, body);
+                }
+            });
+            calendar.render();
+
+            /* ── Leaflet Map ── */
+            const map = L.map('eventsMap').setView([36.8, 10.18], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const markers = [];
+            {% for event in events %}
+                {% if event.latitude and event.longitude %}
+                    (function() {
+                        const color = '{{ user_registered_event_ids is defined and event.id in user_registered_event_ids|keys ? "green" : "blue" }}';
+                        const m = L.marker([{{ event.latitude }}, {{ event.longitude }}], {
+                            icon: L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-' + color + '.png',
+                                shadowUrl: 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-shadow.png',
+                                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+                            })
+                        }).addTo(map).bindPopup(`
+                            <div style="min-width:210px;font-family:Satoshi,sans-serif;">
+                                <strong style="font-family:'Clash Display',sans-serif;font-size:1rem;">{{ event.titre|e('js') }}</strong><br>
+                                <span style="color:#7c7a8a;font-size:12px;">📍 {{ event.lieu|e('js') }}</span><br>
+                                <span style="color:#7c7a8a;font-size:12px;">📅 {{ event.dateDebut|date('d M Y') }}</span><br>
+                                <span style="color:var(--primary);font-weight:700;font-size:1rem;">{{ event.prix > 0 ? event.prix ~ ' DT' : 'GRATUIT' }}</span><br>
+                                <a href="{{ path('app_front_event_show', {id: event.id}) }}" style="display:inline-block;margin-top:8px;padding:5px 14px;background:var(--primary);color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;">Voir →</a>
+                            </div>
+                        `);
+                        markers.push(m);
+                    })();
+                {% endif %}
+            {% endfor %}
+
+            if (markers.length > 0) {
+                map.fitBounds(L.featureGroup(markers).getBounds().pad(0.15));
+            }
+
+            /* ── Registered Events Map ── */
+            {% if user_registered_event_ids is defined and user_registered_event_ids|length > 0 %}
+            const regMap = L.map('registeredEventsMap').setView([36.8, 10.18], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(regMap);
+
+            const regMarkers = [];
+            {% for event in events %}
+                {% if event.latitude and event.longitude and user_registered_event_ids[event.id] is defined %}
+                    (function() {
+                        const m = L.marker([{{ event.latitude }}, {{ event.longitude }}], {
+                            icon: L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                                shadowUrl: 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-shadow.png',
+                                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+                            })
+                        }).addTo(regMap).bindPopup(`
+                            <div style="min-width:180px;font-family:Satoshi,sans-serif;">
+                                <strong style="font-family:'Clash Display',sans-serif;">{{ event.titre|e('js') }}</strong><br>
+                                <span style="color:#7c7a8a;font-size:12px;">✅ Inscrit</span><br>
+                                <a href="{{ path('app_front_event_show', {id: event.id}) }}" style="display:inline-block;margin-top:8px;padding:4px 12px;background:#16a34a;color:white;border-radius:8px;text-decoration:none;font-size:11px;font-weight:700;">Détails →</a>
+                            </div>
+                        `);
+                        regMarkers.push(m);
+                    })();
+                {% endif %}
+            {% endfor %}
+
+            if (regMarkers.length > 0) {
+                regMap.fitBounds(L.featureGroup(regMarkers).getBounds().pad(0.2));
+            }
+            {% endif %}
+        });
+    </script>
+
+    {% if user_registered_event_ids is defined %}
+        {% for eventId, regId in user_registered_event_ids %}
+            <meta name="csrf-cancel-{{ regId }}" content="{{ csrf_token('cancel_registration_' ~ regId) }}">
+        {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,77 @@
+{# templates/front/layout/sidebar.html.twig #}
+<!-- Sidebar -->
+<aside id="sidebar"
+    class="w-24 bg-sidebar border-r border-sidebar-border h-screen flex flex-col items-center py-8 gap-8 fixed left-0 top-16 z-40">
+
+    <!-- Navigation -->
+    <nav class="flex flex-col gap-4 w-full px-2">
+
+        <!-- Accueil -->
+        <a href="{{ path('app_front_home') }}"
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group 
+            {{ app.request.attributes.get('_route') == 'app_front_home' 
+                ? 'active bg-primary/10 text-primary' 
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground' }}">
+            <i data-lucide="home" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Accueil</span>
+        </a>
+
+        <!-- Profil -->
+        <a href="{{ path('app_profile') }}"
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group
+            {{ app.request.attributes.get('_route') == 'app_profile' 
+                ? 'active bg-primary/10 text-primary' 
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground' }}">
+            <i data-lucide="user" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Profil</span>
+        </a>
+
+        <!-- Catégories -->
+        <a href="{{ path('app_front_categories') }}"
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group
+            {{ app.request.attributes.get('_route') == 'app_front_categories' 
+                ? 'active bg-primary/10 text-primary' 
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground' }}">
+            <i data-lucide="folder-open" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Catégories</span>
+        </a>
+
+        <!-- Meet -->
+        <a href="{{ path('app_front_meet')|default('#') }}"
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group
+            {{ app.request.attributes.get('_route') == 'app_front_meet' 
+                ? 'active bg-primary/10 text-primary' 
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground' }}">
+            <i data-lucide="video" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Meet</span>
+        </a>
+
+        <!-- Jeux -->
+        <a href="{{ path('app_front_jeux')|default('#') }}"
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group
+            {{ app.request.attributes.get('_route') == 'app_front_jeux' 
+                ? 'active bg-primary/10 text-primary' 
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground' }}">
+            <i data-lucide="gamepad-2" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Jeux</span>
+        </a>
+
+        <!-- Events (Link to Front Office Events list) -->
+        <a href="{{ path('app_front_events') }}"
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 group 
+            {{ app.request.attributes.get('_route') starts with 'app_front_event' 
+                ? 'active bg-primary/10 text-primary' 
+                : 'hover:bg-muted text-muted-foreground hover:text-primary' }}">
+            <i data-lucide="calendar" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Events</span>
+        </a>
+
+        <!-- Forums -->
+        <div
+            class="nav-item flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer">
+            <i data-lucide="messages-square" class="w-6 h-6"></i>
+            <span class="text-[11px] font-medium">Forums</span>
+        </div>
+
+    </nav>
+</aside>
