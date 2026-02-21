@@ -5,7 +5,7 @@
         </div>
     {% endif %}
 
-    <div class="bg-muted/10 rounded-2xl shadow-sm border border-border p-8">
+    <div class="bg-muted/10 rounded-2xl shadow-sm border border-border p-8" data-controller="ai-summary" data-ai-summary-url-value="{{ path('app_ai_summary') }}" data-ai-summary-token-value="{{ csrf_token('ai_summary') }}" data-ai-summary-module-id-value="{{ cour.module ? cour.module.id : 0 }}">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
                 {{ form_row(form.titre) }}
@@ -26,6 +26,15 @@
             </div>
             <div class="md:col-span-2">
                 {{ form_row(form.fichierContenu) }}
+            </div>
+
+            <div class="md:col-span-2 flex items-center justify-end">
+                <button type="button" data-action="ai-summary#generate" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition">
+                    Générer résumé (IA)
+                </button>
+            </div>
+            <div class="md:col-span-2">
+                {{ form_row(form.resumeAi) }}
             </div>
 
             <div>

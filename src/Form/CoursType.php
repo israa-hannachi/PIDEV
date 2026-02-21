@@ -36,7 +36,12 @@ class CoursType extends AbstractType
                 'label' => 'Contenu texte',
                 'required' => false,
                 'help' => 'Vous pouvez saisir du texte OU uploader un fichier ci-dessous (mais pas les deux)',
-                'attr' => ['rows' => 8, 'placeholder' => 'Saisissez le contenu du cours ici...', 'class' => 'js-richtext w-full px-4 py-2.5 bg-white rounded-xl border border-border placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition']
+                'attr' => ['rows' => 8, 'placeholder' => 'Saisissez le contenu du cours ici...', 'class' => 'js-richtext w-full px-4 py-2.5 bg-white rounded-xl border border-border placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition', 'data-ai-summary-target' => 'contenu']
+            ])
+            ->add('resumeAi', TextareaType::class, [
+                'label' => 'Résumé (IA)',
+                'required' => false,
+                'attr' => ['rows' => 5, 'placeholder' => 'Générez un résumé depuis le contenu...', 'class' => 'w-full px-4 py-2.5 bg-white rounded-xl border border-border placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition', 'data-ai-summary-target' => 'resume']
             ])
             ->add('fichierContenu', FileType::class, [
                 'label' => 'Ou uploader un fichier',

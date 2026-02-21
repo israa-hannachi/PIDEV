@@ -29,6 +29,14 @@ class CoursAdminType extends AbstractType
                 'attr' => [
                     'class' => 'js-richtext',
                     'rows' => 10,
+                    'data-ai-summary-target' => 'contenu',
+                ],
+            ])
+            ->add('resumeAi', TextareaType::class, [
+                'required' => false,
+                'attr' => [
+                    'rows' => 6,
+                    'data-ai-summary-target' => 'resume',
                 ],
             ])
             ->add('fichierContenu', FileType::class, [

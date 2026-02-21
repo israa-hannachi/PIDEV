@@ -10,6 +10,14 @@ parameters:
     cloudinary_cours_folder: '%env(default:cloudinary_cours_folder_default:CLOUDINARY_COURS_FOLDER)%'
     cloudinary_cours_folder_default: 'gestion-cours/cours'
 
+    ollama_base_url: '%env(default:ollama_base_url_default:OLLAMA_BASE_URL)%'
+    ollama_base_url_default: 'http://localhost:11434'
+    ollama_model: '%env(default:ollama_model_default:OLLAMA_MODEL)%'
+    ollama_model_default: 'llama3.1:8b'
+
+    ollama_timeout: '%env(int:default:ollama_timeout_default:OLLAMA_TIMEOUT)%'
+    ollama_timeout_default: 600
+
 
 
 services:
@@ -60,4 +68,10 @@ services:
             $apiKey: '%cloudinary_api_key%'
             $apiSecret: '%cloudinary_api_secret%'
             $folder: '%cloudinary_cours_folder%'
+
+    App\Service\OpenAiSummaryService:
+        arguments:
+            $ollamaBaseUrl: '%ollama_base_url%'
+            $ollamaModel: '%ollama_model%'
+            $ollamaTimeoutSeconds: '%ollama_timeout%'
 

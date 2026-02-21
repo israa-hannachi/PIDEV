@@ -83,6 +83,7 @@
                     {% set h = (duree // 60) %}
                     {% set m = (duree % 60) %}
 
+                    <div data-controller="ai-summary-display" data-ai-summary-display-url-value="{{ path('app_ai_summary_cours', {'id': cour.id}) }}" data-ai-summary-display-pdf-url-value="{{ path('app_ai_summary_cours_pdf', {'id': cour.id}) }}" data-ai-summary-display-token-value="{{ csrf_token('ai_summary_cours' ~ cour.id) }}" data-ai-summary-display-pdf-token-value="{{ csrf_token('ai_summary_cours_pdf' ~ cour.id) }}">
                     <div class="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/60 transition-colors">
                         <div class="flex items-start gap-3">
                             <i data-lucide="play-circle" class="w-5 h-5 text-primary mt-0.5"></i>
@@ -124,11 +125,19 @@
                                 <i data-lucide="eye" class="w-4 h-4"></i>
                                 Voir
                             </a>
+                            <button type="button" data-ai-summary-display-target="button" data-action="ai-summary-display#generate" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border font-semibold hover:bg-muted transition">
+                                Résumé IA
+                            </button>
+                            <button type="button" data-ai-summary-display-target="download" data-action="ai-summary-display#downloadPdf" class="hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition">
+                                PDF
+                            </button>
                             <a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary text-white font-semibold shadow hover:shadow-md transition">
                                 <i data-lucide="settings" class="w-4 h-4"></i>
                                 Modifier
                             </a>
                         </div>
+                    </div>
+                    <textarea data-ai-summary-display-target="textarea" class="hidden mt-2 w-full min-h-[140px] p-4 rounded-xl border border-border bg-white text-sm" placeholder="Le résumé apparaîtra ici. Tu peux le modifier avant téléchargement."></textarea>
                     </div>
                 {% endfor %}
             </div>

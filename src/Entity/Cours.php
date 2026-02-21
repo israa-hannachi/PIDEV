@@ -39,6 +39,9 @@ class Cours
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $fichierContenu = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $resumeAi = null;
+
     #[ORM\Column]
     #[Assert\NotNull(message: "La durée du cours est obligatoire")]
     #[Assert\NotBlank(message: "La durée du cours est obligatoire")]
@@ -248,6 +251,18 @@ class Cours
     public function setFichierContenu(?string $fichierContenu): static
     {
         $this->fichierContenu = $fichierContenu;
+
+        return $this;
+    }
+
+    public function getResumeAi(): ?string
+    {
+        return $this->resumeAi;
+    }
+
+    public function setResumeAi(?string $resumeAi): static
+    {
+        $this->resumeAi = $resumeAi;
 
         return $this;
     }
