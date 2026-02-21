@@ -33,7 +33,17 @@ public function getQuestions(
     $response = $this->client->request('GET', $url);
     return $response->toArray(); // toujours en anglais
 }
+ public function compareWithNLP(string $studentAnswer, string $correctAnswer): float
+    {
+        $response = $this->client->request('POST', 'http://127.0.0.1:5000/compare', [
+            'json' => [
+                'correct' => $correctAnswer,
+                'student' => $studentAnswer
+            ]
+        ]);
 
+        return $response->toArray()['score'];
+    }
 
 }
 

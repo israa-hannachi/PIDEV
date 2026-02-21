@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Back;
+
 
 use App\Entity\Game;
 use Doctrine\ORM\EntityManagerInterface;

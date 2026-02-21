@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Back;
 
 use App\Entity\Game;
 use App\Form\GameType;
@@ -17,7 +17,7 @@ class GameController extends AbstractController
     public function index(EntityManagerInterface $em): Response
     {
         $games = $em->getRepository(Game::class)->findAll();
-        return $this->render('backoffice/game/index.html.twig', [
+        return $this->render('back/game/index.html.twig', [
             'games' => $games,
         ]);
     }
@@ -34,7 +34,7 @@ class GameController extends AbstractController
             return $this->redirectToRoute('game_index');
         }
 
-        return $this->render('backoffice/game/new.html.twig', [
+        return $this->render('back/game/new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -49,7 +49,7 @@ class GameController extends AbstractController
             return $this->redirectToRoute('game_index');
         }
 
-        return $this->render('backoffice/game/edit.html.twig', [
+        return $this->render('back/game/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
