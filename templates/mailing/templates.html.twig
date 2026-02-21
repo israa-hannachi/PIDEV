@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}<title>NAJA7NI || Email Templates</title>{% endblock %}
+
+{% block body %}
+    {% include 'partials/_sidebar.html.twig' %}
+    {% include 'partials/_header.html.twig' %}
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title"><h5 class="m-b-10">Email Templates</h5></div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('mailing_dashboard') }}">Mailing</a></li>
+                        <li class="breadcrumb-item">Templates</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="main-content">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+
+                <div class="card stretch stretch-full">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">All Templates</h5>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('mailing_template_new') }}" class="btn btn-success btn-sm">Add Template</a>
+                            <a href="{{ path('mailing_bulk_send') }}" class="btn btn-primary btn-sm">Bulk Send</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Subject</th>
+                                        <th>Template Path</th>
+                                        <th>Description</th>
+                                        <th>Updated</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for template in templates %}
+                                    <tr>
+                                        <td><span class="fw-semibold">{{ template.name }}</span></td>
+                                        <td>{{ template.subject }}</td>
+                                        <td><code>{{ template.templatePath }}</code></td>
+                                        <td>{{ template.description ?: '-' }}</td>
+                                        <td>{{ template.updatedAt ? template.updatedAt|date('Y-m-d H:i') : (template.createdAt ? template.createdAt|date('Y-m-d H:i') : '-') }}</td>
+                                        <td>
+                                            <a href="{{ path('mailing_template_edit', {id: template.id}) }}" class="btn btn-light btn-sm">Edit</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">No templates found.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

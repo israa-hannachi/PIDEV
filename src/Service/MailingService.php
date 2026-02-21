@@ -8,6 +8,7 @@ use App\Repository\EmailQueueRepository;
 use App\Repository\EmailTemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Twig\Environment;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,7 @@ class MailingService
     ): bool {
         try {
             $email = (new Email())
-                ->from($this->fromEmail)
+                ->from(new Address($this->fromEmail, $this->fromName))
                 ->to($recipientEmail)
                 ->subject($subject)
                 ->html($body);
@@ -208,7 +209,7 @@ class MailingService
         foreach ($pendingEmails as $queueItem) {
             try {
                 $email = (new Email())
-                    ->from($this->fromEmail)
+                    ->from(new Address($this->fromEmail, $this->fromName))
                     ->to($queueItem->getRecipientEmail())
                     ->subject($queueItem->getSubject())
                     ->html($queueItem->getBody());

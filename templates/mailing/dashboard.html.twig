@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}<title>NAJA7NI || Mailing Dashboard</title>{% endblock %}
+
+{% block body %}
+    {% include 'partials/_sidebar.html.twig' %}
+    {% include 'partials/_header.html.twig' %}
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Mailing</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item">Mailing Dashboard</li>
+                    </ul>
+                </div>
+                <div class="page-header-right ms-auto">
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('mailing_templates') }}" class="btn btn-light">Email Templates</a>
+                        <a href="{{ path('mailing_queue') }}" class="btn btn-light">Email Queue</a>
+                        <a href="{{ path('mailing_bulk_send') }}" class="btn btn-primary">Bulk Send</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card stretch stretch-full mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Send Test Email</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="{{ path('mailing_test_send') }}" class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Recipient Email</label>
+                                        <input type="email" name="recipient_email" class="form-control" value="{{ app.user ? app.user.email : '' }}" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Subject</label>
+                                        <input type="text" name="subject" class="form-control" value="Mailing test email" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Message</label>
+                                        <input type="text" name="message" class="form-control" value="This is a test email from Naja7ni mailing dashboard." required>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">Send Test Email</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xxl-4 col-md-4">
+                        <div class="card stretch stretch-full">
+                            <div class="card-body">
+                                <h6 class="mb-2">Pending</h6>
+                                <h3 class="mb-0 text-warning">{{ stats.pending|default(0) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-md-4">
+                        <div class="card stretch stretch-full">
+                            <div class="card-body">
+                                <h6 class="mb-2">Sent</h6>
+                                <h3 class="mb-0 text-success">{{ stats.sent|default(0) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-md-4">
+                        <div class="card stretch stretch-full">
+                            <div class="card-body">
+                                <h6 class="mb-2">Failed</h6>
+                                <h3 class="mb-0 text-danger">{{ stats.failed|default(0) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card stretch stretch-full">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Recent Emails</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Email</th>
+                                                <th>Subject</th>
+                                                <th>Status</th>
+                                                <th>Attempts</th>
+                                                <th>Created</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in recentEmails %}
+                                            <tr>
+                                                <td>{{ item.recipientEmail }}</td>
+                                                <td>{{ item.subject }}</td>
+                                                <td>
+                                                    {% if item.status == 'sent' %}
+                                                        <span class="badge bg-soft-success text-success">sent</span>
+                                                    {% elseif item.status == 'failed' %}
+                                                        <span class="badge bg-soft-danger text-danger">failed</span>
+                                                    {% else %}
+                                                        <span class="badge bg-soft-warning text-warning">pending</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ item.attempts }}</td>
+                                                <td>{{ item.createdAt ? item.createdAt|date('Y-m-d H:i') : '-' }}</td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">No emails in queue yet.</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

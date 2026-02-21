@@ -29,9 +29,21 @@
 							<span class="mb-0 fs-1">🔐</span>
 							<h1 class="fs-2">Two-Factor Authentication</h1>
 							<p class="lead mb-4">Open your authenticator app and enter the 6-digit code</p>
+							{% if authenticationError is defined and authenticationError %}
+								{% set errorMessage = authenticationError == 'code_invalid'
+									? 'Wrong authentication code. Please try again.'
+									: (authenticationError.messageKey is defined
+										? authenticationError.messageKey|trans(authenticationError.messageData|default({}), 'security')
+										: 'Authentication failed. Please try again.')
+								%}
+								<div class="alert alert-danger" role="alert">
+									{{ errorMessage }}
+								</div>
+							{% endif %}
 
 							<!-- Form START -->
-							<form method="POST" action="{{ path('2fa_login_check') }}">
+							{% set isFrontTwoFactor = app.request.pathinfo starts with '/front' %}
+							<form id="two-factor-form" method="POST" action="{{ isFrontTwoFactor ? path('front_2fa_login_check') : path('2fa_login_check') }}">
 								<!-- 2FA Code -->
 								<div class="mb-4">
 									<label for="_auth_code" class="form-label">Authentication Code *</label>
@@ -64,7 +76,7 @@
 								<!-- Button -->
 								<div class="align-items-center mt-0">
 									<div class="d-grid">
-										<button class="btn btn-primary btn-lg mb-0" type="submit">
+										<button id="two-factor-submit" class="btn btn-primary btn-lg mb-0" type="submit">
 											<i class="bi bi-check-circle me-2"></i> Verify Code
 										</button>
 									</div>
@@ -93,16 +105,24 @@
 </main>
 
 <script>
-// Auto-focus the input and format as user types
 const input = document.getElementById('_auth_code');
-input.addEventListener('input', function(e) {
-    // Remove non-numeric characters
-    this.value = this.value.replace(/[^0-9]/g, '');
-    
-    // Auto-submit when 6 digits are entered
-    if (this.value.length === 6) {
-        this.form.submit();
-    }
+const form = document.getElementById('two-factor-form');
+const submitButton = document.getElementById('two-factor-submit');
+let isSubmitting = false;
+
+input.addEventListener('input', function() {
+	this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+form.addEventListener('submit', function(event) {
+	if (isSubmitting) {
+		event.preventDefault();
+		return;
+	}
+
+	isSubmitting = true;
+	submitButton.disabled = true;
+	submitButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Verifying...';
 });
 </script>
 {% endblock %}

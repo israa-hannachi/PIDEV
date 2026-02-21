@@ -73,30 +73,34 @@
 
                 {# User Profile #}
                 <div class="dropdown nxl-h-item">
+                    {% set currentUser = app.user %}
+                    {% set avatarUrl = currentUser and currentUser.profilePicture ? asset('uploads/profiles/' ~ currentUser.profilePicture) : (currentUser ? currentUser.gravatarUrl(80) : asset('assets/images/avatar/1.png')) %}
+                    {% set displayName = currentUser ? ((currentUser.firstName ?? '') ~ ' ' ~ (currentUser.lastName ?? ''))|trim : 'Utilisateur' %}
+                    {% set displayRole = currentUser and currentUser.role ? currentUser.role : 'USER' %}
                     <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
-                        <img src="{{ asset('assets/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar me-0">
+                        <img src="{{ avatarUrl }}" alt="user-image" class="img-fluid user-avtar me-0">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown">
                         <div class="dropdown-header">
                             <div class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/avatar/1.png') }}" alt="user-image" class="img-fluid user-avtar">
+                                <img src="{{ avatarUrl }}" alt="user-image" class="img-fluid user-avtar">
                                 <div>
-                                    <h6 class="text-dark mb-0">Admin User <span class="badge bg-soft-success text-success ms-1">PRO</span></h6>
-                                    <span class="fs-12 fw-medium text-muted">admin@naja7ni.com</span>
+                                    <h6 class="text-dark mb-0">{{ displayName }} <span class="badge bg-soft-success text-success ms-1">{{ displayRole|upper }}</span></h6>
+                                    <span class="fs-12 fw-medium text-muted">{{ currentUser ? currentUser.email : '—' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
+                        <a href="{{ path('app_front_profile') }}" class="dropdown-item">
                             <i class="feather-user"></i>
                             <span>Profile</span>
                         </a>
-                        <a href="#" class="dropdown-item">
+                        <a href="{{ path('app_front_profile') }}" class="dropdown-item">
                             <i class="feather-settings"></i>
                             <span>Settings</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
+                        <a href="{{ path('app_logout') }}" class="dropdown-item">
                             <i class="feather-log-out"></i>
                             <span>Logout</span>
                         </a>

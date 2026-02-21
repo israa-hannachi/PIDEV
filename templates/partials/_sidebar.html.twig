@@ -92,6 +92,19 @@
                         <li class="nxl-item"><a class="nxl-link" href="{{ path('app_payment') }}">Payment</a></li>
                     </ul>
                 </li>
+
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-mail"></i></span>
+                        <span class="nxl-mtext">Mailing</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('mailing_dashboard') }}">Dashboard</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('mailing_templates') }}">Email Templates</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('mailing_queue') }}">Email Queue</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ path('mailing_bulk_send') }}">Bulk Send</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>

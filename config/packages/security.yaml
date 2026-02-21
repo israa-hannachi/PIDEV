@@ -22,6 +22,7 @@ security:
         frontend:
             pattern: ^/front
             lazy: true
+            context: app_shared_context
             provider: app_user_provider
             user_checker: App\Security\UserChecker
             form_login:
@@ -33,11 +34,15 @@ security:
                 password_parameter: _password
             custom_authenticators:
                 - App\Security\GoogleAuthenticator
+            two_factor:
+                auth_form_path: front_2fa_login
+                check_path: front_2fa_login_check
             logout:
                 path: front_logout
                 target: front_home
         main:
             lazy: true
+            context: app_shared_context
             provider: app_user_provider
             user_checker: App\Security\UserChecker
             form_login:
@@ -49,9 +54,12 @@ security:
                 password_parameter: _password
             logout:
                 path: app_logout
-                target: app_login
+                target: front_home
 
     access_control:
+        - { path: ^/front/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/$, roles: ROLE_ADMIN }
         - { path: ^/front/login, roles: PUBLIC_ACCESS }
         - { path: ^/front/register, roles: PUBLIC_ACCESS }
         - { path: ^/front/forgot-password, roles: PUBLIC_ACCESS }

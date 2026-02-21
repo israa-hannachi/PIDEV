@@ -92,13 +92,13 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $email = $form->get('email')->getData();
+            $email = mb_strtolower(trim((string) $form->get('email')->getData()));
             
             if ($passwordResetService->generateAndSendResetCode($email)) {
-                $this->addFlash('success', 'A password reset code has been sent to your email address.');
+                $this->addFlash('success', sprintf('A password reset code has been sent to %s.', $email));
                 return $this->redirectToRoute('front_reset_password', ['email' => $email]);
             } else {
-                $this->addFlash('error', 'No account found with this email address.');
+                $this->addFlash('error', 'No matching account found for this email address.');
             }
         }
 

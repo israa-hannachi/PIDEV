@@ -1,105 +1,156 @@
-{% extends 'base_auth.html.twig' %}
+<!DOCTYPE html>
+<html lang="fr">
 
-{% block title %}Enable 2FA - naja7ni{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activer 2FA - Naja7ni</title>
 
-{% block body %}
-<main>
-	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
-	
-		<div class="container-fluid">
-			<div class="row">
-				<!-- left -->
-				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
-					<div class="p-3 p-lg-5">
-						<!-- Title -->
-						<div class="text-center">
-							<h2 class="fw-bold">Secure Your Account</h2>
-							<p class="mb-0 h6 fw-light">Add an extra layer of security with 2FA</p>
-						</div>
-						<!-- SVG Image -->
-						<img src="{{ asset("assets/images/element/02.svg") }}" class="mt-5" alt="">
-					</div>
-				</div>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-				<!-- Right -->
-				<div class="col-12 col-lg-6 m-auto">
-					<div class="row my-5">
-						<div class="col-sm-10 col-xl-8 m-auto">
-							<!-- Title -->
-							<span class="mb-0 fs-1">🔐</span>
-							<h1 class="fs-2">Enable Two-Factor Authentication</h1>
-							<p class="lead mb-4">Scan the QR code with Google Authenticator app</p>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-							<!-- Flash Messages -->
-							{% for message in app.flashes('success') %}
-								<div class="alert alert-success alert-dismissible fade show" role="alert">
-									{{ message }}
-									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-								</div>
-							{% endfor %}
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
+</head>
 
-							<!-- QR Code Card -->
-							<div class="card shadow-sm mb-4">
-								<div class="card-body text-center p-4">
-									<h5 class="card-title mb-3">Step 1: Scan QR Code</h5>
-									<p class="text-muted mb-3">Open Google Authenticator and scan this QR code</p>
-									<div class="mb-3">
-										<img src="{{ qrCodeDataUri }}" alt="QR Code" class="img-fluid" style="max-width: 300px;">
-									</div>
-									<div class="alert alert-info">
-										<strong>Manual Entry Code:</strong><br>
-										<code class="fs-5">{{ secret }}</code>
-									</div>
-								</div>
-							</div>
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        {% include 'front/partials/_sidebar.html.twig' %}
 
-							<!-- Instructions -->
-							<div class="card shadow-sm mb-4">
-								<div class="card-body">
-									<h5 class="card-title mb-3">Step 2: Verify Setup</h5>
-									<p class="mb-2">To complete the setup:</p>
-									<ol class="mb-0">
-										<li>Open Google Authenticator app on your phone</li>
-										<li>Tap the "+" button to add a new account</li>
-										<li>Choose "Scan QR code" or enter the code manually</li>
-										<li>The app will generate a 6-digit code</li>
-										<li>On your next login, you'll be asked to enter this code</li>
-									</ol>
-								</div>
-							</div>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navbar -->
+            {% include 'front/partials/_navbar.html.twig' %}
 
-							<!-- Download Links -->
-							<div class="card shadow-sm mb-4">
-								<div class="card-body">
-									<h5 class="card-title mb-3">Don't have Google Authenticator?</h5>
-									<div class="d-flex gap-2">
-										<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" class="btn btn-outline-primary btn-sm">
-											<i class="fab fa-android me-1"></i> Download for Android
-										</a>
-										<a href="https://apps.apple.com/app/google-authenticator/id388497605" target="_blank" class="btn btn-outline-primary btn-sm">
-											<i class="fab fa-apple me-1"></i> Download for iOS
-										</a>
-									</div>
-								</div>
-							</div>
+            <!-- Content Area -->
+            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+                <div class="p-8 min-h-full">
+                    <div class="max-w-2xl mx-auto space-y-8">
+                        <!-- Header -->
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold mb-2">Activer l'authentification à deux facteurs</h1>
+                            <p class="text-muted-foreground">Sécurisez votre compte avec Google Authenticator</p>
+                        </div>
 
-							<!-- Action Buttons -->
-							<div class="d-grid gap-2">
-								<a href="{{ path('app_front_profile') }}" class="btn btn-success btn-lg">
-									<i class="bi bi-check-circle me-2"></i> Done - Back to Profile
-								</a>
-							</div>
+                        <!-- Flash Messages -->
+                        {% for message in app.flashes('success') %}
+                            <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center justify-between">
+                                <span>{{ message }}</span>
+                                <button type="button" class="text-green-500 hover:text-green-700" onclick="this.parentElement.style.display='none';">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        {% endfor %}
 
-							<!-- Warning -->
-							<div class="alert alert-warning mt-3">
-								<strong><i class="bi bi-exclamation-triangle me-2"></i>Important:</strong>
-								Keep your phone secure! If you lose access to Google Authenticator, you won't be able to log in.
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-</main>
-{% endblock %}
+                        <!-- QR Code Card -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+                            <div class="flex items-start gap-6">
+                                <div class="flex-1">
+                                    <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                                        <div class="p-2 bg-primary/10 rounded-lg">
+                                            <i data-lucide="qr-code" class="w-6 h-6 text-primary"></i>
+                                        </div>
+                                        Étape 1 : Scannez le code QR
+                                    </h2>
+                                    <p class="text-muted-foreground mb-6">
+                                        Ouvrez l'application Google Authenticator et scannez ce code QR, ou entrez manuellement le code ci-dessous.
+                                    </p>
+                                    
+                                    <div class="space-y-4">
+                                        <!-- QR Code -->
+                                        <div class="flex justify-center p-6 bg-muted/50 rounded-lg">
+                                            <img src="{{ qrCodeDataUri }}" alt="Code QR" class="w-64 h-64">
+                                        </div>
+
+                                        <!-- Manual Code -->
+                                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                            <p class="text-sm font-medium text-blue-900 mb-2">Code d'entrée manuelle :</p>
+                                            <div class="flex items-center gap-2">
+                                                <code class="flex-1 text-lg font-mono bg-white p-3 rounded border border-blue-200">{{ secret }}</code>
+                                                <button type="button" onclick="navigator.clipboard.writeText('{{ secret }}'); alert('Code copié!');" class="p-2 hover:bg-blue-100 rounded transition-colors">
+                                                    <i data-lucide="copy" class="w-5 h-5 text-blue-600"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instructions Card -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+                            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                                <div class="p-2 bg-primary/10 rounded-lg">
+                                    <i data-lucide="book-open" class="w-6 h-6 text-primary"></i>
+                                </div>
+                                Étape 2 : Instructions de configuration
+                            </h2>
+                            <ol class="space-y-3 list-decimal list-inside text-foreground">
+                                <li class="text-base">Ouvrez l'application Google Authenticator sur votre téléphone</li>
+                                <li class="text-base">Appuyez sur le bouton <span class="font-semibold">"+"</span> pour ajouter un nouveau compte</li>
+                                <li class="text-base">Choisissez <span class="font-semibold">"Scanner un code QR"</span> ou entrez le code manuellement</li>
+                                <li class="text-base">L'application générera un code à 6 chiffres</li>
+                                <li class="text-base">À votre prochaine connexion, vous serez invité à entrer ce code</li>
+                            </ol>
+                        </div>
+
+                        <!-- Download Apps Card -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-border p-8">
+                            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                                <div class="p-2 bg-primary/10 rounded-lg">
+                                    <i data-lucide="download" class="w-6 h-6 text-primary"></i>
+                                </div>
+                                Télécharger Google Authenticator
+                            </h2>
+                            <div class="flex gap-4">
+                                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" class="flex-1 flex items-center justify-center gap-3 p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                                    <i data-lucide="smartphone" class="w-5 h-5"></i>
+                                    <span class="font-medium">Android</span>
+                                </a>
+                                <a href="https://apps.apple.com/app/google-authenticator/id388497605" target="_blank" class="flex-1 flex items-center justify-center gap-3 p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                                    <i data-lucide="smartphone" class="w-5 h-5"></i>
+                                    <span class="font-medium">iOS</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Warning Card -->
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded">
+                            <div class="flex gap-4">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-amber-600 flex-shrink-0"></i>
+                                <div>
+                                    <h3 class="font-bold text-amber-900 mb-2">Important</h3>
+                                    <p class="text-amber-800 text-sm">
+                                        Gardez votre téléphone en sécurité ! Si vous perdez l'accès à Google Authenticator, vous ne pourrez plus vous connecter. Envisagez de sauvegarder vos codes de récupération.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-4">
+                            <a href="{{ path('app_front_profile') }}" class="flex-1 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-all font-medium flex items-center justify-center gap-2">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                Terminé - Retour au profil
+                            </a>
+                            <a href="{{ path('app_front_profile') }}" class="px-6 py-3 rounded-lg border border-border hover:bg-muted/50 transition-all font-medium flex items-center justify-center gap-2">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                                Annuler
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lucide Icons Script -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}<title>NAJA7NI || {{ mode == 'edit' ? 'Edit' : 'Add' }} Email Template</title>{% endblock %}
+
+{% block body %}
+    {% include 'partials/_sidebar.html.twig' %}
+    {% include 'partials/_header.html.twig' %}
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <div class="page-header">
+                <div class="page-header-left d-flex align-items-center">
+                    <div class="page-header-title"><h5 class="m-b-10">{{ mode == 'edit' ? 'Edit Template' : 'Add Template' }}</h5></div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('mailing_dashboard') }}">Mailing</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('mailing_templates') }}">Templates</a></li>
+                        <li class="breadcrumb-item">{{ mode == 'edit' ? 'Edit' : 'Add' }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="main-content">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+
+                <div class="card stretch stretch-full">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">{{ mode == 'edit' ? 'Update Template' : 'Create Template' }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-8">
+                                <form method="post" action="{{ mode == 'edit' ? path('mailing_template_edit', {id: template.id}) : path('mailing_template_new') }}">
+                                    <div class="mb-3">
+                                        <label class="form-label">Template Name</label>
+                                        <input type="text" name="name" class="form-control" placeholder="password_reset" value="{{ old.name }}" required>
+                                        <small class="text-muted">Unique key used by MailingService (example: password_reset, welcome).</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Subject</label>
+                                        <input type="text" name="subject" class="form-control" placeholder="Reset code: [code]" value="{{ old.subject }}" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Template Path</label>
+                                        <input type="text" name="template_path" class="form-control" placeholder="emails/password_reset.html.twig" value="{{ old.template_path }}" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Description</label>
+                                        <textarea name="description" rows="4" class="form-control" placeholder="Short description">{{ old.description }}</textarea>
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">{{ mode == 'edit' ? 'Update Template' : 'Create Template' }}</button>
+                                        <a href="{{ path('mailing_templates') }}" class="btn btn-light">Cancel</a>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="border rounded p-3 bg-light h-100">
+                                    <h6 class="mb-2">Template Variables</h6>
+                                    <p class="text-muted small mb-3">Click a variable to copy, then paste it in subject or email content.</p>
+
+                                    <div class="d-flex flex-wrap gap-2" id="template-vars">
+                                        <button type="button" class="btn btn-sm btn-outline-primary copy-var" data-copy="{{ '{{ name }}' }}">{{ '{{ name }}' }}</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary copy-var" data-copy="{{ '{{ code }}' }}">{{ '{{ code }}' }}</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary copy-var" data-copy="{{ '{{ expiresIn }}' }}">{{ '{{ expiresIn }}' }}</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary copy-var" data-copy="{{ '{{ loginUrl }}' }}">{{ '{{ loginUrl }}' }}</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary copy-var" data-copy="{{ '{{ month }}' }}">{{ '{{ month }}' }}</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary copy-var" data-copy="{{ '{{ message }}' }}">{{ '{{ message }}' }}</button>
+                                    </div>
+
+                                    <div class="alert alert-success py-2 px-3 mt-3 mb-0 d-none" id="copy-feedback">Copied!</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttons = document.querySelectorAll('.copy-var');
+            const feedback = document.getElementById('copy-feedback');
+
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const text = this.getAttribute('data-copy');
+                    navigator.clipboard.writeText(text).then(function () {
+                        feedback.classList.remove('d-none');
+                        setTimeout(function () {
+                            feedback.classList.add('d-none');
+                        }, 1200);
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

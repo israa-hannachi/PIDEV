@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\EmailQueue;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,6 +23,8 @@ class PasswordResetService
      */
     public function generateAndSendResetCode(string $email): bool
     {
+        $email = mb_strtolower(trim($email));
+
         $user = $this->userRepository->findOneBy(['email' => $email]);
         
         if (!$user) {
@@ -39,8 +42,10 @@ class PasswordResetService
         
         $this->entityManager->flush();
 
-        // Queue email with reset code
-        $this->mailingService->queueEmailFromTemplate(
+        // Send immediately for password reset (critical flow)
+        $fullName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? ''));
+
+        $sent = $this->mailingService->sendEmailFromTemplateNow(
             $user->getEmail(),
             'password_reset',
             [
@@ -48,10 +53,21 @@ class PasswordResetService
                 'name' => $user->getFirstName() ?: $user->getEmail(),
                 'expiresIn' => '15 minutes'
             ],
-            $user->getFirstName() . ' ' . $user->getLastName()
+            $fullName !== '' ? $fullName : null
         );
 
-        return true;
+        if ($sent) {
+            $this->entityManager->createQueryBuilder()
+                ->delete(EmailQueue::class, 'q')
+                ->where('q.recipientEmail = :email')
+                ->andWhere('q.subject LIKE :subjectPrefix')
+                ->setParameter('email', $user->getEmail())
+                ->setParameter('subjectPrefix', 'Reset Your Password - Code:%')
+                ->getQuery()
+                ->execute();
+        }
+
+        return $sent;
     }
 
     /**
