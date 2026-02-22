@@ -74,7 +74,8 @@ class GoogleAuthenticator extends OAuth2Authenticator
     {
         $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
 
-        if ($targetPath) {
+        // Don't redirect to captcha generation or other internal API endpoints
+        if ($targetPath && !str_contains($targetPath, '/captcha/generate')) {
             return new RedirectResponse($targetPath);
         }
 

@@ -2,9 +2,9 @@
 
 {% block title %}Face Login - naja7ni{% endblock %}
 
-{% block head %}
+{% block javascripts %}
     {{ parent() }}
-    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="{{ asset('assets/vendors/js/face-api.min.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -96,18 +96,35 @@ function showStatus(message, type = 'info') {
 }
 
 async function loadModels() {
+    if (typeof faceapi === 'undefined') {
+        showStatus('Face API library not loaded. Check network connection.', 'danger');
+        return;
+    }
+    
+    // Check if models are already loaded to avoid errors
+    if (modelsLoaded) return;
+
     try {
         const MODEL_URL = '/models';
-        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        console.log('Loading models from ' + MODEL_URL);
+        
+        await Promise.all([
+            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+        
         modelsLoaded = true;
         loadingModels.style.display = 'none';
         loginBtn.disabled = false;
         showStatus('Models loaded! Enter your email and click Login.', 'success');
     } catch (error) {
         loadingModels.style.display = 'none';
-        showStatus('Error loading face detection models. Please refresh the page.', 'danger');
+        if (error instanceof Error) {
+             showStatus('Error loading face detection models: ' + error.message, 'danger');
+        } else {
+             showStatus('Error loading face detection models: ' + JSON.stringify(error), 'danger');
+        }
         console.error('Error loading models:', error);
     }
 }
@@ -185,7 +202,14 @@ async function loginWithFace() {
 loginBtn.addEventListener('click', loginWithFace);
 
 // Start everything
-startVideo();
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof faceapi === 'undefined') {
+        showStatus('Face API library not loaded. Check network or file path.', 'danger');
+        return;
+    }
+    startVideo();
+});
+
 video.addEventListener('loadedmetadata', () => {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;

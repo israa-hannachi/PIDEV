@@ -62,6 +62,7 @@ security:
         - { path: ^/$, roles: ROLE_ADMIN }
         - { path: ^/front/login, roles: PUBLIC_ACCESS }
         - { path: ^/front/register, roles: PUBLIC_ACCESS }
+        - { path: ^/front/captcha/generate, roles: PUBLIC_ACCESS }
         - { path: ^/front/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/front/reset-password, roles: PUBLIC_ACCESS }
         - { path: ^/front/connect/, roles: PUBLIC_ACCESS }
