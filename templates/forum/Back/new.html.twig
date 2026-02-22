@@ -79,6 +79,18 @@
                 {% endif %}
             </div>
 
+            <div class="mb-4">
+                {{ form_label(form.categorie, 'Catégorie', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.categorie) }}
+                {% if form.categorie.vars.errors|length > 0 %}
+                    <div class="invalid-feedback">
+                        {% for error in form.categorie.vars.errors %}
+                            {{ error.message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
                     Créer

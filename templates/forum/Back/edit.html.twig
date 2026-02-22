@@ -38,6 +38,18 @@
                 {{ form_widget(form.createdBy, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(form.createdBy) }}
             </div>
+            
+            <div class="mb-4">
+                {{ form_label(form.categorie, 'Catégorie') }}
+                {{ form_widget(form.categorie) }}
+                {% if form.categorie.vars.errors|length > 0 %}
+                    <div class="invalid-feedback">
+                        {% for error in form.categorie.vars.errors %}
+                            {{ error.message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
             <button type="submit" class="btn btn-primary">
                 Modifier

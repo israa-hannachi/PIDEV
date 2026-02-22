@@ -1,0 +1,59 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block page_title %}Ajouter une catégorie{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-folder-plus"></i> Ajouter une nouvelle catégorie
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                {{ form_label(form.titre, 'Titre de la catégorie', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Analyse Numérique'}}) }}
+                                {{ form_errors(form.titre) }}
+                                <div class="form-text">Le titre doit être unique et descriptif.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Décrivez cette catégorie en quelques mots...'}}) }}
+                                {{ form_errors(form.description) }}
+                                <div class="form-text">Une description brève pour aider les utilisateurs à comprendre le contenu de cette catégorie.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_categorie_index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Créer la catégorie
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

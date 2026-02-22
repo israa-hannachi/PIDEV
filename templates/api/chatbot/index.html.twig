@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello Api/ChatbotController!{% endblock %}
+
+{% block body %}
+<style>
+    .chat-container { max-width: 600px; margin: 2em auto; font-family: sans-serif; }
+    .chat-box { border: 1px solid #ccc; padding: 1em; height: 300px; overflow-y: auto; margin-bottom: 1em; background: #f9f9f9; }
+    .chat-message { margin: 0.5em 0; }
+    .chat-user { font-weight: bold; color: #2c3e50; }
+    .chat-bot { color: #16a085; }
+    #user-message { width: 80%; padding: 0.5em; }
+    button { padding: 0.5em 1em; }
+</style>
+
+<div class="chat-container">
+    <h1>Hello {{ controller_name }}! ✅</h1>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <form id="chat-form">
+        <input type="text" id="user-message" placeholder="Écrivez votre message..." required>
+        <button type="submit">Envoyer</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('chat-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const message = document.getElementById('user-message').value;
+
+    // Affiche le message utilisateur
+    const chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML += `<div class="chat-message chat-user">👤 Vous: ${message}</div>`;
+
+    try {
+        // Envoie la requête à ton API Symfony
+        const response = await fetch('/api/chatbot/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+
+        // Affiche la réponse du bot
+        chatBox.innerHTML += `<div class="chat-message chat-bot">🤖 Bot: ${data.bot}</div>`;
+    } catch (error) {
+        chatBox.innerHTML += `<div class="chat-message chat-bot">⚠️ Erreur: Impossible de contacter le serveur.</div>`;
+    }
+
+    // Vide le champ texte
+    document.getElementById('user-message').value = '';
+});
+</script>
+{% endblock %}

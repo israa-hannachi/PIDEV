@@ -1,0 +1,79 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block page_title %}Gestion des catégories{% endblock %}
+
+{% block content %}
+<div class="action-buttons">
+    <a href="{{ path('app_categorie_new') }}" class="btn btn-primary btn-action">
+        <i class="bi bi-plus-circle"></i> Ajouter une catégorie
+    </a>
+    <a href="{{ path('app_back_forum_index') }}" class="btn btn-info btn-action">
+        <i class="bi bi-arrow-left"></i> Retour aux forums
+    </a>
+</div>
+
+<div class="table-container">
+    <h3 class="mb-4">Liste des catégories</h3>
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Nombre de forums</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categorie in categories %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <strong>{{ categorie.titre }}</strong>
+                    </td>
+                    <td>
+                        <span class="text-muted">
+                            {{ categorie.description|slice(0, 50) }}{{ categorie.description|length > 50 ? '...' : '' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">{{ categorie.forums|length }}</span>
+                        forum{{ categorie.forums|length > 1 ? 's' : '' }}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ path('app_front_categorie_show', {'id': categorie.id}) }}" 
+                               class="btn btn-sm btn-outline-info" 
+                               title="Voir dans le front-office">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ path('app_categorie_edit', {'id': categorie.id}) }}" 
+                               class="btn btn-sm btn-outline-primary" 
+                               title="Modifier">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="post" action="{{ path('app_categorie_delete', {'id': categorie.id}) }}" 
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');" 
+                                  class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categorie.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        Aucune catégorie trouvée.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Boutons Forum - Version Locale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .message-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .message-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .message-author {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .message-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .like-btn {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .like-btn:hover {
+            background-color: #c3e6cb;
+            transform: scale(1.05);
+        }
+        
+        .dislike-btn {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .dislike-btn:hover {
+            background-color: #f5c6cb;
+            transform: scale(1.05);
+        }
+        
+        .edit-btn {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .edit-btn:hover {
+            background-color: #bee5eb;
+            transform: scale(1.05);
+        }
+        
+        .delete-btn {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .delete-btn:hover {
+            background-color: #ffeaa7;
+            transform: scale(1.05);
+        }
+        
+        .edit-form {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .edit-form textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        
+        .edit-form button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .edit-form button:hover {
+            background-color: #0056b3;
+        }
+        
+        .status-bar {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .clear-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test des Boutons Forum (Mode Local)</h1>
+    
+    <div class="status-bar" id="status">
+        État: Prêt | Likes: 0 | Dislikes: 0 | Modifications: 0 | Suppressions: 0
+    </div>
+    
+    <button class="clear-btn" onclick="clearAllData()">🗑️ Vider toutes les données locales</button>
+    
+    <div class="message-item">
+        <div class="message-header">
+            <span class="message-author" id="message-author-1">Chahine Mezni</span>
+        </div>
+        <div class="message-content" id="message-content-1">
+            Quelle est la différence entre chmod 644 et chmod 600 pour les fichiers ? Je comprends que 644 donne des permissions de lecture/écriture au propriétaire et lecture seule aux autres, mais je veux comprendre les implications de sécurité.
+        </div>
+        
+        <div class="action-buttons">
+            <button type="button" onclick="incrementLike(1)" class="action-btn like-btn">
+                ❤️ J'aime (<span id="like-count-1">0</span>)
+            </button>
+            
+            <button type="button" onclick="incrementDislike(1)" class="action-btn dislike-btn">
+                👎 Je n'aime pas (<span id="dislike-count-1">0</span>)
+            </button>
+            
+            <button type="button" onclick="showEditForm(1)" class="action-btn edit-btn">
+                ✏️ Éditer
+            </button>
+            
+            <button type="button" onclick="submitDelete(1)" class="action-btn delete-btn">
+                🗑️ Supprimer
+            </button>
+        </div>
+        
+        <div id="edit-fields-1" style="display: none;" class="edit-form">
+            <div>
+                <label>Votre nom:</label><br>
+                <textarea id="edit-name-1" rows="2">Chahine Mezni</textarea>
+            </div>
+            <div>
+                <label>Votre message:</label><br>
+                <textarea id="edit-message-1" rows="4">Quelle est la différence entre chmod 644 et chmod 600 pour les fichiers ? Je comprends que 644 donne des permissions de lecture/écriture au propriétaire et lecture seule aux autres, mais je veux comprendre les implications de sécurité.</textarea>
+            </div>
+            <button type="button" onclick="saveEditedMessage(1)">💾 Enregistrer</button>
+        </div>
+    </div>
+    
+    <div class="message-item">
+        <div class="message-header">
+            <span class="message-author" id="message-author-2">Expert Linux</span>
+        </div>
+        <div class="message-content" id="message-content-2">
+            chmod 600 est plus sécurisé : seul le propriétaire peut lire et modifier le fichier. C'est idéal pour les fichiers sensibles comme les clés SSH ou les mots de passe. chmod 644 permet aux autres utilisateurs de lire le fichier, ce qui peut être nécessaire pour les fichiers partagés.
+        </div>
+        
+        <div class="action-buttons">
+            <button type="button" onclick="incrementLike(2)" class="action-btn like-btn">
+                ❤️ J'aime (<span id="like-count-2">0</span>)
+            </button>
+            
+            <button type="button" onclick="incrementDislike(2)" class="action-btn dislike-btn">
+                👎 Je n'aime pas (<span id="dislike-count-2">0</span>)
+            </button>
+            
+            <button type="button" onclick="showEditForm(2)" class="action-btn edit-btn">
+                ✏️ Éditer
+            </button>
+            
+            <button type="button" onclick="submitDelete(2)" class="action-btn delete-btn">
+                🗑️ Supprimer
+            </button>
+        </div>
+        
+        <div id="edit-fields-2" style="display: none;" class="edit-form">
+            <div>
+                <label>Votre nom:</label><br>
+                <textarea id="edit-name-2" rows="2">Expert Linux</textarea>
+            </div>
+            <div>
+                <label>Votre message:</label><br>
+                <textarea id="edit-message-2" rows="4">chmod 600 est plus sécurisé : seul le propriétaire peut lire et modifier le fichier. C'est idéal pour les fichiers sensibles comme les clés SSH ou les mots de passe. chmod 644 permet aux autres utilisateurs de lire le fichier, ce qui peut être nécessaire pour les fichiers partagés.</textarea>
+            </div>
+            <button type="button" onclick="saveEditedMessage(2)">💾 Enregistrer</button>
+        </div>
+    </div>
+
+    <script>
+        // Stockage des compteurs de likes et dislikes avec localStorage
+        function getLikeCounts() {
+            const stored = localStorage.getItem('forumLikeCounts');
+            return stored ? JSON.parse(stored) : {};
+        }
+        
+        function getDislikeCounts() {
+            const stored = localStorage.getItem('forumDislikeCounts');
+            return stored ? JSON.parse(stored) : {};
+        }
+        
+        function saveLikeCounts(counts) {
+            localStorage.setItem('forumLikeCounts', JSON.stringify(counts));
+        }
+        
+        function saveDislikeCounts(counts) {
+            localStorage.setItem('forumDislikeCounts', JSON.stringify(counts));
+        }
+        
+        let likeCounts = getLikeCounts();
+        let dislikeCounts = getDislikeCounts();
+        
+        // Fonction pour mettre à jour le statut
+        function updateStatus() {
+            const totalLikes = Object.values(likeCounts).reduce((a, b) => a + b, 0);
+            const totalDislikes = Object.values(dislikeCounts).reduce((a, b) => a + b, 0);
+            const editedMessages = Object.keys(JSON.parse(localStorage.getItem('forumEditedMessages') || '{}')).length;
+            const deletedMessages = JSON.parse(localStorage.getItem('forumDeletedMessages') || '[]').length;
+            
+            document.getElementById('status').textContent = 
+                `État: Actif | Likes: ${totalLikes} | Dislikes: ${totalDislikes} | Modifications: ${editedMessages} | Suppressions: ${deletedMessages}`;
+        }
+        
+        // Initialiser les compteurs au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mettre à jour tous les compteurs affichés
+            Object.keys(likeCounts).forEach(messageId => {
+                const element = document.getElementById('like-count-' + messageId);
+                if (element) {
+                    element.textContent = likeCounts[messageId];
+                }
+            });
+            
+            Object.keys(dislikeCounts).forEach(messageId => {
+                const element = document.getElementById('dislike-count-' + messageId);
+                if (element) {
+                    element.textContent = dislikeCounts[messageId];
+                }
+            });
+            
+            // Restaurer les messages modifiés
+            const editedMessages = JSON.parse(localStorage.getItem('forumEditedMessages') || '{}');
+            Object.keys(editedMessages).forEach(messageId => {
+                const editedData = editedMessages[messageId];
+                const authorElement = document.getElementById('message-author-' + messageId);
+                const contentElement = document.getElementById('message-content-' + messageId);
+                
+                if (authorElement && editedData.name) {
+                    authorElement.textContent = editedData.name;
+                }
+                
+                if (contentElement && editedData.message) {
+                    contentElement.textContent = editedData.message;
+                }
+            });
+            
+            // Masquer les messages supprimés
+            const deletedMessages = JSON.parse(localStorage.getItem('forumDeletedMessages') || '[]');
+            deletedMessages.forEach(deleted => {
+                const messageId = deleted.id;
+                const messageItems = document.querySelectorAll('.message-item');
+                messageItems.forEach(item => {
+                    if (item.innerHTML.includes('onclick="submitDelete(' + messageId + ')')) {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            updateStatus();
+        });
+
+        // Fonction pour incrémenter le compteur de likes
+        function incrementLike(messageId) {
+            if (!likeCounts[messageId]) {
+                likeCounts[messageId] = 0;
+            }
+            likeCounts[messageId]++;
+            
+            // Mettre à jour l'interface
+            const element = document.getElementById('like-count-' + messageId);
+            if (element) {
+                element.textContent = likeCounts[messageId];
+            }
+            
+            // Sauvegarder dans localStorage
+            saveLikeCounts(likeCounts);
+            
+            // Feedback visuel
+            console.log('Like ajouté pour le message ' + messageId + '. Total: ' + likeCounts[messageId]);
+            updateStatus();
+        }
+
+        // Fonction pour incrémenter le compteur de dislikes
+        function incrementDislike(messageId) {
+            if (!dislikeCounts[messageId]) {
+                dislikeCounts[messageId] = 0;
+            }
+            dislikeCounts[messageId]++;
+            
+            // Mettre à jour l'interface
+            const element = document.getElementById('dislike-count-' + messageId);
+            if (element) {
+                element.textContent = dislikeCounts[messageId];
+            }
+            
+            // Sauvegarder dans localStorage
+            saveDislikeCounts(dislikeCounts);
+            
+            // Feedback visuel
+            console.log('Dislike ajouté pour le message ' + messageId + '. Total: ' + dislikeCounts[messageId]);
+            updateStatus();
+        }
+
+        // Fonction pour afficher/masquer les champs d'édition
+        function showEditForm(messageId) {
+            const editContainer = document.getElementById('edit-fields-' + messageId);
+            
+            if (!editContainer) {
+                console.error('Conteneur d\'édition non trouvé pour le message:', messageId);
+                return;
+            }
+            
+            const currentDisplay = window.getComputedStyle(editContainer).display;
+            
+            if (currentDisplay === 'none') {
+                editContainer.style.display = 'block';
+                console.log('Formulaire d\'édition affiché pour le message ' + messageId);
+            } else {
+                editContainer.style.display = 'none';
+                console.log('Formulaire d\'édition masqué pour le message ' + messageId);
+            }
+        }
+
+        // Fonction pour sauvegarder le message modifié (mode local)
+        async function saveEditedMessage(messageId) {
+            console.log('Tentative de sauvegarde pour le message ID:', messageId);
+            
+            // Récupérer les valeurs directement depuis les textarea
+            const nomTextarea = document.getElementById('edit-name-' + messageId);
+            const contenuTextarea = document.getElementById('edit-message-' + messageId);
+            
+            if (!nomTextarea || !contenuTextarea) {
+                console.error('Champs d\'édition non trouvés');
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+            
+            const newName = nomTextarea.value;
+            const newMessage = contenuTextarea.value;
+            
+            console.log('Données à sauvegarder:', { newName, newMessage });
+            
+            try {
+                // Sauvegarder dans localStorage
+                const editedMessages = JSON.parse(localStorage.getItem('forumEditedMessages') || '{}');
+                editedMessages[messageId] = {
+                    name: newName,
+                    message: newMessage,
+                    editedAt: new Date().toISOString()
+                };
+                localStorage.setItem('forumEditedMessages', JSON.stringify(editedMessages));
+                
+                // Mettre à jour l'interface directement
+                const authorElement = document.getElementById('message-author-' + messageId);
+                const contentElement = document.getElementById('message-content-' + messageId);
+                
+                if (authorElement) {
+                    authorElement.textContent = newName;
+                }
+                
+                if (contentElement) {
+                    contentElement.textContent = newMessage;
+                }
+                
+                // Masquer le formulaire d'édition
+                const editContainer = document.getElementById('edit-fields-' + messageId);
+                if (editContainer) {
+                    editContainer.style.display = 'none';
+                }
+                
+                console.log('Message modifié avec succès en mode local!');
+                alert('Message modifié avec succès!');
+                updateStatus();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la sauvegarde: ' + error.message);
+            }
+        }
+
+        // Fonction pour supprimer un message (mode local)
+        function submitDelete(messageId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+                try {
+                    // Sauvegarder la liste des messages supprimés dans localStorage
+                    const deletedMessages = JSON.parse(localStorage.getItem('forumDeletedMessages') || '[]');
+                    deletedMessages.push({
+                        id: messageId,
+                        deletedAt: new Date().toISOString()
+                    });
+                    localStorage.setItem('forumDeletedMessages', JSON.stringify(deletedMessages));
+                    
+                    // Masquer le message de l'interface avec animation
+                    const messageItems = document.querySelectorAll('.message-item');
+                    messageItems.forEach(item => {
+                        if (item.innerHTML.includes('onclick="submitDelete(' + messageId + ')')) {
+                            item.style.transition = 'opacity 0.3s ease';
+                            item.style.opacity = '0';
+                            setTimeout(() => {
+                                item.remove();
+                            }, 300);
+                        }
+                    });
+                    
+                    console.log('Message ' + messageId + ' supprimé avec succès en mode local');
+                    updateStatus();
+                    
+                } catch (error) {
+                    console.error('Erreur lors de la suppression:', error);
+                    alert('Erreur lors de la suppression du message');
+                }
+            }
+        }
+        
+        // Fonction pour vider toutes les données
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir vider toutes les données locales ? Cette action est irréversible.')) {
+                localStorage.removeItem('forumLikeCounts');
+                localStorage.removeItem('forumDislikeCounts');
+                localStorage.removeItem('forumEditedMessages');
+                localStorage.removeItem('forumDeletedMessages');
+                
+                // Réinitialiser les compteurs
+                likeCounts = {};
+                dislikeCounts = {};
+                
+                // Recharger la page
+                window.location.reload();
+            }
+        }
+        
+        console.log('Test des boutons du forum initialisé en mode local');
+    </script>
+</body>
+</html>

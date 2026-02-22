@@ -1,0 +1,289 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block page_title %}Statistiques des Forums{% endblock %}
+
+{% block content %}
+<div class="action-buttons">
+    <a href="{{ path('app_back_forum_index') }}" class="btn btn-primary btn-action">
+        <i class="bi bi-arrow-left-circle"></i> Retour aux forums
+    </a>
+    <a href="{{ path('app_back_forum_new') }}" class="btn btn-success btn-action">
+        <i class="bi bi-plus-circle"></i> Créer un forum
+    </a>
+</div>
+
+<!-- Cartes statistiques principales -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary">
+                <i class="bi bi-chat-square-text"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ totalForums }}</h3>
+                <p>Total Forums</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ activeForums }}</h3>
+                <p>Forums Actifs</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ inactiveForums }}</h3>
+                <p>Forums Inactifs</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-info">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ totalMessages }}</h3>
+                <p>Total Messages</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques Google Charts -->
+<div class="row">
+    <!-- Graphique circulaire - État des forums -->
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h4>Répartition des Forums</h4>
+            <div id="forumStatusChart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+    
+    <!-- Graphique à barres - Messages par forum -->
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h4>Top Forums par Messages</h4>
+            <div id="messagesByForumChart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Forums par catégorie -->
+    <div class="col-md-6 mb-4">
+        <div class="table-container">
+            <h4>Forums par Catégorie</h4>
+            <div class="category-stats">
+                {% for item in forumsByCategory %}
+                    <div class="category-item">
+                        <span class="category-name">{{ item.category }}</span>
+                        <span class="category-count">{{ item.count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Graphique à colonnes - Catégories -->
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h4>Forums par Catégorie (Graphique)</h4>
+            <div id="forumsByCategoryChart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+    }
+    
+    .stat-icon.bg-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .stat-icon.bg-success { background: linear-gradient(135deg, #10b981, #059669); }
+    .stat-icon.bg-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .stat-icon.bg-info { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    
+    .stat-content h3 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+        color: #1f2937;
+    }
+    
+    .stat-content p {
+        margin: 5px 0 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .chart-container h4 {
+        margin-bottom: 20px;
+        color: #1f2937;
+        font-weight: 600;
+    }
+    
+    .category-stats {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .category-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s;
+    }
+    
+    .category-item:hover {
+        background-color: #f9fafb;
+    }
+    
+    .category-name {
+        font-weight: 500;
+        color: #374151;
+    }
+    
+    .category-count {
+        background: #6366f1;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    // Charger Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawCharts);
+
+    function drawCharts() {
+        // Données pour le graphique circulaire (état des forums)
+        var forumStatusData = google.visualization.arrayToDataTable([
+            ['État', 'Nombre'],
+            ['Actifs', {{ activeForums }}],
+            ['Inactifs', {{ inactiveForums }}]
+        ]);
+
+        // Options pour le graphique circulaire
+        var forumStatusOptions = {
+            title: 'État des Forums',
+            pieHole: 0.4,
+            colors: ['#10b981', '#ef4444'],
+            chartArea: {width: '90%', height: '80%'},
+            legend: {position: 'bottom'}
+        };
+
+        // Créer le graphique circulaire
+        var forumStatusChart = new google.visualization.PieChart(document.getElementById('forumStatusChart'));
+        forumStatusChart.draw(forumStatusData, forumStatusOptions);
+
+        // Données pour le graphique à barres (messages par forum)
+        var messagesByForumData = google.visualization.arrayToDataTable([
+            ['Forum', 'Messages'],
+            {% for item in messagesByForum %}
+            ['{{ item.forumTitle|e('js') }}', {{ item.messageCount }}],
+            {% endfor %}
+        ]);
+
+        // Options pour le graphique à barres
+        var messagesByForumOptions = {
+            title: 'Messages par Forum',
+            colors: ['#6366f1'],
+            chartArea: {width: '80%', height: '70%'},
+            legend: {position: 'none'},
+            hAxis: {
+                title: 'Forums',
+                titleTextStyle: {fontSize: 12}
+            },
+            vAxis: {
+                title: 'Messages',
+                titleTextStyle: {fontSize: 12}
+            }
+        };
+
+        // Créer le graphique à barres
+        var messagesByForumChart = new google.visualization.ColumnChart(document.getElementById('messagesByForumChart'));
+        messagesByForumChart.draw(messagesByForumData, messagesByForumOptions);
+
+        // Données pour le graphique par catégorie
+        var forumsByCategoryData = google.visualization.arrayToDataTable([
+            ['Catégorie', 'Forums'],
+            {% for item in forumsByCategory %}
+            ['{{ item.category|e('js') }}', {{ item.count }}],
+            {% endfor %}
+        ]);
+
+        // Options pour le graphique par catégorie
+        var forumsByCategoryOptions = {
+            title: 'Forums par Catégorie',
+            colors: ['#8b5cf6'],
+            chartArea: {width: '80%', height: '70%'},
+            legend: {position: 'none'},
+            hAxis: {
+                title: 'Catégories',
+                titleTextStyle: {fontSize: 12}
+            },
+            vAxis: {
+                title: 'Forums',
+                titleTextStyle: {fontSize: 12}
+            }
+        };
+
+        // Créer le graphique par catégorie
+        var forumsByCategoryChart = new google.visualization.ColumnChart(document.getElementById('forumsByCategoryChart'));
+        forumsByCategoryChart.draw(forumsByCategoryData, forumsByCategoryOptions);
+    }
+
+    // Redimensionner les graphiques quand la fenêtre change
+    window.addEventListener('resize', function() {
+        drawCharts();
+    });
+</script>
+{% endblock %}

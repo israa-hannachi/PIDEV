@@ -10,15 +10,27 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/back/forum')]
 class BackForumController extends AbstractController
 {
     #[Route('/', name: 'app_back_forum_index', methods: ['GET'])]
-    public function index(ForumRepository $forumRepository): Response
+    public function index(ForumRepository $forumRepository, Request $request, PaginatorInterface $paginator): Response
     {
+        // Créer la requête pour tous les forums
+        $queryBuilder = $forumRepository->createQueryBuilder('f')
+            ->orderBy('f.id', 'ASC');
+        
+        // Paginer les résultats
+        $pagination = $paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            8 // 8 forums par page
+        );
+        
         return $this->render('forum/Back/index.html.twig', [
-            'forums' => $forumRepository->findAll(),
+            'pagination' => $pagination,
         ]);
     }
 

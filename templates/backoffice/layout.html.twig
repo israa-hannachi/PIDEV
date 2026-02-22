@@ -5,6 +5,8 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/umd/lucide.css">
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
         .sidebar {
             min-height: 100vh;
@@ -272,6 +274,76 @@
             background-color: #f1f5f9;
             color: #6366f1;
         }
+        
+        /* Pagination Button Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+        
+        .page-item {
+            list-style: none;
+        }
+        
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .page-link:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-color: #6366f1;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .page-link:hover::before {
+            left: 100%;
+        }
+        
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-color: #6366f1;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .page-item.active .page-link:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+        }
     </style>
 {% endblock %}
 
@@ -357,6 +429,16 @@
                 </div>
             </div>
         </nav>
+
+        <!-- Flash Messages -->
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show m-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
 
         {% block content %}
         <!-- Content will be injected here -->

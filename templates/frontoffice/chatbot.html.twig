@@ -1,0 +1,257 @@
+{% extends 'forum/Front/base_front.html.twig' %}
+
+{% block title %}Chatbot - Naja7ni{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+                <i data-lucide="bot" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-foreground">Assistant Naja7ni</h1>
+                <p class="text-muted-foreground">Votre assistant IA pour répondre à toutes vos questions</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <!-- Messages Area -->
+        <div id="chatMessages" class="h-96 overflow-y-auto p-6 space-y-4 bg-gray-50">
+            <!-- Welcome Message -->
+            <div class="flex gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none p-4 max-w-md shadow-sm">
+                    <p class="text-foreground">Bonjour ! Je suis votre assistant Naja7ni. Comment puis-je vous aider aujourd'hui ?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="border-t border-border p-4 bg-white">
+            <form id="chatForm" class="flex gap-3">
+                <div class="flex-1 relative">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Tapez votre message ici..."
+                        class="w-full px-4 py-3 pr-12 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                        required
+                    >
+                    <button 
+                        type="submit"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center"
+                    >
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button class="quick-action px-4 py-2 bg-white rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm font-medium" data-message="Bonjour">
+            👋 Bonjour
+        </button>
+        <button class="quick-action px-4 py-2 bg-white rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm font-medium" data-message="J'ai besoin d'aide">
+            💬 Aide
+        </button>
+        <button class="quick-action px-4 py-2 bg-white rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm font-medium" data-message="Merci">
+            🙏 Merci
+        </button>
+        <button class="quick-action px-4 py-2 bg-white rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm font-medium" data-message="Au revoir">
+            👋 Au revoir
+        </button>
+    </div>
+</div>
+
+<style>
+    .typing-indicator {
+        display: inline-flex;
+        gap: 4px;
+        padding: 8px 0;
+    }
+    
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background-color: #6366f1;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    @keyframes typing {
+        0%, 80%, 100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .message-appear {
+        animation: messageSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes messageSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const quickActions = document.querySelectorAll('.quick-action');
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Handle form submission
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, 'user');
+        messageInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        try {
+            // Send message to API
+            const response = await fetch('/api/chatbot/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Remove typing indicator
+            removeTypingIndicator();
+            
+            if (response.ok) {
+                // Add bot response
+                addMessage(data.bot, 'bot');
+            } else {
+                addMessage(data.error || 'Désolé, une erreur est survenue.', 'bot', true);
+            }
+        } catch (error) {
+            removeTypingIndicator();
+            addMessage('Désolé, je ne peux pas répondre pour le moment. Veuillez réessayer plus tard.', 'bot', true);
+        }
+    });
+    
+    // Handle quick action buttons
+    quickActions.forEach(button => {
+        button.addEventListener('click', function() {
+            const message = this.getAttribute('data-message');
+            messageInput.value = message;
+            messageInput.focus();
+        });
+    });
+    
+    function addMessage(text, sender, isError = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex gap-3 message-appear';
+        
+        if (sender === 'user') {
+            messageDiv.className += ' flex-row-reverse';
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-primary text-white rounded-2xl rounded-tr-none p-4 max-w-md shadow-sm">
+                    <p>${escapeHtml(text)}</p>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none p-4 max-w-md shadow-sm ${isError ? 'border border-red-200' : ''}">
+                    <p class="${isError ? 'text-red-600' : 'text-foreground'}">${escapeHtml(text)}</p>
+                </div>
+            `;
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Re-initialize Lucide icons for new elements
+        lucide.createIcons();
+    }
+    
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typing-indicator';
+        typingDiv.className = 'flex gap-3';
+        typingDiv.innerHTML = `
+            <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+            </div>
+            <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        lucide.createIcons();
+    }
+    
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+});
+</script>
+{% endblock %}

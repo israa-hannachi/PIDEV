@@ -16,6 +16,18 @@ class MessageRepository extends ServiceEntityRepository
         parent::__construct($registry, Message::class);
     }
 
+    public function getMessagesCountByForum(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('m')
+            ->select('f.titre as forumTitle', 'COUNT(m.id) as messageCount')
+            ->leftJoin('m.forum', 'f')
+            ->groupBy('f.id')
+            ->orderBy('messageCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Message[] Returns an array of Message objects
     //     */

@@ -8,6 +8,17 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bootstrap CSS pour les alertes -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts with Emoji Support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Color+Emoji&family=Apple+Color+Emoji&family=Segoe+UI+Emoji&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -34,11 +45,31 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token('authenticate') }}">
+    <meta name="csrf-token" content="{{ csrf_token('submit') }}">
 
     {% block stylesheets %}{% endblock %}
 
     <style>
+        /* ---- CORRECTION DOUBLE SCROLLBAR ---- */
+        html, body {
+            height: 100%;
+            overflow: hidden; /* on bloque le scroll natif du body */
+        }
+
+        /* Emoji Support CSS */
+        body, .message-author, .message-content, .ck-editor__editable, textarea {
+            font-family: 'Noto Sans SC', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        /* Force emoji rendering */
+        .emoji {
+            font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, sans-serif;
+        }
+        
+        /* Ensure proper emoji display in all elements */
+        * { font-family: inherit; }
+        *::before, *::after { font-family: inherit; }
+
         .sidebar {
             min-height: 100vh;
             background-color: #ffffff;
@@ -48,6 +79,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex-shrink: 0; /* empêche la sidebar de rétrécir */
         }
         .sidebar .nav-link {
             color: #0f172a;
@@ -95,7 +127,6 @@
             position: relative;
             display: inline-block;
         }
-        
         .dropdown-menu {
             display: none;
             position: absolute;
@@ -109,11 +140,9 @@
             z-index: 1000;
             margin-top: 8px;
         }
-        
         .dropdown.show .dropdown-menu {
             display: block;
         }
-        
         .dropdown-item {
             display: block;
             padding: 8px 16px;
@@ -122,17 +151,43 @@
             font-size: 14px;
             transition: background-color 0.2s;
         }
-        
         .dropdown-item:hover {
             background-color: #f1f5f9;
             color: #6366f1;
+        }
+
+        /* ---- Zone de contenu scrollable UNIQUE ---- */
+        #main-wrapper {
+            display: flex;
+            height: 100vh;        /* occupe tout l'écran */
+            overflow: hidden;     /* pas de scroll ici */
+        }
+
+        #right-panel {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;     /* pas de scroll ici non plus */
+        }
+
+        /* La navbar du haut est fixe en hauteur */
+        #top-navbar {
+            flex-shrink: 0;
+        }
+
+        /* SEULE zone scrollable : le contenu principal */
+        #content {
+            flex: 1;
+            overflow-y: auto;     /* ← UNE SEULE scrollbar ici */
         }
     </style>
 </head>
 
 <body class="bg-background text-foreground font-sans">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
+
+    <div id="main-wrapper">
+
+        <!-- Sidebar (ne scroll pas) -->
         <aside class="sidebar">
             <!-- Logo -->
             <div class="sidebar-logo">
@@ -169,13 +224,18 @@
                     <i data-lucide="message-square"></i>
                     Forums
                 </a>
+                <a class="nav-link" href="{{ path('app_front_stats') }}">
+                    <i data-lucide="bar-chart-2"></i>
+                    Statistiques
+                </a>
             </nav>
         </aside>
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Navbar -->
-            <nav class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+        <!-- Panneau droit (navbar + contenu) -->
+        <div id="right-panel">
+
+            <!-- Top Navbar (fixe, ne scroll pas) -->
+            <nav id="top-navbar" class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
                 <div class="flex items-center gap-8">
                     <a href="{{ path('app_front_forum') }}">
                         <img src="{{ asset('assets/images/logo-full.png') }}" alt="Naja7ni" class="h-10 object-contain">
@@ -220,32 +280,65 @@
                 </div>
             </nav>
 
-            <!-- Content Area -->
-            <div id="content" class="flex-1 overflow-y-auto bg-muted/30">
+            <!-- Zone de contenu — SEULE zone avec scroll -->
+            <div id="content" class="bg-muted/30">
                 <div class="p-8 min-h-full">
                     <div class="max-w-7xl mx-auto space-y-8">
+
+                        <!-- Flash Messages -->
+                        {% for type, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
                         {% block body %}{% endblock %}
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Application Scripts -->
+        </div>
+        <!-- fin #right-panel -->
+
+    </div>
+    <!-- fin #main-wrapper -->
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         lucide.createIcons();
-        
-        // Gérer le dropdown du bouton "A"
+
         function toggleDropdown() {
             const dropdown = document.querySelector('.dropdown');
             dropdown.classList.toggle('show');
         }
-        
-        // Fermer le dropdown quand on clique ailleurs
+
         document.addEventListener('click', function(e) {
             const dropdown = document.querySelector('.dropdown');
             if (!dropdown.contains(e.target)) {
                 dropdown.classList.remove('show');
+            }
+        });
+
+        // Debug: Forcer la création des icônes après le chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Création des icônes Lucide...');
+            lucide.createIcons();
+            
+            // Vérifier si l'icône message-circle existe
+            const forumIcon = document.querySelector('[data-lucide="message-circle"]');
+            if (forumIcon) {
+                console.log('Icône Forums trouvée:', forumIcon);
+            } else {
+                console.log('Icône Forums non trouvée, tentative de création manuelle...');
+                // Créer manuellement l'icône si nécessaire
+                setTimeout(() => {
+                    lucide.createIcons();
+                }, 100);
             }
         });
     </script>

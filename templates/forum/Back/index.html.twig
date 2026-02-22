@@ -7,7 +7,13 @@
     <a href="{{ path('app_back_forum_new') }}" class="btn btn-primary btn-action">
         <i class="bi bi-plus-circle"></i> Créer un nouveau forum
     </a>
-    <a href="http://127.0.0.1:8000/front/forum" class="btn btn-success btn-action">
+    <a href="{{ path('app_categorie_new') }}" class="btn btn-success btn-action">
+        <i class="bi bi-folder-plus"></i> Ajouter une catégorie
+    </a>
+    <a href="{{ path('app_back_stats_index') }}" class="btn btn-info btn-action">
+        <i class="bi bi-bar-chart"></i> Statistiques
+    </a>
+    <a href="http://127.0.0.1:8000/front/forum" class="btn btn-secondary btn-action">
         <i class="bi bi-arrow-right-circle"></i> Go to Front
     </a>
 </div>
@@ -19,7 +25,7 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="input-group">
-                <input type="text" id="searchTitle" class="form-control" placeholder="Rechercher par titre">
+                <input type="text" id="searchTitle" class="form-control" placeholder="Rechercher par état">
                 <button class="btn btn-outline-secondary" type="button" id="searchBtn">
                     <i class="bi bi-search"></i>
                 </button>
@@ -55,9 +61,9 @@
                 </tr>
             </thead>
             <tbody>
-                {% for forum in forums %}
-                    <tr data-title="{{ forum.titre|default('')|lower }}" data-creator="{{ forum.createdBy|default('')|lower }}" data-date="{{ forum.dateCreation ? forum.dateCreation|date('Y-m-d') : '' }}">
-                        <td>{{ loop.index }}</td>
+                {% for forum in pagination %}
+                    <tr data-title="{{ forum.titre|default('')|lower }}" data-creator="{{ forum.createdBy|default('')|lower }}" data-etat="{{ forum.etat|default('')|lower }}" data-date="{{ forum.dateCreation ? forum.dateCreation|date('Y-m-d') : '' }}">
+                        <td>{{ forum.id }}</td>
                         <td>{{ forum.titre }}</td>
                         <td>{{ forum.createdBy ? forum.createdBy }}</td>
                         <td>{{ forum.dateCreation ? forum.dateCreation|date('d/m/Y') : '' }}</td>
@@ -95,6 +101,107 @@
     </div>
 </div>
 
+<!-- Pagination -->
+<div class="d-flex justify-content-center mt-4">
+    {% if pagination.getTotalItemCount() > pagination.getItemNumberPerPage() %}
+        <div class="pagination-container">
+            {% set currentPage = pagination.getCurrentPageNumber() %}
+            {% set totalPages = pagination.getPageCount() %}
+            
+            <!-- Previous button -->
+            {% if currentPage > 1 %}
+                <a href="{{ path('app_back_forum_index', {page: currentPage - 1}) }}" 
+                   class="page-nav-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            {% endif %}
+            
+            <!-- Page numbers -->
+            {% for page in max(1, currentPage - 2)..min(totalPages, currentPage + 2) %}
+                {% if page == currentPage %}
+                    <span class="page-number active">{{ page }}</span>
+                {% else %}
+                    <a href="{{ path('app_back_forum_index', {page: page}) }}" 
+                       class="page-number">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Next button -->
+            {% if currentPage < totalPages %}
+                <a href="{{ path('app_back_forum_index', {page: currentPage + 1}) }}" 
+                   class="page-nav-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        
+        <style>
+            .pagination-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #fff;
+                border-radius: 25px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                padding: 10px 20px;
+                gap: 8px;
+            }
+
+            .page-number {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                margin: 0 3px;
+                color: #666;
+                text-decoration: none;
+                font-weight: normal;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                background-color: transparent;
+                border: none;
+                padding: 0;
+            }
+
+            .page-number:hover {
+                background-color: #f5f5f5;
+                color: #333;
+                text-decoration: none;
+            }
+
+            .page-number.active {
+                background-color: #3b82f6;
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .page-nav-btn {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background-color: transparent;
+                color: #999;
+                text-decoration: none;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                border: none;
+                padding: 0;
+            }
+
+            .page-nav-btn:hover {
+                background-color: #f5f5f5;
+                color: #666;
+                text-decoration: none;
+            }
+        </style>
+    {% endif %}
+</div>
+
 <script>
 // Stocker les données originales des forums au chargement
 let originalForumsData = [];
@@ -109,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const forumData = {
             title: row.dataset.title || '',
             creator: row.dataset.creator || '',
+            etat: row.dataset.etat || '',
             date: row.dataset.date || '',
             element: row.cloneNode(true) // Cloner l'élément original
         };
@@ -142,6 +250,13 @@ function performInstantSearch() {
     const searchCreatorInput = document.getElementById('searchCreator');
     const sortOrderSelect = document.getElementById('sortOrder');
     const tableBody = document.querySelector('#forumsTable tbody');
+    const applyBtn = document.getElementById('applyFilters');
+    
+    // Ajouter un indicateur de chargement
+    if (applyBtn) {
+        applyBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Recherche...';
+        applyBtn.disabled = true;
+    }
     
     const searchTerm = searchInput.value.toLowerCase().trim();
     const searchCreatorTerm = searchCreatorInput.value.toLowerCase().trim();
@@ -157,24 +272,40 @@ function performInstantSearch() {
             tableBody.appendChild(forumData.element.cloneNode(true));
         });
         console.log('No search terms, showing all rows');
+        
+        // Restaurer le bouton
+        if (applyBtn) {
+            applyBtn.innerHTML = 'APPLIQUER';
+            applyBtn.disabled = false;
+        }
         return;
     }
     
-    // Filter rows - recherche par début de titre pour le titre, contient pour le créateur
+    // Filter rows - recherche insensible à la casse et aux accents
     let filteredRows = originalForumsData.filter(forumData => {
-        const title = forumData.title;
+        const etat = forumData.etat;
         const creator = forumData.creator;
         
-        console.log('Checking row:', { title, creator, searchTerm, searchCreatorTerm });
+        console.log('Checking row:', { etat, creator, searchTerm, searchCreatorTerm });
         
-        // Pour le titre : cherche les titres qui commencent par le terme de recherche
-        const titleMatch = !searchTerm || title.startsWith(searchTerm);
+        // Normaliser les chaînes pour gérer les accents et la casse
+        const normalizeString = (str) => {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        };
+        
+        const normalizedEtat = normalizeString(etat);
+        const normalizedCreator = normalizeString(creator);
+        const normalizedSearchTerm = normalizeString(searchTerm);
+        const normalizedSearchCreatorTerm = normalizeString(searchCreatorTerm);
+        
+        // Pour l'état : cherche les états qui commencent par le terme de recherche
+        const etatMatch = !normalizedSearchTerm || normalizedEtat.startsWith(normalizedSearchTerm);
         // Pour le créateur : cherche les créateurs qui contiennent le terme de recherche
-        const creatorMatch = !searchCreatorTerm || creator.includes(searchCreatorTerm);
+        const creatorMatch = !normalizedSearchCreatorTerm || normalizedCreator.includes(normalizedSearchCreatorTerm);
         
-        console.log('Match results:', { titleMatch, creatorMatch });
+        console.log('Match results:', { etatMatch, creatorMatch });
         
-        return titleMatch && creatorMatch;
+        return etatMatch && creatorMatch;
     });
     
     console.log('Filtered rows count:', filteredRows.length);
@@ -199,11 +330,23 @@ function performInstantSearch() {
     } else {
         // Show no results message
         const noResultsRow = document.createElement('tr');
-        noResultsRow.innerHTML = '<td colspan="6" class="text-center text-muted p-5">Aucun forum trouvé.</td>';
+        noResultsRow.innerHTML = '<td colspan="6" class="text-center text-muted p-5">Aucun forum trouvé pour ces critères.</td>';
         tableBody.appendChild(noResultsRow);
     }
     
     console.log('Filter complete, showing', filteredRows.length, 'results');
+    
+    // Restaurer le bouton et ajouter un feedback
+    if (applyBtn) {
+        applyBtn.innerHTML = 'APPLIQUER';
+        applyBtn.disabled = false;
+        
+        // Ajouter une classe temporaire pour montrer que la recherche est terminée
+        applyBtn.classList.add('btn-success');
+        setTimeout(() => {
+            applyBtn.classList.remove('btn-success');
+        }, 1000);
+    }
 }
 
 function applyFiltersFunction() {

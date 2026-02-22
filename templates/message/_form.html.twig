@@ -1,44 +1,196 @@
-{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'ckeditor-form'}}) }}
 
-<div>
+<div class="blue-bar-field">
     {{ form_label(form.createdBy, "Votre nom") }}
-    {{ form_widget(form.createdBy, {'attr': {'placeholder': 'Entrez votre nom', 'class': 'ckeditor-nom'}}) }}
+    {{ form_widget(form.createdBy, {'attr': {'placeholder': 'votre nom', 'class': 'form-control'}, 'value': ''}) }}
     {{ form_errors(form.createdBy) }}
 </div>
 
-<div>
+<div class="blue-bar-field">
     {{ form_label(form.contenu, "Votre message") }}
-    {{ form_widget(form.contenu, {'attr': {'placeholder': 'Écrivez votre message', 'class': 'ckeditor-contenu'}}) }}
+    {{ form_widget(form.contenu, {'attr': {'placeholder': 'écrivez votre message', 'class': 'form-control'}, 'value': ''}) }}
     {{ form_errors(form.contenu) }}
 </div>
 
 <div>
-    <button type="submit" class="btn btn-primary">Modifier</button>
+    <button type="submit" class="btn btn-primary">Publier</button>
 </div>
 
 {{ form_end(form) }}
 
-<!-- Script CKEditor -->
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+<!-- Script CKEditor simplifié -->
 <script>
-    // Attendre que le DOM soit chargé
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser CKEditor uniquement pour le champ contenu
+    const contenuTextarea = document.querySelector('textarea[name*="[contenu]"]');
+    if (contenuTextarea && typeof ClassicEditor !== 'undefined') {
+        ClassicEditor
+                .create(contenuTextarea, {
+                toolbar: [],
+                placeholder: 'écrivez votre message',
+                height: 150
+            })
+            .catch(error => {
+                console.error('CKEditor initialization failed:', error);
+                // Si CKEditor échoue, afficher le textarea normal
+                contenuTextarea.style.display = 'block';
+            });
+    }
+});
+</script>
+
+<style>
+.blue-bar-field {
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blue-bar-field > label {
+    display: block;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    padding: 12px 15px;
+    margin-bottom: 0;
+    font-weight: bold;
+    font-size: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.blue-bar-field .form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 0 0 8px 8px;
+    padding: 12px;
+    font-family: 'Noto Sans SC', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, sans-serif;
+}
+
+.blue-bar-field .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+    padding: 10px 25px;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    color: white !important;
+}
+
+/* Style pour CKEditor */
+.blue-bar-field .ck-editor {
+    border: 2px solid #e5e7eb !important;
+    border-radius: 0 0 8px 8px !important;
+    background: white !important;
+}
+
+.blue-bar-field .ck-editor__editable {
+    min-height: 100px !important;
+    border: none !important;
+    padding: 12px !important;
+}
+</style>
+
+<!-- Additional emoji support -->
+<style>
+/* Emoji support for form fields */
+.ck-editor__editable {
+    font-family: 'Noto Sans SC', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+}
+textarea, .form-control {
+    font-family: 'Noto Sans SC', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+}
+</style>
+
+<!-- Script CKEditor optimisé -->
+<script>
+    // Charger CKEditor de manière asynchrone pour améliorer les performances
+    function loadCKEditor() {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js';
+        script.async = true;
+        script.onload = initializeCKEditors;
+        document.head.appendChild(script);
+    }
+
+    // Initialiser les éditeurs seulement après le chargement complet de la page
+    function initializeCKEditors() {
+        setTimeout(() => {
+            initCKEditorInstances();
+        }, 100);
+    }
+</script>
+
+<style>
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+    padding: 10px 25px;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    color: white !important;
+}
+
+/* Forcer l'affichage des placeholders CKEditor */
+.ck-editor__editable:empty:before {
+    content: attr(data-placeholder);
+    color: #6c757d;
+    pointer-events: none;
+    position: absolute;
+}
+
+.ck-editor__editable:not(:empty):before {
+    display: none;
+}
+</style>
+<script>
+    // Fonction principale d'initialisation optimisée
+    function initCKEditorInstances() {
+        console.log('Initialisation CKEditor optimisée...');
+        
         // Initialiser CKEditor pour le champ nom
         const nomTextarea = document.querySelector('textarea[name*="[createdBy]"]');
+        console.log('Textarea nom trouvée:', nomTextarea);
         if (nomTextarea) {
+            // Cacher le textarea original
+            nomTextarea.style.display = 'none';
+            
             ClassicEditor
                 .create(nomTextarea, {
-                    toolbar: {
-                        items: [
-                            'bold', 'italic', '|',
-                            'link', 'bulletedList', 'numberedList', '|',
-                            'emoji'
-                        ]
-                    },
+                    toolbar: [],
                     height: 60,
-                    placeholder: 'Entrez votre nom...'
+                    placeholder: 'votre nom'
                 })
                 .then(editor => {
+                    // Vider le contenu de l'éditeur
+                    editor.setData('');
+                    
+                    // Forcer le placeholder après l'initialisation
+                    editor.editing.view.document.getRoot().on('change:isReadOnly', () => {
+                        if (!editor.editing.view.document.getRoot().isReadOnly) {
+                            editor.editing.view.document.getRoot()._setAttribute('data-placeholder', 'votre nom');
+                        }
+                    });
+                    editor.editing.view.document.getRoot()._setAttribute('data-placeholder', 'votre nom');
+                    
                     // Ajouter un bouton emoji personnalisé pour le champ nom
                     const emojiButtonNom = document.createElement('button');
                     emojiButtonNom.type = 'button';
@@ -48,7 +200,9 @@
                     
                     emojiButtonNom.onclick = () => {
                         const emojiCategories = {
-                            'Humains': ['👶', '🧒', '👦', '👧', '🧑', '👨', '👩', '🧓', '👱', '👼', '👴', '👵', '👲', '👳', '👮', '👯', '👰', '👱', '👲', '👳', '👴', '👵', '👶', '👷', '👸', '👹', '👺', '👻', '�', '��', '👾', '👿', '👨‍🏫', '👩‍🏫', '👨‍🎓', '👩‍🎓', '👨‍🎤', '👩‍🎤', '👨‍🎨', '👩‍🎨', '👨‍🏭', '👩‍🏭', '👨‍🏭', '👩‍🏭', '👨‍🔬', '👩‍🔬', '👨‍💻', '👩‍💻', '👨‍🔧', '👩‍🔧', '👨‍🏗', '👩‍🏗', '👨‍🚀', '👩‍🚀', '👨‍⚕️', '👩‍⚕️', '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '🤖'],
+                            'Professeurs': ['�‍🏫', '👩‍🏫', '�', '�', '📝', '🎓', '🏫', '�', '�', '🔬', '�', '�', '🧮', '�', '�️', '⌨️', '�', '�', '�', '�️', '�', '�', '�', '�', '�', '�️', '✏️', '✒️', '�️', '�️', '�️', '�️', '�', '�', '📃', '📄', '�', '�', '🏷️'],
+                            'Étudiants': ['👨‍�', '👩‍�', '🎒', '📚', '📓', '📔', '📕', '📗', '📘', '📙', '📚', '📝', '✏️', '🖊️', '🖋️', '💡', '🔍', '🔎', '📊', '📈', '📉', '🗂️', '�', '📋', '📌', '📍', '📎', '🖇️', '�', '�', '🎯', '⭐', '🌟', '✨', '�', '�', '🥇', '🥈', '🥉', '�️', '�', '�️'],
+                            'Humains': ['�', '🧒', '�', '�', '🧑', '👨', '👩', '🧓', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '�', '🤖'],
                             'Visages': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'],
                             'Gestes': ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '✋', '🤚', '🖐️', '🖖', '👋', '🤙', '👌', '🤏', '🤞', '🤟', '🤘', '👈', '👉', '👆', '👇', '☝️', '✌️', '🤞', '🤟', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🙏', '🤝', '💪', '🦾', '🦿', '🦶', '🦵', '🦴', '🦿'],
                             'Cœurs': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '⛔', '✅', '☑️', '✔️', '❌', '❎', '➕', '➖', '➗', '✖️', '♾', '💮', '💯', '✔️', '☑️', '🔘', '⚪', '⚫', '🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '🟤', '🟦', '🟧', '🟨', '🟩', '🟪', '🟫'],
@@ -57,12 +211,12 @@
                             'Objets': ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '📽', '🎥', '📺', '📻', '📞', '☎️', '📟', '📠', '⏰', '⏱️', '⏲️', '🕰', '🕳️', '🔑', '🗝️', '🔒', '🔓', '🔏', '🔐', '🔑', '🗝️', '🔨', '🪓', '⛏️', '⚒️', '🛠️', '🗡️', '⚔️', '🔧', '🔩', '⚙️', '🗲', '⛓️', '🧲', '🔫', '💣', '🧨', '🔪', '🗡️', '⚔️', '🏹', '🪣', '🪤', '🪥', '🪦', '🪧', '🪨', '🪩', '🪪', '🪫', '🪬', '🪭', '🪮', '🪯', '🪰', '🪱', '🪲', '🪳', '🪴', '🪵', '🪶', '🪷', '🪸', '🪹', '🪺'],
                         };
                         const emojiPickerNom = document.createElement('div');
-                        emojiPickerNom.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 10px; display: none; z-index: 1000;';
+                        emojiPickerNom.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 5px; display: none; z-index: 1000; max-width: 250px;';
                         
                         Object.keys(emojiCategories).forEach(category => {
                             const categoryHeader = document.createElement('h3');
                             categoryHeader.textContent = category;
-                            categoryHeader.style.cssText = 'margin: 0 0 5px 0; font-size: 14px; color: #333;';
+                            categoryHeader.style.cssText = 'margin: 0 0 3px 0; font-size: 12px; color: #333;';
                             emojiPickerNom.appendChild(categoryHeader);
                             
                             const emojis = document.createElement('div');
@@ -72,7 +226,8 @@
                                 const emojiButton = document.createElement('button');
                                 emojiButton.type = 'button';
                                 emojiButton.textContent = emoji;
-                                emojiButton.style.cssText = 'margin: 2px; padding: 5px; border: none; border-radius: 3px; cursor: pointer; background: #f0f0f0; font-size: 16px;';
+                                emojiButton.style.cssText = 'margin: 2px !important; padding: 8px !important; border: none !important; border-radius: 4px !important; cursor: pointer !important; background: #f8f9fa !important; font-size: 16px !important; width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important;';
+                                emojiButton.className = 'emoji-picker-btn';
                                 
                                 emojiButton.onclick = () => {
                                     editor.model.change(writer => {
@@ -92,7 +247,7 @@
                             if (emojiPickerNom.style.display === 'none') {
                                 emojiPickerNom.style.display = 'block';
                                 emojiPickerNom.style.top = emojiButtonNom.offsetTop + emojiButtonNom.offsetHeight + 'px';
-                                emojiPickerNom.style.left = emojiButtonNom.offsetLeft + 'px';
+                                emojiPickerNom.style.left = emojiButtonNom.offsetLeft + emojiButtonNom.offsetWidth + 'px';
                             } else {
                                 emojiPickerNom.style.display = 'none';
                             }
@@ -106,8 +261,92 @@
                         });
                     };
                     
-                    // Ajouter le bouton à la toolbar du champ nom
+                    // Ajouter les boutons à la toolbar du champ nom
                     const toolbarNom = editor.ui.view.toolbar.element;
+                    
+                    // Ajouter un bouton calculatrice pour le champ nom
+                    const calculatorButtonNom = document.createElement('button');
+                    calculatorButtonNom.type = 'button';
+                    calculatorButtonNom.innerHTML = '🧮';
+                    calculatorButtonNom.title = 'Calculatrice';
+                    calculatorButtonNom.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer;';
+                    calculatorButtonNom.onclick = () => {
+                        const result = prompt('Entrez une expression mathématique (ex: 2+2, 5*3):');
+                        if (result) {
+                            try {
+                                const calculated = eval(result);
+                                editor.model.change(writer => {
+                                    writer.insertText(calculated.toString(), editor.model.document.selection.getFirstPosition());
+                                });
+                            } catch (e) {
+                                alert('Expression invalide');
+                            }
+                        }
+                    };
+                    
+                    // Ajouter un bouton équations mathématiques pour le champ nom
+                    const mathButtonNom = document.createElement('button');
+                    mathButtonNom.type = 'button';
+                    mathButtonNom.innerHTML = '∑';
+                    mathButtonNom.title = 'Équations mathématiques';
+                    mathButtonNom.style.cssText = 'margin-left: 5px; padding: 4px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer;';
+                    mathButtonNom.onclick = () => {
+                        const equation = prompt('Entrez une équation mathématique (ex: x^2 + y^2 = z^2):');
+                        if (equation) {
+                            editor.model.change(writer => {
+                                const text = `[${equation}]`;
+                                writer.insertText(text, editor.model.document.selection.getFirstPosition());
+                            });
+                            // Initialiser CKEditor pour le champ nom
+                            const nomTextarea = document.querySelector('textarea[name*="[createdBy]"]');
+                            console.log('Textarea nom trouvée:', nomTextarea);
+                            
+                            if (nomTextarea) {
+                                // Cacher le textarea original
+                                nomTextarea.style.display = 'none';
+                                
+                                ClassicEditor
+                                    .create(nomTextarea, {
+                                        toolbar: [],
+                                        placeholder: 'votre nom'
+                                    })
+                                    .then(editor => {
+                                        editor.setData('');
+                                        window.editors['name'] = editor;
+                                    })
+                                    .catch(error => {
+                                        console.error('Erreur CKEditor nom:', error);
+                                    });
+                            }
+
+                            // Initialiser CKEditor pour le champ message
+                            const contenuTextarea = document.querySelector('textarea[name*="[contenu]"]');
+                            console.log('Textarea contenu trouvée:', contenuTextarea);
+                            
+                            if (contenuTextarea) {
+                                // Cacher le textarea original
+                                contenuTextarea.style.display = 'none';
+                                
+                                ClassicEditor
+                                    .create(contenuTextarea, {
+                                        toolbar: [],
+                                    placeholder: 'écrivez votre message'
+                                })
+                                .then(editor => {
+                                    editor.setData('');
+                                    window.editors['contenu'] = editor;
+                                })
+                                .catch(error => {
+                                    console.error('Erreur CKEditor message:', error);
+                                });
+                            }
+                        }
+                    };
+                    
+                    // Ajouter les boutons à la toolbar du champ nom
+                    const toolbarNom = editor.ui.view.toolbar.element;
+                    toolbarNom.appendChild(calculatorButtonNom);
+                    toolbarNom.appendChild(mathButtonNom);
                     toolbarNom.appendChild(emojiButtonNom);
                 })
                 .catch(error => {
@@ -117,22 +356,29 @@
 
         // Initialiser CKEditor pour le champ message
         const contenuTextarea = document.querySelector('textarea[name*="[contenu]"]');
+        console.log('Textarea contenu trouvée:', contenuTextarea);
         if (contenuTextarea) {
+            // Cacher le textarea original
+            contenuTextarea.style.display = 'none';
+            
             ClassicEditor
                 .create(contenuTextarea, {
-                    toolbar: {
-                        items: [
-                            'Undo','Redo', 
-                            'Bold','Italic', 
-                            'BulletedList','NumberedList', 
-                            'Link','Image','Emoji', 
-                            'MathType'
-                        ]
-                    },
+                    toolbar: [],
                     height: 150,
-                    placeholder: 'Écrivez votre commentaire...'
+                    placeholder: 'écrivez votre message'
                 })
                 .then(editor => {
+                    // Vider le contenu de l'éditeur
+                    editor.setData('');
+                    
+                    // Forcer le placeholder après l'initialisation
+                    editor.editing.view.document.getRoot().on('change:isReadOnly', () => {
+                        if (!editor.editing.view.document.getRoot().isReadOnly) {
+                            editor.editing.view.document.getRoot()._setAttribute('data-placeholder', 'écrivez votre message');
+                        }
+                    });
+                    editor.editing.view.document.getRoot()._setAttribute('data-placeholder', 'écrivez votre message');
+                    
                     // Ajouter un bouton calculatrice
                     const calculatorButton = document.createElement('button');
                     calculatorButton.type = 'button';
@@ -178,7 +424,9 @@
                     
                     emojiButton.onclick = () => {
                         const emojiCategories = {
-                            'Humains': ['👶', '🧒', '👦', '👧', '🧑', '👨', '👩', '🧓', '👱', '👼', '👴', '👵', '👲', '👳', '👮', '👯', '👰', '👱', '👲', '👳', '👴', '👵', '👶', '👷', '👸', '👹', '👺', '👻', '�', '��', '👾', '👿', '👨‍🏫', '👩‍🏫', '👨‍🎓', '👩‍🎓', '👨‍🎤', '👩‍🎤', '👨‍🎨', '👩‍🎨', '👨‍🏭', '👩‍🏭', '👨‍🏭', '👩‍🏭', '👨‍🔬', '👩‍🔬', '👨‍💻', '👩‍💻', '👨‍🔧', '👩‍🔧', '👨‍🏗', '👩‍🏗', '👨‍🚀', '👩‍🚀', '👨‍⚕️', '👩‍⚕️', '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '🤖'],
+                            'Professeurs': ['👨‍🏫', '👩‍🏫', '📚', '📖', '📝', '🎓', '🏫', '📐', '📏', '🔬', '🧪', '🔭', '🧮', '💻', '🖥️', '⌨️', '📊', '📈', '📉', '🗂️', '📁', '📋', '📌', '📍', '📎', '🖇️', '✏️', '✒️', '🖊️', '🖋️', '🖌️', '🖍️', '📰', '📜', '📃', '📄', '📑', '🔖', '🏷️'],
+                            'Étudiants': ['👨‍🎓', '👩‍🎓', '🎒', '📚', '📓', '📔', '📕', '📗', '📘', '📙', '📚', '📝', '✏️', '🖊️', '🖋️', '💡', '🔍', '🔎', '📊', '📈', '📉', '🗂️', '📁', '📋', '📌', '📍', '📎', '🖇️', '🏫', '🎓', '🎯', '⭐', '🌟', '✨', '💫', '🏆', '🥇', '🥈', '🥉', '🎖️', '🏅', '🎗️'],
+                            'Humains': ['👶', '🧒', '👦', '👧', '🧑', '👨', '👩', '🧓', '👱', '👼', '👴', '👵', '👲', '👳', '👮', '👯', '👰', '👱', '👲', '👳', '👴', '👵', '👶', '👷', '👸', '👹', '👺', '👻', '👽', '👾', '👿', '🤖'],
                             'Visages': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'],
                             'Gestes': ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '✋', '🤚', '🖐️', '🖖', '👋', '🤙', '👌', '🤏', '🤞', '🤟', '🤘', '👈', '👉', '👆', '👇', '☝️', '✌️', '🤞', '🤟', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🙏', '🤝', '💪', '🦾', '🦿', '🦶', '🦵', '🦴', '🦿'],
                             'Cœurs': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '⛔', '✅', '☑️', '✔️', '❌', '❎', '➕', '➖', '➗', '✖️', '♾', '💮', '💯', '✔️', '☑️', '🔘', '⚪', '⚫', '🔴', '🔵', '🟢', '🟡', '🟠', '🟣', '🟤', '🟦', '🟧', '🟨', '🟩', '🟪', '🟫'],
@@ -188,12 +436,12 @@
                         };
 
                         const emojiPicker = document.createElement('div');
-                        emojiPicker.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 10px; z-index: 1000;';
+                        emojiPicker.style.cssText = 'position: absolute; background-color: #fff; border: 1px solid #ccc; padding: 5px; z-index: 1000; max-width: 250px;';
 
                         Object.keys(emojiCategories).forEach(category => {
                             const categoryHeader = document.createElement('h3');
                             categoryHeader.textContent = category;
-                            categoryHeader.style.cssText = 'margin: 0 0 5px 0; font-size: 14px; color: #333;';
+                            categoryHeader.style.cssText = 'margin: 0 0 3px 0; font-size: 12px; color: #333;';
                             emojiPicker.appendChild(categoryHeader);
 
                             const emojis = document.createElement('div');
@@ -203,7 +451,8 @@
                                 const emojiButton = document.createElement('button');
                                 emojiButton.type = 'button';
                                 emojiButton.textContent = emoji;
-                                emojiButton.style.cssText = 'margin: 2px; padding: 5px; border: none; border-radius: 3px; cursor: pointer; background: #f0f0f0; font-size: 16px;';
+                                emojiButton.style.cssText = 'margin: 2px !important; padding: 8px !important; border: none !important; border-radius: 4px !important; cursor: pointer !important; background: #f8f9fa !important; font-size: 16px !important; width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important;';
+                                emojiButton.className = 'emoji-picker-btn';
 
                                 emojiButton.onclick = () => {
                                     editor.model.change(writer => {
@@ -223,7 +472,7 @@
                         emojiButton.onclick = () => {
                             const rect = emojiButton.getBoundingClientRect();
                             emojiPicker.style.top = emojiButton.offsetTop + emojiButton.offsetHeight + 'px';
-                            emojiPicker.style.left = emojiButton.offsetLeft + 'px';
+                            emojiPicker.style.left = emojiButton.offsetLeft + emojiButton.offsetWidth + 'px';
                         };
                         
                         // Fermer le picker quand on clique ailleurs
@@ -243,6 +492,133 @@
                 .catch(error => {
                     console.error('Erreur CKEditor message:', error);
                 });
+            }
         }
-    });
-</script>
+        
+        // Démarrer le chargement de CKEditor après le chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger CKEditor de manière asynchrone pour ne pas bloquer le rendu
+            requestAnimationFrame(() => {
+                loadCKEditor();
+            });
+        });
+    </script>
+
+    <style>
+    /* Styles pour les champs avec barres bleues */
+    .blue-bar-field {
+        margin-bottom: 25px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+.blue-bar-field {
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blue-bar-field > label {
+    display: block;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    padding: 12px 15px;
+    margin-bottom: 0;
+    font-weight: bold;
+    font-size: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Style pour les éditeurs CKEditor */
+.blue-bar-field .ck-editor {
+    border: 2px solid #e5e7eb !important;
+    border-radius: 0 0 8px 8px !important;
+    background: white !important;
+}
+
+.blue-bar-field .ck-editor__editable {
+    min-height: 80px !important;
+    border: none !important;
+    padding: 12px !important;
+}
+
+.blue-bar-field .ck-editor__top {
+    border-bottom: 1px solid #e5e7eb !important;
+    background: #f9fafb !important;
+}
+
+/* Cacher les textareas originaux */
+.blue-bar-field textarea {
+    display: none !important;
+}
+
+/* Style pour les boutons personnalisés dans la toolbar */
+.ck-toolbar__item button {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    margin: 2px !important;
+    padding: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+.ck-toolbar__item button:hover {
+    background: #e9ecef !important;
+    border-color: #adb5bd !important;
+}
+
+.ck-toolbar__item button.ck-on {
+    background: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+/* Forcer l'affichage des emojis avec la même taille */
+.emoji-picker button, .emoji-picker .emoji-button {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    margin: 2px !important;
+    padding: 8px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    background: #f8f9fa !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+/* Forcer tous les boutons dans les pickers d'emoji */
+div[id*="emojiPicker"] button {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    margin: 2px !important;
+    padding: 8px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    background: #f8f9fa !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+/* Style spécifique pour les boutons emoji créés dynamiquement */
+.emoji-picker-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    margin: 2px !important;
+    padding: 8px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    background: #f8f9fa !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+</style>

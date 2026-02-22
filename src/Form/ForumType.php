@@ -3,8 +3,10 @@
 namespace App\Form;
 
 use App\Entity\Forum;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -30,7 +32,7 @@ class ForumType extends AbstractType
                 ],
                 'required' => true,
             ])
-            ->add('date_creation', null, [
+            ->add('date_creation', DateType::class, [
                 'label' => 'Date de création',
                 'widget' => 'single_text',
                 'attr' => [
@@ -54,6 +56,16 @@ class ForumType extends AbstractType
                 'label' => 'Créé par',
                 'attr' => [
                     'placeholder' => 'Nom du créateur',
+                    'class' => 'form-control'
+                ],
+                'required' => true,
+            ])
+            ->add('categorie', EntityType::class, [
+                'label' => 'Catégorie',
+                'class' => 'App\Entity\Categorie',
+                'choice_label' => 'titre',
+                'placeholder' => 'Choisir une catégorie',
+                'attr' => [
                     'class' => 'form-control'
                 ],
                 'required' => true,

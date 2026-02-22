@@ -1,0 +1,325 @@
+{% extends 'forum/Front/base_front.html.twig' %}
+
+{% block title %}Statistiques{% endblock %}
+
+{% block body %}
+<div id="main-wrapper">
+    <!-- Sidebar (ne scroll pas) -->
+    <aside class="sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <img src="{{ asset('assets/images/logo-small.png') }}" alt="Logo" />
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{{ path('app_front_forum') }}">
+                <i data-lucide="home"></i>
+                Accueil
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="user"></i>
+                Profil
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="folder"></i>
+                Catégories
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="video"></i>
+                Meet
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="gamepad-2"></i>
+                Jeux
+            </a>
+            <a class="nav-link" href="#">
+                <i data-lucide="calendar"></i>
+                Events
+            </a>
+            <a class="nav-link" href="http://127.0.0.1:8000/front/forum">
+                <i data-lucide="message-square"></i>
+                Chat
+            </a>
+            <a class="nav-link" href="{{ path('app_front_forum') }}">
+                <i data-lucide="message-circle"></i>
+                Forums
+            </a>
+            <a class="nav-link active" href="{{ path('app_front_stats') }}">
+                <i data-lucide="bar-chart-2"></i>
+                Statistiques
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Panneau droit (navbar + contenu) -->
+    <div id="right-panel">
+        <!-- Top Navbar (fixe, ne scroll pas) -->
+        <nav id="top-navbar" class="h-16 bg-white border-b border-border px-8 flex items-center justify-between shadow-sm z-10">
+            <div class="flex items-center gap-8">
+                <a href="{{ path('app_front_forum') }}">
+                    <img src="{{ asset('assets/images/logo-full.png') }}" alt="Naja7ni" class="h-10 object-contain">
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-xl mx-8">
+                <div class="relative group">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
+                    <input type="text" placeholder="Rechercher des cours, modules..."
+                        class="w-full pl-10 pr-4 py-2.5 bg-input-background rounded-xl border border-transparent focus:bg-white focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300" />
+                </div>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-500 rounded-xl font-semibold cursor-not-allowed opacity-50">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span class="hidden md:block">Admin</span>
+                </div>
+                <button class="p-2.5 hover:bg-muted rounded-xl transition-colors relative group">
+                    <i data-lucide="bell"
+                        class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border border-white"></span>
+                </button>
+                <button class="p-2.5 hover:bg-muted rounded-xl transition-colors group">
+                    <i data-lucide="settings"
+                        class="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+                </button>
+                <div class="dropdown">
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold cursor-pointer shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+                        onclick="toggleDropdown()">
+                        A
+                    </div>
+                    <ul class="dropdown-menu" id="userDropdown">
+                        <li><a class="dropdown-item" href="/logout">Se déconnecter</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Zone de contenu — SEULE zone avec scroll -->
+        <div id="content" class="bg-muted/30">
+            <div class="p-8 min-h-full">
+                <div class="max-w-7xl mx-auto space-y-8">
+
+                    <!-- Mini Section Statistiques -->
+                    <div class="mini-stats-container">
+                        <h2 class="mini-stats-title">
+                            <i data-lucide="bar-chart-2" class="inline-block w-6 h-6 mr-2"></i>
+                            Statistiques des Forums
+                        </h2>
+                        
+                        <!-- Cartes statistiques compactes -->
+                        <div class="mini-stats-grid">
+                            <div class="mini-stat-card">
+                                <div class="mini-stat-icon bg-primary">
+                                    <i data-lucide="chat-square-text"></i>
+                                </div>
+                                <div class="mini-stat-content">
+                                    <div class="mini-stat-number">{{ totalForums }}</div>
+                                    <div class="mini-stat-label">Total Forums</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mini-stat-card">
+                                <div class="mini-stat-icon bg-success">
+                                    <i data-lucide="check-circle"></i>
+                                </div>
+                                <div class="mini-stat-content">
+                                    <div class="mini-stat-number">{{ activeForums }}</div>
+                                    <div class="mini-stat-label">Forums Actifs</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mini-stat-card">
+                                <div class="mini-stat-icon bg-info">
+                                    <i data-lucide="message-circle"></i>
+                                </div>
+                                <div class="mini-stat-content">
+                                    <div class="mini-stat-number">{{ totalMessages }}</div>
+                                    <div class="mini-stat-label">Total Messages</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Graphique -->
+                        <div class="mini-chart-container">
+                            <h3 class="mini-chart-title">Top Forums les plus Actifs</h3>
+                            <div id="miniChart" style="width: 100%; height: 250px;"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Google Charts -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    // Charger Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawMiniChart);
+
+    function drawMiniChart() {
+        // Données pour le mini graphique
+        var miniChartData = google.visualization.arrayToDataTable([
+            ['Forum', 'Messages'],
+            {% for item in topForums %}
+            ['{{ item.forumTitle|e('js') }}', {{ item.messageCount }}],
+            {% endfor %}
+        ]);
+
+        // Options pour le mini graphique (style différent du backoffice)
+        var miniChartOptions = {
+            title: 'Top Forums',
+            titleTextStyle: {
+                fontSize: 16,
+                bold: true,
+                color: '#1f2937'
+            },
+            colors: ['#8b5cf6', '#6366f1', '#ec4899'],
+            chartArea: {width: '85%', height: '75%'},
+            legend: {position: 'none'},
+            hAxis: {
+                title: 'Forums',
+                titleTextStyle: {fontSize: 12, color: '#6b7280'},
+                textStyle: {fontSize: 11, color: '#6b7280'}
+            },
+            vAxis: {
+                title: 'Messages',
+                titleTextStyle: {fontSize: 12, color: '#6b7280'},
+                textStyle: {fontSize: 11, color: '#6b7280'}
+            },
+            bar: {groupWidth: '75%'},
+            animation: {
+                startup: true,
+                duration: 1000,
+                easing: 'out'
+            }
+        };
+
+        // Créer le mini graphique
+        var miniChart = new google.visualization.ColumnChart(document.getElementById('miniChart'));
+        miniChart.draw(miniChartData, miniChartOptions);
+    }
+
+    // Redimensionner le graphique quand la fenêtre change
+    window.addEventListener('resize', function() {
+        drawMiniChart();
+    });
+</script>
+
+<style>
+    .mini-stats-container {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .mini-stats-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+    }
+
+    .mini-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .mini-stat-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .mini-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .mini-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+    }
+
+    .mini-stat-icon.bg-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .mini-stat-icon.bg-success { background: linear-gradient(135deg, #10b981, #059669); }
+    .mini-stat-icon.bg-info { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+    .mini-stat-content {
+        flex: 1;
+    }
+
+    .mini-stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1;
+    }
+
+    .mini-stat-label {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    .mini-chart-container {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .mini-chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .mini-stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .mini-stat-card {
+            padding: 16px;
+        }
+        
+        .mini-stat-number {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -28,7 +28,7 @@ class Forum
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $date_creation = null;
+    private ?\DateTimeImmutable $dateCreation = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'L\'état ne peut pas être vide')]
@@ -47,8 +47,8 @@ class Forum
     )]
     private ?string $createdBy = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $categorie = null;
+    #[ORM\ManyToOne(inversedBy: 'forums')]
+    private ?Categorie $categorie = null;
 
     public function __construct()
     {
@@ -89,12 +89,12 @@ class Forum
 
     public function getDateCreation(): ?\DateTimeImmutable
     {
-        return $this->date_creation;
+        return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTimeImmutable $date_creation): static
+    public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
-        $this->date_creation = $date_creation;
+        $this->dateCreation = $dateCreation;
         return $this;
     }
 
@@ -145,14 +145,17 @@ class Forum
         return $this;
     }
 
-    public function getCategorie(): ?string
+    public function getCategorie(): ?Categorie
     {
         return $this->categorie;
     }
 
-    public function setCategorie(?string $categorie): static
+    public function setCategorie(?Categorie $categorie): static
     {
         $this->categorie = $categorie;
+
         return $this;
     }
+
+
 }

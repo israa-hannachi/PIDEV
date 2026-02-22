@@ -15,26 +15,43 @@ class MessageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('createdBy', CKEditorType::class, [
+            ->add('createdBy', TextType::class, [
                 'label' => 'Votre nom',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre nom...',
-                    'class' => 'w-full border rounded p-2'
+                    'placeholder' => 'votre nom',
+                    'class' => 'form-control'
                 ],
-                'config' => [
-                    'toolbar' => 'full', // barre complète (gras, italique, listes, images, etc.)
+                'row_attr' => [
+                    'class' => 'blue-bar-field'
                 ]
             ])
-            ->add('contenu', CKEditorType::class, [ 
-                'label' => 'Votre message', 
-                'required' => true, 
-                'config' => [ 
-                    'toolbar' => 'full', // barre complète (gras, italique, listes, images, etc.) 
-                ], 
-                'attr' => [ 
-                    'placeholder' => 'Écrivez votre commentaire...', 
-                    'class' => 'w-full border rounded p-2' ] 
+            ->add('contenu', CKEditorType::class, [
+                'label' => 'Votre message',
+                'required' => true,
+                'config' => [
+                    'toolbar' => [
+                        ['name' => 'document',    'items' => ['Undo', 'Redo']],
+                        ['name' => 'basicstyles', 'items' => ['Bold', 'Italic']],
+                        ['name' => 'paragraph',   'items' => ['NumberedList', 'BulletedList']],
+                        ['name' => 'links',       'items' => ['Link']],
+                        ['name' => 'media',       'items' => ['Image', 'Table']],
+                        ['name' => 'tools',       'items' => ['Maximize']]
+                    ],
+                    'height'         => 200,
+                    'uiColor'        => '#ffffff',
+                    'removePlugins'  => 'elementspath',
+                    'resize_enabled' => true,
+                    'allowedContent' => true
+                ],
+                'attr' => [
+                    'placeholder' => 'écrivez votre message',
+                    'class'       => 'form-control',
+                    'rows'        => 4
+                ],
+                'row_attr' => [
+                    'class' => 'blue-bar-field'
+                ]
             ]);
     }
 
@@ -42,9 +59,9 @@ class MessageType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class'      => Message::class,
-            'csrf_protection' => true,          // ✅ Protection CSRF activée
-            'csrf_field_name' => '_token',      // ✅ Nom du champ caché
-            'csrf_token_id'   => 'message_item' // ✅ Identifiant unique pour ce formulaire
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id'   => 'message', // ← CORRIGÉ : identifiant unique lié à l'entité Message
         ]);
     }
 }

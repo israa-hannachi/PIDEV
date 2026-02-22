@@ -7,8 +7,14 @@ fos_ck_editor:
     configs:
         default:
             toolbar:
-                - ['Bold', 'Italic', 'Underline']
-                - ['NumberedList', 'BulletedList']
-                - ['Link', 'Unlink']
-                - ['Image', 'Table']
-                - ['Source']
+                - ['Undo', 'Redo']
+                - ['Bold', 'Italic']
+                - ['BulletedList', 'NumberedList']
+                - ['Link', 'Image', 'Table', 'Video']
+                - ['Calculator', 'Math', 'Emoji']
+                - ['Maximize', 'Source']
+            uiColor: '#ffffff'
+            height: 200
+            extraPlugins: 'calculator,math,emoji,video'
+            removePlugins: 'elementspath'
+            allowedContent: true

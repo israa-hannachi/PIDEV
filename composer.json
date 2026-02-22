@@ -11,6 +11,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
         "friendsofsymfony/ckeditor-bundle": "^2.8",
+        "knplabs/knp-paginator-bundle": "^6.10",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/asset": "7.4.*",
@@ -43,6 +44,7 @@
         "symfony/web-link": "7.4.*",
         "symfony/yaml": "7.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/string-extra": "^3.23",
         "twig/twig": "^2.12|^3.0"
     },
     "config": {

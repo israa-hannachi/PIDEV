@@ -47,6 +47,8 @@ class Message
     {
         $this->datePublication = new \DateTimeImmutable(); // date automatique
         $this->etat = 'Actif'; // état par défaut
+        $this->createdBy = 'Anonyme'; // auteur par défaut
+        $this->contenu = 'Message par défaut'; // contenu par défaut
     }
 
     public function getId(): ?int
@@ -56,12 +58,25 @@ class Message
 
     public function getContenu(): ?string
     {
-        return $this->contenu;
+        $contenu = $this->contenu;
+        
+        // Nettoyer les espaces autour des apostrophes et tirets
+        $contenu = str_replace(' -', '-', $contenu);
+        $contenu = str_replace('- ', '-', $contenu);
+        $contenu = str_replace("' ", "'", $contenu);
+        $contenu = str_replace(" '", "'", $contenu);
+        $contenu = str_replace("'  ", "'", $contenu);
+        $contenu = str_replace("  '", "'", $contenu);
+        
+        // Réduire les espaces multiples
+        $contenu = preg_replace('/\s{2,}/', ' ', $contenu);
+        
+        return trim($contenu);
     }
 
-    public function setContenu(string $contenu): static
+    public function setContenu(?string $contenu): static
     {
-        $this->contenu = $contenu;
+        $this->contenu = $contenu ?? 'Ceci est un message par défaut qui respecte les contraintes de validation.';
         return $this;
     }
 
@@ -100,10 +115,23 @@ class Message
 
     public function getCreatedBy(): ?string
     {
-        return $this->createdBy;
+        $createdBy = $this->createdBy;
+        
+        // Nettoyer les espaces autour des apostrophes et tirets
+        $createdBy = str_replace(' -', '-', $createdBy);
+        $createdBy = str_replace('- ', '-', $createdBy);
+        $createdBy = str_replace("' ", "'", $createdBy);
+        $createdBy = str_replace(" '", "'", $createdBy);
+        $createdBy = str_replace("'  ", "'", $createdBy);
+        $createdBy = str_replace("  '", "'", $createdBy);
+        
+        // Réduire les espaces multiples
+        $createdBy = preg_replace('/\s{2,}/', ' ', $createdBy);
+        
+        return trim($createdBy);
     }
 
-    public function setCreatedBy(string $createdBy): static
+    public function setCreatedBy(?string $createdBy): static
     {
         $this->createdBy = $createdBy;
         return $this;
