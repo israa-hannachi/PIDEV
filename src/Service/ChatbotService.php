@@ -44,10 +44,12 @@ class ChatbotService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'Qwen/Qwen2.5-7B-Instruct:together',
+                    'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => [
                         ['role' => 'user', 'content' => $message],
                     ],
+                    'max_tokens' => 500,
+                    'temperature' => 0.7,
                 ],
             ]);
 
