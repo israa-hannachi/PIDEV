@@ -26,7 +26,18 @@ class NotificationService
         if ($capacity > 0) {
             $percentage = ($registered / $capacity) * 100;
             
-            if ($percentage >= 90) {
+            if ($percentage >= 100) {
+                $this->addAdminNotification(
+                    'capacity_alert',
+                    sprintf(
+                        'ALERTE : L\'événement "%s" est désormais COMPLET (%d/%d inscrits)',
+                        $event->getTitre(),
+                        $registered,
+                        $capacity
+                    ),
+                    'danger'
+                );
+            } elseif ($percentage >= 90) {
                 $this->addAdminNotification(
                     'capacity_warning',
                     sprintf(
@@ -40,6 +51,21 @@ class NotificationService
                 );
             }
         }
+    }
+
+    /**
+     * Notify admin of new event creation
+     */
+    public function notifyEventCreated(Event $event): void
+    {
+        $this->addAdminNotification(
+            'event_created',
+            sprintf(
+                'Nouvel événement créé : "%s" par l\'administration.',
+                $event->getTitre()
+            ),
+            'success'
+        );
     }
 
     /**
@@ -74,7 +100,7 @@ class NotificationService
         $notifications[] = [
             'type' => $type,
             'message' => $message,
-            'level' => $level,
+            'level' => $level, // 'info', 'success', 'warning', 'danger'
             'timestamp' => new \DateTime(),
         ];
         

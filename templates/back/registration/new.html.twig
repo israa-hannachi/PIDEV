@@ -2,10 +2,25 @@
 
 {% block title %}New Registration{% endblock %}
 
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('back_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('back_registration_index') }}">Registrations</a></li>
+    <li class="breadcrumb-item active">New Registration</li>
+{% endblock %}
+
 {% block body %}
-    <h1>Create new Registration</h1>
-
-    {{ include('back/registration/_form.html.twig') }}
-
-    <a href="{{ path('back_registration_index') }}">back to list</a>
+<div class="main-content">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="card-title mb-0">Create New Registration</h5>
+                </div>
+                <div class="card-body">
+                    {{ include('back/registration/_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

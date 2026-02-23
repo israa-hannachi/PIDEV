@@ -59,6 +59,20 @@
                 <th>Statut</th>
                 <td>{{ event.statut }}</td>
             </tr>
+            <tr>
+                <th>Sponsors</th>
+                <td>
+                    {% if event.sponsors|length > 0 %}
+                        <ul class="list-unstyled mb-0">
+                            {% for sponsor in event.sponsors %}
+                                <li class="badge bg-light text-dark border me-1">{{ sponsor.nom }} ({{ sponsor.type }})</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="text-muted italic">Aucun sponsor</span>
+                    {% endif %}
+                </td>
+            </tr>
         </tbody>
     </table>
 

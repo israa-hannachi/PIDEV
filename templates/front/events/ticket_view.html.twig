@@ -1,0 +1,67 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Votre Ticket - {{ event.titre }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
+                <div class="card-header bg-primary py-4 text-center">
+                    <h3 class="text-white mb-0 fw-bold">Naja7ni Events</h3>
+                    <p class="text-white-50 mb-0 small">VOTRE TICKET DE PARTICIPATION</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="badge bg-success-subtle text-success border border-success-subtle mb-3 px-3 py-2 rounded-pill">
+                            <i class="fas fa-check-circle me-1"></i> INSCRIPTION CONFIRMÉE
+                        </div>
+                        <h2 class="fw-bold text-dark mb-1">{{ event.titre }}</h2>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> {{ event.lieu }}</p>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Date & Heure</label>
+                            <div class="fw-bold">{{ event.dateDebut|date('d M Y') }}</div>
+                            <div class="text-primary small fw-bold">{{ event.dateDebut|date('H:i') }}</div>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Participant</label>
+                            <div class="fw-bold text-truncate">{{ registration.visitorName }}</div>
+                            <div class="text-muted small text-truncate">{{ registration.visitorEmail }}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-light rounded-4 p-4 text-center mb-4">
+                        <p class="text-muted small mb-2 text-uppercase fw-bold">Référence Inscription</p>
+                        <div class="h3 fw-bold text-dark mb-0">#REG{{ registration.id|upper }}</div>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=REGISTRATION-{{ registration.id }}&color=0FB5A9" 
+                             class="img-fluid rounded-lg shadow-sm" 
+                             style="max-width: 180px;"
+                             alt="QR Code">
+                        <p class="text-muted mt-3 small">Présentez ce code à l'entrée de l'événement.</p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_front_registration_ticket', {'id': registration.id}) }}" class="btn btn-primary btn-lg rounded-pill shadow">
+                            <i class="fas fa-download me-2"></i> Télécharger en PDF
+                        </a>
+                        <a href="{{ path('app_front_event_show', {'id': event.id}) }}" class="btn btn-outline-secondary rounded-pill">
+                            Retour à l'événement
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light py-3 text-center border-0">
+                    <p class="mb-0 text-muted small">&copy; {{ "now"|date("Y") }} Naja7ni - Powered by Advanced AI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

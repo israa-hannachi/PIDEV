@@ -15,6 +15,6 @@ class NotificationController extends AbstractController
     {
         $notificationService->clearAdminNotifications();
         
-        return $this->redirectToRoute('back_dashboard');
+        return $this->redirectToRoute('back_event_index');
     }
 }

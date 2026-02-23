@@ -95,7 +95,7 @@ class Registration
         return $this->visitorName;
     }
 
-    public function setVisitorName(string $visitorName): static
+    public function setVisitorName(?string $visitorName): static
     {
         $this->visitorName = $visitorName;
 
@@ -107,7 +107,7 @@ class Registration
         return $this->visitorEmail;
     }
 
-    public function setVisitorEmail(string $visitorEmail): static
+    public function setVisitorEmail(?string $visitorEmail): static
     {
         $this->visitorEmail = $visitorEmail;
 
@@ -124,7 +124,7 @@ class Registration
         return $this->statut;
     }
 
-    public function setStatut(string $statut): static
+    public function setStatut(?string $statut): static
     {
         $this->statut = $statut;
 

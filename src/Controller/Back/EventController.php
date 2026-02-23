@@ -30,6 +30,11 @@ class EventController extends AbstractController
 
         // Financial stats
         $totalRevenue = 0;
+        foreach ($registrations as $reg) {
+            if ($reg->getStatut() === 'confirmé' || $reg->getStatut() === 'inscrit') {
+                $totalRevenue += (float)$reg->getEvenement()->getPrix();
+            }
+        }
 
         $totalSponsorship = 0;
         foreach ($sponsors as $sponsor) {
@@ -85,7 +90,12 @@ class EventController extends AbstractController
     }
 
     #[Route('/new', name: 'back_event_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function new(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        SluggerInterface $slugger,
+        \App\Service\NotificationService $notificationService
+    ): Response
     {
         $event = new Event();
 
@@ -135,6 +145,10 @@ class EventController extends AbstractController
             
             $entityManager->persist($event);
             $entityManager->flush();
+
+            // Notify admin
+            $notificationService->notifyEventCreated($event);
+            $this->addFlash('success', 'Event created successfully and notifications sent.');
 
             return $this->redirectToRoute('back_event_index', [], Response::HTTP_SEE_OTHER);
         }

@@ -48,48 +48,38 @@ class AIService
         $knowledgeBase = [
             'Musique' => ['concert', 'festival', 'musique', 'live', 'orchestre', 'chanson', 'pianiste', 'guitare', 'rock', 'jazz', 'music', 'band', 'gig', 'singer'],
             'Sport' => ['tournoi', 'match', 'championnat', 'football', 'marathon', 'course', 'yoga', 'fitness', 'entraînement', 'tournament', 'championship', 'workout', 'training', 'race'],
-            'Technologie' => ['coding', 'hackathon', 'ia', 'web', 'dev', 'intelligence artificielle', 'tech', 'conférence', 'atelier', 'programming', 'artificial intelligence', 'software', 'conference', 'developer'],
-            'Formation' => ['cours', 'formation', 'webinaire', 'masterclass', 'apprentissage', 'workshop', 'séminaire', 'course', 'training', 'webinar', 'learning', 'seminar'],
+            'Technologie' => ['coding', 'hackathon', 'ia', 'web', 'dev', 'developer', 'développeur', 'programmation', 'logiciel', 'software', 'intelligence artificielle', 'tech', 'conférence', 'atelier', 'programming', 'artificial intelligence', 'conference', 'it', 'digital'],
+            'Formation' => ['cours', 'formation', 'webinaire', 'masterclass', 'apprentissage', 'workshop', 'séminaire', 'course', 'training', 'webinar', 'learning', 'seminar', 'enseigner', 'étudier'],
             'Networking' => ['networking', 'rencontre', 'professionnel', 'conversation', 'connection', 'peers', 'meetup', 'social', 'gathering', 'cocktail', 'peer', 'talk', 'discuss'],
             'Art' => ['exposition', 'peinture', 'sculpture', 'galerie', 'vernissage', 'théâtre', 'cinéma', 'exhibition', 'painting', 'gallery', 'theatre', 'movie', 'cinema', 'art'],
             'Gaming' => ['esport', 'tournoi', 'jeu', 'console', 'multijoueur', 'streaming', 'gaming', 'e-sport', 'tournament', 'game', 'multiplayer', 'stream']
         ];
 
-        // 1. Category Detection
-        $suggestedCategory = "Autre";
-        $maxMatches = 0;
-        foreach ($knowledgeBase as $category => $keywords) {
-            $matches = 0;
-            foreach ($keywords as $keyword) {
-                if (str_contains($descriptionLower, $keyword)) {
-                    $matches++;
-                }
-            }
-            if ($matches > $maxMatches) {
-                $maxMatches = $matches;
-                $suggestedCategory = $category;
-            }
-        }
-
-        // 2. Difficulty Detection
+        // 1. Difficulty Detection
         $suggestedDifficulty = "Tous niveaux";
-        $advancedKeywords = ['expert', 'avancé', 'poussé', 'difficile', 'advanced', 'difficult'];
-        $intermediateKeywords = ['intermédiaire', 'moyen', 'base', 'intermediate', 'middle', 'moderate'];
-        $beginnerKeywords = ['débutant', 'initiation', 'découverte', 'facile', 'beginner', 'introduction', 'easy'];
+        if (str_contains($descriptionLower, 'expert') || str_contains($descriptionLower, 'avancé') || str_contains($descriptionLower, 'senior')) $suggestedDifficulty = "Avancé";
+        elseif (str_contains($descriptionLower, 'intermédiaire') || str_contains($descriptionLower, 'moyen')) $suggestedDifficulty = "Intermédiaire";
+        elseif (str_contains($descriptionLower, 'débutant') || str_contains($descriptionLower, 'initiation') || str_contains($descriptionLower, 'junior')) $suggestedDifficulty = "Débutant";
 
-        foreach ($advancedKeywords as $w) { if (str_contains($descriptionLower, $w)) { $suggestedDifficulty = "Avancé"; break; } }
-        if ($suggestedDifficulty === "Tous niveaux") {
-            foreach ($intermediateKeywords as $w) { if (str_contains($descriptionLower, $w)) { $suggestedDifficulty = "Intermédiaire"; break; } }
-        }
-        if ($suggestedDifficulty === "Tous niveaux") {
-            foreach ($beginnerKeywords as $w) { if (str_contains($descriptionLower, $w)) { $suggestedDifficulty = "Débutant"; break; } }
+        // 2. Category Matching
+        $suggestedCategory = 'Autre';
+        $maxScore = 0;
+        foreach ($knowledgeBase as $cat => $keywords) {
+            $score = 0;
+            foreach ($keywords as $kw) {
+                if (str_contains($descriptionLower, $kw)) $score++;
+            }
+            if ($score > $maxScore) {
+                $maxScore = $score;
+                $suggestedCategory = $cat;
+            }
         }
 
         // 3. Time Estimation
         $suggestedTime = "18:00";
-        $morning = ['matin', 'petit-déjeuner', 'early', 'morning', 'breakfast'];
-        $noon = ['midi', 'déjeuner', 'lunch', 'noon', 'afternoon'];
-        $evening = ['soir', 'nuit', 'night', 'fête', 'soirée', 'evening', 'cocktail', 'dark', 'dinner'];
+        $morning = ['matin', 'petit-déjeuner', 'early', 'morning', 'breakfast', 'prie', '08h', '09h', '10h'];
+        $noon = ['midi', 'déjeuner', 'lunch', 'noon', 'afternoon', 'lunch time', '12h', '13h', '14h', '12:00', '13:00'];
+        $evening = ['soir', 'nuit', 'night', 'fête', 'soirée', 'evening', 'cocktail', 'dark', 'dinner', 'apéro', '18h', '19h', '20h'];
 
         foreach ($morning as $w) { if (str_contains($descriptionLower, $w)) { $suggestedTime = "09:00"; break; } }
         if ($suggestedTime === "18:00") {
@@ -99,53 +89,54 @@ class AIService
             foreach ($evening as $w) { if (str_contains($descriptionLower, $w)) { $suggestedTime = "19:00"; break; } }
         }
 
-        // 4. Marketing Tags Generation
-        $tags = [];
-        if ($suggestedCategory !== "Autre") $tags[] = $suggestedCategory;
-        if ($suggestedDifficulty !== "Tous niveaux") $tags[] = $suggestedDifficulty;
-        
-        preg_match_all('/\b[A-Z][a-z]+\b/', $description, $topicMatches);
-        if (!empty($topicMatches[0])) {
-            $tags = array_merge($tags, array_slice($topicMatches[0], 0, 3));
-        }
-        $tags = array_values(array_unique($tags));
-
-        // 5. Entity Extraction
-        $suggestedPrix = 0;
-        if (preg_match('/(\d+(?:[.,]\d+)?)\s*(€|\$|£|usd|tnd|dt|dinars|dinars tunisiens)/i', $descriptionLower, $priceMatch)) {
-            $suggestedPrix = (float)str_replace(',', '.', $priceMatch[1]);
-        } elseif (preg_match('/\b(gratuit|free|0€|0\$|offert)\b/i', $descriptionLower)) {
-            $suggestedPrix = 0;
-        }
-
+        // 4. Price & Capacity Suggestions
+        $suggestedPrix = "20.00";
         $suggestedCapacite = 50;
-        if (preg_match('/(?:limité à|max|maximum|capacité|uniquement|environ|jusqu\'à)\s*(\d+)/i', $descriptionLower, $capMatch)) {
-            $suggestedCapacite = (int)$capMatch[1];
-        } elseif (preg_match('/(\d+)\s*(?:personnes|places|invités|people|guests|participants)/i', $descriptionLower, $capMatch)) {
-            $suggestedCapacite = (int)$capMatch[1];
+        
+        if (str_contains($descriptionLower, 'gratuit') || str_contains($descriptionLower, 'free') || str_contains($descriptionLower, 'hackathon')) $suggestedPrix = "0.00";
+        if (str_contains($descriptionLower, 'vip') || str_contains($descriptionLower, 'luxe') || str_contains($descriptionLower, 'gala')) $suggestedPrix = "150.00";
+        
+        if (str_contains($descriptionLower, 'petit') || str_contains($descriptionLower, 'intimiste')) $suggestedCapacite = 15;
+        if (str_contains($descriptionLower, 'grand') || str_contains($descriptionLower, 'stade') || str_contains($descriptionLower, 'festival')) $suggestedCapacite = 500;
+
+        // 5. Location Suggestions
+        $suggestedLieu = "Tunis, Tunisie";
+        if (str_contains($descriptionLower, 'plage') || str_contains($descriptionLower, 'mer')) $suggestedLieu = "Hammamet, Tunisie";
+        if (str_contains($descriptionLower, 'culture') || str_contains($descriptionLower, 'histoire') || str_contains($descriptionLower, 'monument')) $suggestedLieu = "Carthage, Tunisie";
+        if (str_contains($descriptionLower, 'dev') || str_contains($descriptionLower, 'tech') || str_contains($descriptionLower, 'hackathon') || str_contains($descriptionLower, 'code')) $suggestedLieu = "Technopole El Ghazala, Tunisie";
+        
+        // Final title logic if still empty
+        if ($suggestedTitre === "" && $suggestedCategory !== 'Autre') {
+            $suggestedTitre = $suggestedCategory . " à " . explode(',', $suggestedLieu)[0];
         }
 
-        $suggestedLieu = "";
-        if (preg_match('/(?:at|in|à|dans|lieu[:\s]|au|à l\'|chez)\s*([A-Z\s][a-zA-Z\s]{3,30})/i', $description, $locMatch)) {
-            $suggestedLieu = trim($locMatch[1]);
-        }
-
-        // 6. Smart Marketing Hook
+        // 6. Tags & Hooks
+        $tags = ['IA', 'Communauté', 'Naja7ni'];
+        if ($suggestedCategory !== 'Autre') $tags[] = $suggestedCategory;
+        
         $hooks = [
-            'Networking' => "Élargissez votre réseau et connectez-vous avec des leaders d'opinion.",
-            'Technologie' => "Plongez dans le futur de l'innovation technologique.",
-            'Formation' => "Boostez vos compétences avec nos experts passionnés.",
-            'Sport' => "Dépassez vos limites lors de ce challenge sportif unique.",
-            'Musique' => "Vivez une expérience sonore inoubliable en live.",
-            'Gaming' => "Rejoignez la compétition et montrez votre talent.",
+            'Musique' => "Vivez une expérience sonore unique avec nos artistes talentueux.",
+            'Sport' => "Dépassez vos limites lors de cet événement sportif de haut niveau.",
+            'Technologie' => "Découvrez les dernières innovations qui façonnent notre futur.",
+            'Formation' => "Boostez vos compétences grâce à nos formateurs experts.",
+            'Networking' => "Élargissez votre cercle professionnel et créez des opportunités.",
             'Art' => "Laissez-vous inspirer par la créativité et la beauté de l'art."
         ];
         $marketingHook = $hooks[$suggestedCategory] ?? "Ne manquez pas cet événement exceptionnel !";
+        
+        // Calculate end time (default +2 hours or longer for specific events)
+        $duration = 2;
+        if ($suggestedCategory === 'Technologie' && str_contains($descriptionLower, 'hackathon')) $duration = 48;
+        if ($suggestedCategory === 'Formation') $duration = 4;
+        
+        $endTime = date('H:i', strtotime($suggestedTime . " +$duration hours"));
 
         return [
+            'titre' => $suggestedTitre ?: ($suggestedCategory . ' Event'),
             'category' => $suggestedCategory,
             'difficulty' => $suggestedDifficulty,
             'suggested_time' => $suggestedTime,
+            'suggested_endtime' => $endTime,
             'suggested_prix' => $suggestedPrix,
             'suggested_capacite' => $suggestedCapacite,
             'suggested_lieu' => $suggestedLieu,

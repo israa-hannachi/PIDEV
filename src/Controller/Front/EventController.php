@@ -51,6 +51,12 @@ class EventController extends AbstractController
                     error_log("AI Recommendation Engine Error: " . $e->getMessage());
                 }
             }
+        } else {
+            // Check session for guest registration
+            $lastId = $request->getSession()->get('last_registration_id_' . $event->getId());
+            if ($lastId) {
+                $userRegistration = $registrationRepository->find($lastId);
+            }
         }
 
         $registration = new Registration();
@@ -65,82 +71,6 @@ class EventController extends AbstractController
         $form = $this->createForm(RegistrationType::class, $registration);
         
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            if ($event->getInscrits() >= $event->getCapacite()) {
-                $this->addFlash('error', 'Cet événement est complet.');
-                return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
-            }
-
-            $entityManager->persist($registration);
-
-            if ((float) $event->getPrix() > 0 && $registration->getPaymentMethod() === 'paymee') {
-                // Event is paid via Paymee - set to pending and create Paymee payment
-                $registration->setStatut('en_attente');
-                $entityManager->flush();
-
-                try {
-                    $returnUrl = $this->generateUrl('app_front_payment_cancel', ['id' => $registration->getId()], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
-                    $callbackUrl = $this->generateUrl('app_front_payment_success', ['id' => $registration->getId()], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
-                    
-                    // Split name for V2
-                    $nameParts = explode(' ', $registration->getVisitorName(), 2);
-                    $firstName = $nameParts[0] ?? 'Client';
-                    $lastName = $nameParts[1] ?? 'Naja7ni';
-
-                    $paymentData = $paymeeService->createPayment(
-                        (float) $event->getPrix(),
-                        sprintf('NAJA7NI-EVT%d-REG%d', $event->getId(), $registration->getId()),
-                        $firstName,
-                        $lastName,
-                        $registration->getVisitorEmail(),
-                        '+21622222222', // Standard Paymee Sandbox Phone Number
-                        $callbackUrl,
-                        'Naja7ni - Inscription: ' . $event->getTitre()
-                    );
-
-                    if (isset($paymentData['status']) && $paymentData['status'] === true && isset($paymentData['data']['token'])) {
-                        // Store the token and redirect user to Paymee Gateway
-                        $registration->setPaymentToken($paymentData['data']['token']);
-                        $entityManager->flush();
-                        
-                        $this->addFlash('paymee_token', $paymentData['data']['token']);
-                        $this->addFlash('registration_id_payment', $registration->getId());
-                        return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
-                    }
-
-                    // Debugging: Log the problematic response
-                    error_log("Paymee Payment Creation Failed: " . json_encode($paymentData));
-                    $this->addFlash('error', 'Impossible de créer le paiement Paymee. Détails: ' . ($paymentData['message'] ?? 'Erreur inconnue de l\'API'));
-                } catch (\Exception $e) {
-                    error_log("Paymee Connection Error: " . $e->getMessage());
-                    $this->addFlash('error', 'Erreur de paiement: ' . $e->getMessage());
-                }
-
-                return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
-            } elseif ((float) $event->getPrix() > 0 && $registration->getPaymentMethod() === 'espece') {
-                // Event is paid via Cash - set to pending but no Paymee
-                $registration->setStatut('en_attente');
-                $entityManager->flush();
-                
-                $this->addFlash('success', 'Votre inscription est enregistrée ! Veuillez régler le montant de ' . $event->getPrix() . ' DT sur place le jour de l\'événement.');
-                $this->addFlash('registration_id', $registration->getId());
-                return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
-            }
-
-            $event->setInscrits($event->getInscrits() + 1);
-            $registration->setStatut('confirmé');
-            $entityManager->flush();
-
-            // Send admin notifications
-            $notificationService->notifyNewRegistration($registration);
-            $notificationService->checkCapacityWarning($event);
-
-            $this->addFlash('success', 'Votre inscription est réussie ! Bienvenue à l\'événement.');
-            $this->addFlash('registration_id', $registration->getId());
-            
-            return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
-        }
 
         return $this->render('front/events/show.html.twig', [
             'event' => $event,

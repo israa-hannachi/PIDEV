@@ -21,7 +21,8 @@ class RegistrationController extends AbstractController
         Request $request, 
         EntityManagerInterface $entityManager,
         NotificationService $notificationService,
-        \App\Service\PaymeeService $paymeeService
+        \App\Service\PaymeeService $paymeeService,
+        \App\Service\PdfService $pdfService
     ): Response {
         if ($event->getInscrits() >= $event->getCapacite()) {
             $this->addFlash('error', 'Cet événement est complet.');
@@ -80,21 +81,35 @@ class RegistrationController extends AbstractController
                     $this->addFlash('error', 'Erreur de paiement: ' . $e->getMessage());
                 }
 
-                // If payment creation fails, rollback capacity wouldn't matter since we didn't increment it
-                // We just redirect back to event show.
+                return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
+            } elseif ((float) $event->getPrix() > 0 && $registration->getPaymentMethod() === 'espece') {
+                // Event is paid via Cash - set to pending but no Paymee
+                // We should increment inscrits to block the spot for the user
+                $registration->setStatut('en_attente');
+                $event->setInscrits($event->getInscrits() + 1);
+                $entityManager->flush();
+                
+                // Store in session for guest users to see ticket button
+                $request->getSession()->set('last_registration_id_' . $event->getId(), $registration->getId());
+                
+                $this->addFlash('success', 'Votre inscription est enregistrée ! Veuillez régler le montant de ' . $event->getPrix() . ' DT sur place.');
+                $this->addFlash('registration_id', $registration->getId());
                 return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
             }
 
-            // Free Event - Instant confirmation
+            // Free Event or direct confirmation
             $registration->setStatut('confirmé');
             $event->setInscrits($event->getInscrits() + 1);
             $entityManager->flush();
+
+            // Store in session for guest users to see ticket button
+            $request->getSession()->set('last_registration_id_' . $event->getId(), $registration->getId());
 
             // Send admin notifications
             $notificationService->notifyNewRegistration($registration);
             $notificationService->checkCapacityWarning($event);
 
-            $this->addFlash('success', 'Registration successful! See you at the event.');
+            $this->addFlash('success', 'Inscription réussie ! Au plaisir de vous voir à l\'événement.');
             $this->addFlash('registration_id', $registration->getId());
             return $this->redirectToRoute('app_front_event_show', ['id' => $event->getId()]);
         }
@@ -106,38 +121,29 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/registration/{id}/ticket', name: 'app_front_registration_ticket')]
-    public function downloadTicket(Registration $registration): Response
+    public function downloadTicket(Registration $registration, \App\Service\PdfService $pdfService): Response
     {
-        // Simple PDF generation using basic HTML for now (requires dompdf)
-        $html = $this->renderView('front/events/ticket_pdf.html.twig', [
-            'registration' => $registration,
-            'event' => $registration->getEvenement(),
-        ]);
+        try {
+            $pdfContent = $pdfService->generateTicketPdf($registration);
+            $filename = $pdfService->getTicketFilename($registration);
 
-        if (class_exists(\Dompdf\Dompdf::class)) {
-            $options = new \Dompdf\Options();
-            $options->set('isRemoteEnabled', true);
-            $options->set('defaultFont', 'Helvetica');
-            
-            $dompdf = new \Dompdf\Dompdf($options);
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('A4', 'portrait');
-            $dompdf->render();
-
-            $filename = sprintf(
-                'Ticket_%s_%s.pdf',
-                str_replace([' ', '/', '\\'], '_', $registration->getEvenement()->getTitre()),
-                $registration->getId()
-            );
-
-            return new Response($dompdf->output(), 200, [
+            return new Response($pdfContent, 200, [
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ]);
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur lors de la génération du PDF : ' . $e->getMessage());
+            return $this->redirectToRoute('app_front_event_show', ['id' => $registration->getEvenement()->getId()]);
         }
+    }
 
-        // Fallback or error if dompdf not installed
-        return new Response("PDF generation is currently being set up. Please try again in a few moments.", 200);
+    #[Route('/registration/{id}/view', name: 'app_front_registration_ticket_view')]
+    public function viewTicket(Registration $registration): Response
+    {
+        return $this->render('front/events/ticket_view.html.twig', [
+            'registration' => $registration,
+            'event' => $registration->getEvenement(),
+        ]);
     }
 
     #[Route('/registration/{id}/cancel', name: 'app_front_registration_cancel', methods: ['POST'])]

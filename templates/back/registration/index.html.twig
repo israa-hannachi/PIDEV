@@ -1,47 +1,200 @@
 {% extends 'back/base_admin.html.twig' %}
 
-{% block title %}Registration index{% endblock %}
+{% block title %}Registrations Management - Admin{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('back_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Registrations</li>
+{% endblock %}
+
+{% block header_title %}Registrations & Participation{% endblock %}
 
 {% block body %}
-    <h1>Registration index</h1>
+    <div class="main-content">
+        <!-- Statistics Section -->
+        <div class="row mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="card stretch stretch-full border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-text bg-primary-subtle text-primary">
+                                <i class="feather-user-check"></i>
+                            </div>
+                            <div>
+                                <div class="fs-5 fw-bold text-dark">{{ registrations|length }}</div>
+                                <h3 class="fs-11 fw-semibold text-muted mb-0">Total Registrations</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card stretch stretch-full border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-text bg-success-subtle text-success">
+                                <i class="feather-check-circle"></i>
+                            </div>
+                            <div>
+                                <div class="fs-5 fw-bold text-dark">
+                                    {{ registrations|filter(r => r.statut == 'confirmé' or r.statut == 'inscrit')|length }}
+                                </div>
+                                <h3 class="fs-11 fw-semibold text-muted mb-0">Confirmed</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card stretch stretch-full border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-text bg-warning-subtle text-warning">
+                                <i class="feather-clock"></i>
+                            </div>
+                            <div>
+                                <div class="fs-5 fw-bold text-dark">
+                                    {{ registrations|filter(r => r.statut == 'en_attente')|length }}
+                                </div>
+                                <h3 class="fs-11 fw-semibold text-muted mb-0">Pending Payment</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card stretch stretch-full border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-text bg-danger-subtle text-danger">
+                                <i class="feather-x-circle"></i>
+                            </div>
+                            <div>
+                                <div class="fs-5 fw-bold text-dark">
+                                    {{ registrations|filter(r => r.statut == 'annulé')|length }}
+                                </div>
+                                <h3 class="fs-11 fw-semibold text-muted mb-0">Cancelled</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-
-                <th>VisitorName</th>
-                <th>VisitorEmail</th>
-                <th>DateInscription</th>
-                <th>Statut</th>
-                <th>Presence</th>
-
-                <th>Notes</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for registration in registrations %}
-            <tr>
-
-                <td>{{ registration.visitorName }}</td>
-                <td>{{ registration.visitorEmail }}</td>
-                <td>{{ registration.dateInscription ? registration.dateInscription|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ registration.statut }}</td>
-                <td>{{ registration.presence ? 'Yes' : 'No' }}</td>
-
-                <td>{{ registration.notes }}</td>
-                <td>
-                    <a href="{{ path('back_registration_show', {'id': registration.id}) }}">show</a>
-                    <a href="{{ path('back_registration_edit', {'id': registration.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="11">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('back_registration_new') }}">Create new</a>
+        <!-- Registrations List with Tabs -->
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Registration Records</h5>
+                    <a href="{{ path('back_registration_new') }}" class="btn btn-primary btn-sm">
+                        <i class="feather-plus me-1"></i> New Registration
+                    </a>
+                </div>
+                
+                <!-- Status Tabs -->
+                <ul class="nav nav-tabs nav-tabs-custom bg-light rounded-top" id="registrationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold px-4 py-3" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-selected="true">
+                            All
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-4 py-3" id="confirmed-tab" data-bs-toggle="tab" data-bs-target="#confirmed" type="button" role="tab" aria-selected="false">
+                            Confirmed
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-4 py-3" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-selected="false">
+                            Pending
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-4 py-3" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab" aria-selected="false">
+                            Cancelled
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="tab-content">
+                    {% set statuses = ['all', 'confirmé', 'en_attente', 'annulé'] %}
+                    {% for tab_status in statuses %}
+                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" id="{{ tab_status == 'confirmé' ? 'confirmed' : (tab_status == 'en_attente' ? 'pending' : (tab_status == 'annulé' ? 'cancelled' : 'all')) }}" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light text-muted uppercase fs-10 fw-bold tracking-wider">
+                                        <tr>
+                                            <th class="ps-4">Visitor</th>
+                                            <th>Event</th>
+                                            <th>Registration Date</th>
+                                            <th>Method</th>
+                                            <th>Presence</th>
+                                            <th>Status</th>
+                                            <th class="text-end pe-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% set filtered_regs = tab_status == 'all' ? registrations : registrations|filter(r => r.statut == tab_status) %}
+                                        
+                                        {% for registration in filtered_regs %}
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="fw-bold text-dark">{{ registration.visitorName }}</div>
+                                                    <div class="fs-12 text-muted">{{ registration.visitorEmail }}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="fs-13 fw-medium text-dark">{{ registration.evenement.titre }}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="fs-13 text-dark">{{ registration.dateInscription|date('d M, Y') }}</div>
+                                                    <div class="fs-12 text-muted">{{ registration.dateInscription|date('H:i') }}</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border">{{ registration.paymentMethod|default('---')|upper }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if registration.presence %}
+                                                        <span class="badge bg-success-subtle text-success">Present</span>
+                                                    {% else %}
+                                                        <span class="badge bg-light text-muted">Absent</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% set status_class = {
+                                                        'confirmé': 'success',
+                                                        'inscrit': 'success',
+                                                        'en_attente': 'warning',
+                                                        'annulé': 'danger',
+                                                        'refusé': 'danger'
+                                                    }[registration.statut] | default('secondary') %}
+                                                    <span class="badge bg-{{ status_class }}-subtle text-{{ status_class }} border border-{{ status_class }}-subtle">
+                                                        {{ registration.statut|upper }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <div class="d-flex justify-content-end gap-2">
+                                                        <a href="{{ path('back_registration_show', {'id': registration.id}) }}" class="btn btn-sm btn-light-primary">
+                                                            <i class="feather-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('back_registration_edit', {'id': registration.id}) }}" class="btn btn-sm btn-light-info">
+                                                            <i class="feather-edit"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5 text-muted">No registration records found for this status.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

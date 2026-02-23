@@ -17,6 +17,9 @@ class AIIntelligenceController extends AbstractController
     public function suggestTiming(Request $request, EventTimingAnalyzer $timingAnalyzer): JsonResponse
     {
         $category = $request->request->get('category');
+        if (!$category) {
+            return new JsonResponse([]);
+        }
         $suggestions = $timingAnalyzer->suggestOptimalTiming($category);
 
         return new JsonResponse($suggestions);
@@ -29,10 +32,10 @@ class AIIntelligenceController extends AbstractController
         
         // Create a transient Event entity for prediction
         $event = new Event();
-        $event->setTitre($data['titre'] ?? 'Untitled');
+        $event->setTitre($data['titre'] ?? 'Exploration sans titre');
         $event->setCategorie($data['category'] ?? 'Autre');
         $event->setCapacite((int)($data['capacite'] ?? 50));
-        $event->setPrix((float)($data['prix'] ?? 0));
+        $event->setPrix($data['prix'] ?? '0.00');
         
         if (!empty($data['dateDebut'])) {
             try {

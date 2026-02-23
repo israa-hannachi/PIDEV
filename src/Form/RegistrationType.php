@@ -14,8 +14,8 @@ class RegistrationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('visitorName', null, ['label' => 'Nom'])
-            ->add('visitorEmail', null, ['label' => 'Email'])
+            ->add('visitorName', null, ['label' => 'Nom', 'required' => false])
+            ->add('visitorEmail', null, ['label' => 'Email', 'required' => false])
             ->add('notes', null, ['required' => false, 'label' => 'Notes'])
             ->add('paymentMethod', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
                 'choices' => [
@@ -24,7 +24,7 @@ class RegistrationType extends AbstractType
                 ],
                 'label' => 'Méthode de paiement',
                 'placeholder' => 'Choisir une méthode',
-                'required' => true,
+                'required' => false,
             ])
         ;
     }

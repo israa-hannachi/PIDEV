@@ -7,102 +7,101 @@
         @page { margin: 0; }
         body { 
             font-family: 'Helvetica', sans-serif; 
-            color: #1e293b; 
+            color: #334155; 
             margin: 0;
-            padding: 40px;
-            background-color: #f8fafc;
+            padding: 20px;
+            background-color: #f1f5f9;
         }
         .container {
-            max-width: 650px;
+            max-width: 700px;
             margin: 0 auto;
         }
         .ticket {
             background: white;
-            border-radius: 30px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
         }
         .header {
-            background: linear-gradient(135deg, #0FB5A9 0%, #0d9488 100%);
-            padding: 40px;
+            background: #0FB5A9;
+            padding: 30px;
             text-align: center;
             color: white;
+            position: relative;
         }
         .logo { 
-            font-size: 28px; 
-            font-weight: bold; 
-            letter-spacing: 2px;
-            margin-bottom: 20px;
+            font-size: 14px; 
+            font-weight: 800; 
+            letter-spacing: 4px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            opacity: 0.9;
         }
         .event-title { 
-            font-size: 24px; 
-            font-weight: bold; 
+            font-size: 28px; 
+            font-weight: 800; 
             margin: 0;
-            line-height: 1.2;
+            line-height: 1.1;
+            text-transform: uppercase;
         }
         .body {
             padding: 40px;
+            position: relative;
         }
         .grid {
-            display: table;
             width: 100%;
-            margin-bottom: 30px;
+            border-collapse: collapse;
         }
         .col {
-            display: table-cell;
             width: 50%;
-            vertical-align: top;
+            padding-bottom: 30px;
         }
         .label { 
-            font-size: 10px; 
-            color: #64748b; 
+            font-size: 11px; 
+            color: #94a3b8; 
             text-transform: uppercase; 
-            font-weight: bold; 
-            margin-bottom: 5px; 
-            letter-spacing: 1px;
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            letter-spacing: 1.5px;
         }
         .value { 
-            font-size: 15px; 
-            font-weight: bold; 
-            margin-bottom: 20px; 
-            color: #0f172a;
+            font-size: 18px; 
+            font-weight: 700; 
+            color: #1e293b;
         }
         .qr-section {
             text-align: center;
             padding: 30px;
-            background: #f1f5f9;
-            border-top: 2px dashed #cbd5e1;
+            background: #f8fafc;
+            border-top: 2px dashed #e2e8f0;
         }
-        .qr-placeholder {
-            width: 120px;
-            height: 120px;
+        .qr-image {
+            width: 140px;
+            height: 140px;
             background: white;
-            border: 8px solid white;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
             display: inline-block;
-            margin-bottom: 15px;
-            border-radius: 10px;
         }
         .footer {
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
             padding: 20px;
             background: white;
-        }
-        .cut-line {
-            height: 0;
-            border-top: 2px dashed #cbd5e1;
-            position: relative;
-            margin: 20px 0;
+            border-top: 1px solid #f1f5f9;
         }
         .badge {
             background-color: #0FB5A9;
             color: white;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-block;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -138,12 +137,15 @@
             </div>
 
             <div class="qr-section">
-                <div class="qr-placeholder" style="border: 2px solid #cbd5e1; display: table; margin: 0 auto;">
-                    <div style="display: table-cell; vertical-align: middle; padding: 10px; color: #cbd5e1; font-weight: bold; font-size: 10px;">
-                        SCAN QR CODE<br>NAJA7NI
-                    </div>
+                <div style="margin-bottom: 15px;">
+                    {% if qr_code %}
+                        <img src="{{ qr_code }}" class="qr-image" alt="QR Code Ticket">
+                    {% else %}
+                        <div class="qr-image" style="display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px;">QR CODE ERROR</div>
+                    {% endif %}
                 </div>
-                <div class="label">ID TRANSACTION: #REG-{{ registration.id }}</div>
+                <div class="label">SCANNER POUR VÉRIFIER L'ACCÈS</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 5px; font-weight: bold;">TICKET #REG{{ registration.id|upper }}</div>
             </div>
             
             <div class="footer">

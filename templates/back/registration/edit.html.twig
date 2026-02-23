@@ -2,12 +2,32 @@
 
 {% block title %}Edit Registration{% endblock %}
 
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ path('back_dashboard') }}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('back_registration_index') }}">Registrations</a></li>
+    <li class="breadcrumb-item active">Edit Registration</li>
+{% endblock %}
+
 {% block body %}
-    <h1>Edit Registration</h1>
-
-    {{ include('back/registration/_form.html.twig', {'button_label': 'Update'}) }}
-
-    <a href="{{ path('back_registration_index') }}">back to list</a>
-
-    {{ include('back/registration/_delete_form.html.twig') }}
+<div class="main-content">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="card-title mb-0">Edit Registration #{{ registration.id }}</h5>
+                        <div class="badge bg-soft-primary text-primary">{{ registration.statut|upper }}</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{ include('back/registration/_form.html.twig', {'button_label': 'Update Registration'}) }}
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                {{ include('back/registration/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

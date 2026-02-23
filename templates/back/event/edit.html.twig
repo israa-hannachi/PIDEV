@@ -1,13 +1,38 @@
 {% extends 'back/base_admin.html.twig' %}
 
-{% block title %}Edit Event{% endblock %}
+{% block title %}Modifier l'Événement{% endblock %}
 
 {% block body %}
-    <h1>Edit Event</h1>
+<div class="nxl-content">
+    <!-- [ Page Header ] start -->
+    <div class="page-header">
+        <div class="page-header-left d-flex align-items-center">
+            <div class="page-header-title">
+                <h5 class="m-b-10">Gestion des Événements</h5>
+            </div>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('back_event_index') }}">Événements</a></li>
+                <li class="breadcrumb-item">Modifier</li>
+                <li class="breadcrumb-item active">{{ event.titre }}</li>
+            </ul>
+        </div>
+        <div class="page-header-right ms-auto">
+            <div class="page-header-right-items">
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ path('back_event_index') }}" class="btn btn-light-brand">
+                        <i class="feather-list me-2"></i>Retour
+                    </a>
+                    {{ include('back/event/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Page Header ] end -->
 
-    {{ include('back/event/_form.html.twig', {'button_label': 'Update'}) }}
-
-    <a href="{{ path('back_event_index') }}">back to list</a>
-
-    {{ include('back/event/_delete_form.html.twig') }}
+    <!-- [ Main Content ] start -->
+    <div class="main-content">
+        {{ include('back/event/_form.html.twig', {'button_label': 'Mettre à jour l\'Événement'}) }}
+    </div>
+    <!-- [ Main Content ] end -->
+</div>
 {% endblock %}

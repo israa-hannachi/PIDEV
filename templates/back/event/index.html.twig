@@ -90,33 +90,16 @@
 
         <!-- Events List & Calendar -->
         <div class="card border-0 shadow-sm overflow-hidden">
-            <div class="card-header bg-white py-3 border-bottom-0">
-                <div class="d-flex justify-content-end align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 fw-bold"><i class="feather-list me-2"></i>Liste des Événements</h5>
                     <a href="{{ path('back_event_new') }}" class="btn btn-primary btn-sm">
                         <i class="feather-plus me-1"></i> Create New Event
                     </a>
                 </div>
-                
-                <!-- Nav Tabs -->
-                <ul class="nav nav-tabs nav-tabs-custom bg-light rounded-top" id="eventViewTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-bold px-4 py-3" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-view" type="button" role="tab" aria-controls="list-view" aria-selected="true">
-                            <i class="feather-list me-2"></i>List View
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold px-4 py-3" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-view" type="button" role="tab" aria-controls="calendar-view" aria-selected="false">
-                            <i class="feather-calendar me-2"></i>Notes & Calendrier
-                        </button>
-                    </li>
-                </ul>
             </div>
             
             <div class="card-body p-0">
-                <div class="tab-content" id="eventViewTabsContent">
-                    <!-- List View Tab -->
-                    <div class="tab-pane fade show active" id="list-view" role="tabpanel" aria-labelledby="list-tab">
-                        <div class="table-responsive">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light text-muted uppercase fs-10 fw-bold tracking-wider">
                             <tr>
@@ -126,7 +109,6 @@
                                 <th>Capacity</th>
                                 <th>Price</th>
                                 <th>Status</th>
-                                <th>Notes Interne</th>
                                 <th class="text-end pe-4">Actions</th>
                             </tr>
                         </thead>
@@ -158,7 +140,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="fw-bold text-dark">{{ event.inscrits }}/{{ event.capacite }}</div>
-                                        {% set percent = (event.inscrits / event.capacite * 100)|round %}
+                                        {% set percent = event.capacite > 0 ? (event.inscrits / event.capacite * 100)|round : 0 %}
                                         <div class="progress flex-grow-1 ht-4" style="min-width: 60px;">
                                             <div class="progress-bar bg-{{ percent > 90 ? 'danger' : (percent > 70 ? 'warning' : 'success') }}" role="progressbar" style="width: {{ percent }}%"></div>
                                         </div>
@@ -171,11 +153,6 @@
                                     <span class="badge bg-{{ event.statut == 'planifié' ? 'warning' : 'success' }}-subtle text-{{ event.statut == 'planifié' ? 'warning' : 'success' }}">
                                         {{ event.statut|capitalize }}
                                     </span>
-                                </td>
-                                <td>
-                                    <div class="fs-11 text-muted text-truncate" style="max-width: 150px;" title="{{ event.notesInterne }}">
-                                        {{ event.notesInterne|default('---') }}
-                                    </div>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-2">
@@ -194,22 +171,7 @@
                             </tr>
                         {% endfor %}
                         </tbody>
-                    </div>
-                    
-                    <!-- Calendar Note View Tab -->
-                    <div class="tab-pane fade" id="calendar-view" role="tabpanel" aria-labelledby="calendar-tab">
-                        <div class="p-4 bg-white">
-                            <div class="alert alert-info bg-info-subtle text-info border-0 mb-4 d-flex align-items-center">
-                                <i class="feather-info me-2 fs-4"></i>
-                                <div>
-                                    <strong>Calendar Notes & Events</strong><br>
-                                    <span class="fs-12">Click on any date to schedule a new event or add a note for that day.</span>
-                                </div>
-                            </div>
-                            <!-- FullCalendar Container -->
-                            <div id="admin-calendar" style="min-height: 600px;"></div>
-                        </div>
-                    </div>
+                    </table>
                 </div>
             </div>
         </div>

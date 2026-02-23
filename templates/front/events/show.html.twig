@@ -46,6 +46,22 @@
     </div>
 {% endfor %}
 
+{# Generic Flash Messages for Show Page (since base hides them) #}
+{% for label, messages in app.flashes %}
+    {% if label in ['success', 'error', 'warning', 'info'] and label != 'registration_id' and label != 'paymee_token' %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 rounded-2xl flex items-center gap-3 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300
+                {{ label == 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
+                   label == 'error' ? 'bg-red-50 text-red-700 border border-red-100' : 
+                   label == 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 
+                   'bg-blue-50 text-blue-700 border border-blue-100' }}">
+                <i data-lucide="{{ label == 'success' ? 'check-circle' : label == 'error' ? 'alert-circle' : label == 'warning' ? 'alert-triangle' : 'info' }}" class="w-5 h-5"></i>
+                <span class="text-sm font-bold">{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+
 {% for paymee_token in app.flashes('paymee_token') %}
     <div id="paymee-modal-trigger" data-token="{{ paymee_token }}" class="hidden"></div>
 {% endfor %}
@@ -193,6 +209,33 @@
                     </div>
                 </div>
 
+                <!-- Sponsors Section -->
+                {% if event.sponsors|length > 0 %}
+                    <div class="border-t border-border pt-8 mb-10">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="handshake" class="w-6 h-6 text-primary"></i>
+                            Nos Sponsors
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            {% for sponsor in event.sponsors %}
+                                <div class="group bg-white border border-border rounded-2xl p-4 transition-all hover:shadow-lg hover:border-primary/20 text-center">
+                                    <div class="aspect-square mb-4 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center p-4">
+                                        {% if sponsor.logo %}
+                                            <img src="{{ sponsor.logo }}" alt="{{ sponsor.nom }}" class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500">
+                                        {% else %}
+                                            <div class="w-full h-full bg-primary/5 text-primary flex items-center justify-center font-black text-xl">
+                                                {{ sponsor.nom|slice(0, 1)|upper }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-sm font-bold text-foreground mb-1">{{ sponsor.nom }}</p>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground bg-slate-100 px-2 py-0.5 rounded-full">{{ sponsor.type }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
                 <!-- Event Location Map -->
                 <div class="space-y-4">
                     <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -244,7 +287,7 @@
                     <i data-lucide="lock" class="w-4 h-4 opacity-40"></i>
                 </button>
 
-            {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
+            {{ form_start(form, {'action': path('app_front_event_register', {id: event.id}), 'attr': {'class': 'space-y-5', 'novalidate': 'novalidate'}}) }}
                 <div class="space-y-4">
                     <div>
                         {{ form_label(form.visitorName, null, {'label_attr': {'class': 'block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2'}}) }}
@@ -371,7 +414,7 @@
                         {% set progress = (event.inscrits / event.capacite * 100)|round %}
                         <div class="flex justify-between text-[10px] items-center font-bold px-1 uppercase tracking-wider">
                             <span class="text-muted-foreground">Places Disponibles</span>
-                            <span class="text-primary">{{ event.capacite - event.inscrits }} / {{ event.capacite }}</span>
+                            <span class="text-primary">{{ (event.capacite - event.inscrits > 0) ? (event.capacite - event.inscrits) : 0 }} / {{ event.capacite }}</span>
                         </div>
                         <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div class="h-full bg-primary transition-all duration-1000" style="width: {{ progress }}%;"></div>
@@ -379,7 +422,7 @@
                     </div>
                 </div>
 
-                {% if userRegistration %}
+                {% if userRegistration and userRegistration.statut != 'annulé' %}
                     <div class="space-y-4 mb-6 relative z-10">
                         <div class="p-4 bg-primary/5 rounded-2xl border border-primary/10">
                             <div class="flex justify-between items-center mb-3">
@@ -407,14 +450,29 @@
                             </div>
                         {% elseif userRegistration.statut == 'en_attente' %}
                             <div class="space-y-3">
-                                <a href="{{ path('app_front_payment_retry', {id: userRegistration.id}) }}" class="flex items-center justify-center gap-2 w-full py-4 bg-amber-500 text-white rounded-2xl font-black text-xs hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 group">
-                                    <i data-lucide="credit-card" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
-                                    FINALISER LE PAIEMENT (API)
-                                </a>
-                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-2">
-                                    <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400 mt-0.5"></i>
-                                    <p class="text-[9px] text-slate-500 leading-tight">Paiement via Paymee API. Vous resterez sur notre plateforme après validation.</p>
-                                </div>
+                                {% if userRegistration.paymentMethod == 'paymee' %}
+                                    <a href="{{ path('app_front_payment_retry', {id: userRegistration.id}) }}" class="flex items-center justify-center gap-2 w-full py-4 bg-amber-500 text-white rounded-2xl font-black text-xs hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 group">
+                                        <i data-lucide="credit-card" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+                                        FINALISER LE PAIEMENT (API)
+                                    </a>
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-2">
+                                        <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400 mt-0.5"></i>
+                                        <p class="text-[9px] text-slate-500 leading-tight">Paiement via Paymee API. Vous resterez sur notre plateforme après validation.</p>
+                                    </div>
+                                {% else %}
+                                    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <i data-lucide="clock" class="w-4 h-4 text-amber-600"></i>
+                                            <span class="text-[10px] font-black text-amber-900 uppercase">Paiement en attente</span>
+                                        </div>
+                                        <p class="text-[11px] text-amber-800 leading-relaxed font-medium">Veuillez régler le montant le jour de l'événement pour confirmer votre place.</p>
+                                    </div>
+                                    {# Also allow ticket download for cash pending? Typically yes, as proof of reservation #}
+                                    <a href="{{ path('app_front_registration_ticket', {id: userRegistration.id}) }}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 bg-white border border-amber-200 text-amber-600 rounded-xl hover:bg-amber-50 transition-all text-[11px] font-bold mt-2">
+                                        <i data-lucide="download" class="w-4 h-4"></i>
+                                        Regarder mon reçu de réservation
+                                    </a>
+                                {% endif %}
                             </div>
                         {% endif %}
 

@@ -1,1249 +1,365 @@
 {# =============================================================
    back/event/_form.html.twig
-   Event creation/edit form with integrated AI assistance
+   Premium state-of-the-art form with advanced AI integration
    ============================================================= #}
 
-{# ---------- CSS with better organization ---------- #}
 <style>
-  /* ===== DESIGN TOKENS ===== */
-  :root {
-    --ef-font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --ef-primary: #4361ee;
-    --ef-primary-hv: #3a56d4;
-    --ef-primary-lt: #e9ecfe;
-    --ef-success: #10b981;
-    --ef-success-lt: #e0f2e9;
-    --ef-warning: #f59e0b;
-    --ef-warning-lt: #fef3d9;
-    --ef-danger: #ef4444;
-    --ef-danger-lt: #fee2e2;
-    --ef-ai: #7c3aed;
-    --ef-ai-lt: #f2ebfe;
-    --ef-ai-border: #c7b2fd;
-    --ef-text: #1e293b;
-    --ef-label: #475569;
-    --ef-muted: #64748b;
-    --ef-bg: #f8fafc;
-    --ef-card: #ffffff;
-    --ef-border: #e2e8f0;
-    --ef-border-soft: #edf2f7;
-    --ef-radius: 16px;
-    --ef-radius-sm: 10px;
-    --ef-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    --ef-shadow-md: 0 8px 20px rgba(0,0,0,0.06);
-    --ef-transition: 0.2s ease;
-  }
-
-  /* ===== LAYOUT ===== */
-  .ef-shell {
-    font-family: var(--ef-font);
-    color: var(--ef-text);
-    background: var(--ef-bg);
-    padding: 2rem 0;
-  }
-
-  .ef-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
-
-  .ef-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
-    align-items: start;
-  }
-
-  @media (max-width: 1024px) {
-    .ef-grid {
-      grid-template-columns: 1fr;
+    :root {
+        --ai-primary: #8b5cf6;
+        --ai-primary-soft: rgba(139, 92, 246, 0.1);
+        --ai-glow: 0 0 20px rgba(139, 92, 246, 0.2);
     }
-  }
 
-  /* ===== HEADER ===== */
-  .ef-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding: 0 1.5rem;
-  }
-
-  .ef-header-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--ef-radius-sm);
-    background: linear-gradient(135deg, var(--ef-primary), var(--ef-ai));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    box-shadow: 0 8px 16px rgba(67,97,238,0.2);
-  }
-
-  .ef-header-content h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.3;
-  }
-
-  .ef-header-content p {
-    font-size: 0.875rem;
-    color: var(--ef-muted);
-    margin: 0.25rem 0 0;
-  }
-
-  /* ===== SECTIONS ===== */
-  .ef-section {
-    background: var(--ef-card);
-    border: 1px solid var(--ef-border);
-    border-radius: var(--ef-radius);
-    box-shadow: var(--ef-shadow);
-    margin-bottom: 1.25rem;
-    overflow: hidden;
-    transition: box-shadow var(--ef-transition), transform var(--ef-transition);
-  }
-
-  .ef-section:hover {
-    box-shadow: var(--ef-shadow-md);
-  }
-
-  .ef-section:focus-within {
-    box-shadow: 0 0 0 3px var(--ef-primary-lt), var(--ef-shadow-md);
-  }
-
-  .ef-section-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--ef-border-soft);
-    background: linear-gradient(to right, #fafbfd, #ffffff);
-  }
-
-  .ef-section-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-  }
-
-  .ef-section-icon.blue {
-    background: var(--ef-primary-lt);
-    color: var(--ef-primary);
-  }
-
-  .ef-section-icon.green {
-    background: var(--ef-success-lt);
-    color: var(--ef-success);
-  }
-
-  .ef-section-icon.amber {
-    background: var(--ef-warning-lt);
-    color: var(--ef-warning);
-  }
-
-  .ef-section-icon.violet {
-    background: var(--ef-ai-lt);
-    color: var(--ef-ai);
-  }
-
-  .ef-section-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--ef-label);
-    flex: 1;
-  }
-
-  .ef-section-badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    background: var(--ef-border-soft);
-    border-radius: 100px;
-    color: var(--ef-muted);
-  }
-
-  .ef-section-body {
-    padding: 1.5rem;
-  }
-
-  /* ===== FORM CONTROLS ===== */
-  .ef-form-group {
-    margin-bottom: 1.25rem;
-  }
-
-  .ef-form-group:last-child {
-    margin-bottom: 0;
-  }
-
-  .ef-label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--ef-label);
-    margin-bottom: 0.4rem;
-    letter-spacing: 0.01em;
-  }
-
-  .ef-label .required {
-    color: var(--ef-danger);
-    margin-left: 0.2rem;
-  }
-
-  .ef-input-wrapper {
-    position: relative;
-  }
-
-  .ef-input-icon {
-    position: absolute;
-    left: 0.9rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--ef-muted);
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-  }
-
-  .ef-input-icon ~ .ef-input {
-    padding-left: 2.5rem;
-  }
-
-  .ef-input {
-    width: 100%;
-    background: #fff;
-    color: var(--ef-text);
-    border: 1.5px solid var(--ef-border);
-    border-radius: var(--ef-radius-sm);
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    font-family: var(--ef-font);
-    transition: all var(--ef-transition);
-    outline: none;
-  }
-
-  .ef-input:focus {
-    border-color: var(--ef-primary);
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.12);
-  }
-
-  .ef-input.ai-filled {
-    border-color: var(--ef-ai);
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
-    background-color: var(--ef-ai-lt);
-    animation: efPulse 2s infinite ease-in-out;
-  }
-
-  @keyframes efPulse {
-    0% { box-shadow: 0 0 0 0px rgba(124, 58, 237, 0.3); }
-    70% { box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
-    100% { box-shadow: 0 0 0 0px rgba(124, 58, 237, 0); }
-  }
-
-  @keyframes efPop {
-    0% { transform: scale(0.98); }
-    60% { transform: scale(1.02); }
-    100% { transform: scale(1); }
-  }
-
-  textarea.ef-input {
-    resize: vertical;
-    min-height: 120px;
-  }
-
-  .ef-error {
-    font-size: 0.75rem;
-    color: var(--ef-danger);
-    margin-top: 0.3rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-
-  /* ===== AI TOOLBAR ===== */
-  .ef-ai-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .ef-ai-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .ef-btn-ai {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 1rem;
-    background: var(--ef-ai-lt);
-    border: 1px solid var(--ef-ai-border);
-    border-radius: 100px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--ef-ai);
-    cursor: pointer;
-    transition: all var(--ef-transition);
-  }
-
-  .ef-btn-ai:hover:not(:disabled) {
-    background: var(--ef-ai);
-    color: #fff;
-    border-color: var(--ef-ai);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
-  }
-
-  .ef-btn-ai:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .ef-btn-ai svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .ef-btn-help {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--ef-border-soft);
-    border: 1px solid var(--ef-border);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ef-muted);
-    cursor: pointer;
-    transition: all var(--ef-transition);
-  }
-
-  .ef-btn-help:hover {
-    background: var(--ef-primary-lt);
-    color: var(--ef-primary);
-    border-color: var(--ef-primary);
-  }
-
-  .ef-loading-indicator {
-    display: none;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--ef-ai);
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    background: var(--ef-ai-lt);
-    border-radius: var(--ef-radius-sm);
-  }
-
-  .ef-loading-indicator.visible {
-    display: flex;
-    animation: fadeIn 0.2s ease;
-  }
-
-  .ef-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--ef-ai-border);
-    border-top-color: var(--ef-ai);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* ===== INSIGHTS PANEL ===== */
-  .ef-insights {
-    background: var(--ef-card);
-    border: 1px solid var(--ef-ai-border);
-    border-radius: var(--ef-radius);
-    overflow: hidden;
-    position: sticky;
-    top: 2rem;
-  }
-
-  .ef-insights-header {
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, var(--ef-ai-lt) 0%, #fff 100%);
-    border-bottom: 1px solid var(--ef-ai-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .ef-insights-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 700;
-    color: var(--ef-ai);
-  }
-
-  .ef-insights-badge {
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.2rem 0.6rem;
-    background: var(--ef-ai);
-    color: #fff;
-    border-radius: 100px;
-    text-transform: uppercase;
-  }
-
-  .ef-insights-body {
-    padding: 1.5rem;
-  }
-
-  .ef-insights-empty {
-    text-align: center;
-    padding: 2rem 1rem;
-  }
-
-  .ef-insights-empty-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-
-  .ef-insights-empty-text {
-    font-size: 0.85rem;
-    color: var(--ef-muted);
-    line-height: 1.6;
-  }
-
-  /* Score gauge */
-  .ef-gauge {
-    margin-bottom: 1.5rem;
-  }
-
-  .ef-gauge-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .ef-gauge-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--ef-label);
-  }
-
-  .ef-gauge-score {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.2rem 0.8rem;
-    border-radius: 100px;
-  }
-
-  .ef-gauge-score.good {
-    background: var(--ef-success-lt);
-    color: var(--ef-success);
-  }
-
-  .ef-gauge-score.medium {
-    background: var(--ef-warning-lt);
-    color: var(--ef-warning);
-  }
-
-  .ef-gauge-score.poor {
-    background: var(--ef-danger-lt);
-    color: var(--ef-danger);
-  }
-
-  .ef-progress {
-    height: 8px;
-    background: var(--ef-border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .ef-progress-bar {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-  }
-
-  /* Suggestions */
-  .ef-suggestions {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--ef-ai-border);
-  }
-
-  .ef-suggestions-list {
-    margin: 0;
-    padding-left: 1.2rem;
-    font-size: 0.8rem;
-    color: var(--ef-muted);
-  }
-
-  .ef-suggestions-list li {
-    margin-bottom: 0.4rem;
-    line-height: 1.5;
-  }
-
-  .ef-suggestions-list li::marker {
-    color: var(--ef-ai);
-  }
-
-  .ef-success-message {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.8rem;
-    color: var(--ef-success);
-  }
-
-  /* Timing cards */
-  .ef-timing {
-    margin-top: 1.5rem;
-  }
-
-  .ef-timing-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--ef-label);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-
-  .ef-timing-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .ef-timing-card {
-    background: #fff;
-    border: 1.5px solid var(--ef-border);
-    border-radius: var(--ef-radius-sm);
-    padding: 0.75rem 0.5rem;
-    text-align: center;
-    transition: all var(--ef-transition);
-    animation: fadeInUp 0.3s ease both;
-  }
-
-  .ef-timing-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--ef-shadow-md);
-  }
-
-  .ef-timing-card.score-high {
-    border-color: var(--ef-success);
-    background: var(--ef-success-lt);
-  }
-
-  .ef-timing-card.score-mid {
-    border-color: var(--ef-warning);
-    background: var(--ef-warning-lt);
-  }
-
-  .ef-timing-card.score-low {
-    border-color: var(--ef-danger);
-    background: var(--ef-danger-lt);
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
+    .glass-card {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+
+    .form-control, .form-select {
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
     }
-  }
 
-  .ef-timing-day {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--ef-muted);
-    margin-bottom: 0.2rem;
-  }
-
-  .ef-timing-slot {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--ef-text);
-    line-height: 1.3;
-  }
-
-  .ef-timing-score {
-    display: inline-block;
-    margin-top: 0.3rem;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.1rem 0.5rem;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 100px;
-  }
-
-  .ef-timing-conflict {
-    font-size: 0.65rem;
-    color: var(--ef-danger);
-    margin-top: 0.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.2rem;
-  }
-
-  /* ===== ACTIONS ===== */
-  .ef-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: linear-gradient(to right, #fafbfd, #ffffff);
-    border-top: 1px solid var(--ef-border-soft);
-  }
-
-  .ef-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.5rem;
-    background: var(--ef-primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--ef-radius-sm);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--ef-transition);
-  }
-
-  .ef-btn-primary:hover {
-    background: var(--ef-primary-hv);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(67, 97, 238, 0.35);
-  }
-
-  .ef-btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.3rem;
-    background: #fff;
-    color: var(--ef-muted);
-    border: 1.5px solid var(--ef-border);
-    border-radius: var(--ef-radius-sm);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--ef-transition);
-    text-decoration: none;
-  }
-
-  .ef-btn-secondary:hover {
-    border-color: var(--ef-primary);
-    color: var(--ef-primary);
-    background: var(--ef-primary-lt);
-  }
-
-  .ef-autosave-note {
-    margin-left: auto;
-    font-size: 0.75rem;
-    color: var(--ef-muted);
-  }
-
-  /* ===== HINT MODAL ===== */
-  .ef-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-  }
-
-  .ef-modal.open {
-    display: flex;
-    animation: fadeIn 0.2s ease;
-  }
-
-  .ef-modal-content {
-    background: #fff;
-    border-radius: var(--ef-radius);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    padding: 2rem;
-    max-width: 440px;
-    width: 90%;
-    animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px) scale(0.97);
+    .form-control:focus, .form-select:focus {
+        border-color: var(--ai-primary);
+        box-shadow: 0 0 0 3px var(--ai-primary-soft);
     }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+
+    .ai-magic-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 1.25rem;
+        color: #fff;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.1);
     }
-  }
 
-  .ef-modal h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0 0 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--ef-ai);
-  }
-
-  .ef-modal-step {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .ef-step-number {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--ef-ai);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .ef-step-text {
-    font-size: 0.85rem;
-    color: var(--ef-muted);
-    line-height: 1.5;
-  }
-
-  .ef-step-text strong {
-    color: var(--ef-text);
-  }
-
-  .ef-modal-close {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 1.5rem;
-    padding: 0.6rem 1.2rem;
-    background: var(--ef-ai);
-    color: #fff;
-    border: none;
-    border-radius: var(--ef-radius-sm);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--ef-transition);
-  }
-
-  .ef-modal-close:hover {
-    background: #6d28d9;
-  }
-
-  /* ===== UTILITIES ===== */
-  .ef-row {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .ef-row-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ef-row-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (max-width: 640px) {
-    .ef-row-2,
-    .ef-row-3 {
-      grid-template-columns: 1fr;
+    .ai-badge-live {
+        background: rgba(139, 92, 246, 0.2);
+        color: #a78bfa;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        animation: pulse-live 2s infinite;
     }
-  }
 
-  .ef-mb-0 {
-    margin-bottom: 0;
-  }
+    @keyframes pulse-live {
+        0% { opacity: 0.8; }
+        50% { opacity: 1; box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
+        100% { opacity: 0.8; }
+    }
 
-  .ef-mb-2 {
-    margin-bottom: 0.5rem;
-  }
+    .ai-pulse-input {
+        animation: ai-glow-pulse 2s infinite ease-in-out;
+        border-color: var(--ai-primary) !important;
+    }
 
-  .ef-mb-3 {
-    margin-bottom: 1rem;
-  }
+    @keyframes ai-glow-pulse {
+        0% { box-shadow: 0 0 0 0px var(--ai-primary-soft); }
+        70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+        100% { box-shadow: 0 0 0 0px rgba(139, 92, 246, 0); }
+    }
 
-  .ef-mb-4 {
-    margin-bottom: 1.5rem;
-  }
+    .progress-ai {
+        height: 6px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+    }
 
-  .ef-hidden {
-    display: none;
-  }
+    .progress-bar-ai {
+        border-radius: 10px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timing-slot {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .timing-slot:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: var(--ai-primary);
+    }
+
+    .btn-ai-magic {
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        transition: all 0.3s;
+    }
+
+    .btn-ai-magic:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        color: white;
+    }
+
+    .btn-ai-magic:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .ef-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .hidden-panel { display: none !important; }
+
+    .sticky-panel {
+        position: sticky;
+        top: 100px;
+    }
 </style>
 
-{# ---------- Google Font import ---------- #}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+{{ form_start(form, {'attr': {'id': 'event-form', 'novalidate': 'novalidate'}}) }}
 
-{# ======================================================
-   MAIN FORM
-   ====================================================== #}
-<div class="ef-shell">
-  <div class="ef-container">
-    
-    {# Header #}
-    <div class="ef-header">
-      <div class="ef-header-icon">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <rect x="3" y="4" width="18" height="18" rx="2" />
-          <line x1="16" y1="2" x2="16" y2="6" />
-          <line x1="8" y1="2" x2="8" y2="6" />
-          <line x1="3" y1="10" x2="21" y2="10" />
-        </svg>
-      </div>
-      <div class="ef-header-content">
-        <h1>{{ button_label is defined and button_label == 'Update' ? 'Modifier l\'événement' : 'Créer un événement' }}</h1>
-        <p>Remplissez les informations ci-dessous. L'IA peut vous aider à compléter le formulaire automatiquement.</p>
-      </div>
-    </div>
-
-    {{ form_start(form, {'attr': {'class': 'ef-form', 'novalidate': 'novalidate', 'id': 'event-form'}}) }}
-
-    <div class="ef-grid">
-      
-      {# ===== LEFT COLUMN - FORM FIELDS ===== #}
-      <div class="ef-form-column">
-        
-        {# Section: Informations générales #}
-        <section class="ef-section">
-          <header class="ef-section-header">
-            <div class="ef-section-icon blue">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <h2 class="ef-section-title">Informations générales</h2>
-            <span class="ef-section-badge">Étape 1/3</span>
-          </header>
-          
-          <div class="ef-section-body">
-            {# Titre #}
-            <div class="ef-form-group">
-              {{ form_label(form.titre, null, {'label_attr': {'class': 'ef-label'}}) }}
-              <div class="ef-input-wrapper">
-                <span class="ef-input-icon">
-                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
-                </span>
-                {{ form_widget(form.titre, {
-                  'attr': {
-                    'class': 'ef-input',
-                    'placeholder': 'Nom de l\'événement...',
-                    'id': 'ef-titre',
-                    'data-ai-field': 'title'
-                  }
-                }) }}
-              </div>
-              {% if form.titre.vars.errors|length > 0 %}
-                <div class="ef-error">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  {% for error in form.titre.vars.errors %}
-                    {{ error.message }}{% if not loop.last %}<br>{% endif %}
-                  {% endfor %}
+<div class="row g-4">
+    {# Main Form Column #}
+    <div class="col-xl-8">
+        {# Section 1: Brand & Identity #}
+        <div class="glass-card p-4 mb-4 shadow-sm">
+            <div class="d-flex align-items-center mb-4">
+                <div class="avatar-sm bg-primary-soft text-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
+                    <i class="feather-info fs-5"></i>
                 </div>
-              {% endif %}
+                <h5 class="mb-0 fw-bold">Détails de l'Événement</h5>
             </div>
 
-            {# Lieu #}
-            <div class="ef-form-group">
-              {{ form_label(form.lieu, null, {'label_attr': {'class': 'ef-label'}}) }}
-              <div class="ef-input-wrapper">
-                <span class="ef-input-icon">
-                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </span>
-                {{ form_widget(form.lieu, {
-                  'attr': {
-                    'class': 'ef-input',
-                    'placeholder': 'Lieu de l\'événement...',
-                    'id': 'ef-lieu',
-                    'data-ai-field': 'location'
-                  }
-                }) }}
-              </div>
-            </div>
-
-            {# Description avec AI Magic #}
-            <div class="ef-form-group">
-              <div class="ef-ai-toolbar">
-                {{ form_label(form.description, null, {'label_attr': {'class': 'ef-label'}}) }}
-                <div class="ef-ai-actions">
-                  <button type="button" id="ef-hint-btn" class="ef-btn-help" title="Comment utiliser l'IA ?">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
-                      <line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
-                  </button>
-                  <button type="button" id="ef-magic-btn" class="ef-btn-ai">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                    AI Magic
-                  </button>
+            <div class="row g-4">
+                <div class="col-12">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Titre de l'événement</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="feather-type text-muted"></i></span>
+                        {{ form_widget(form.titre, {'attr': {'class': 'form-control border-start-0 ps-0', 'id': 'ef-titre', 'placeholder': 'Ex: Sommet de l\'Innovation 2026'}}) }}
+                    </div>
+                    {{ form_errors(form.titre) }}
                 </div>
-              </div>
-              {{ form_widget(form.description, {
-                'attr': {
-                  'class': 'ef-input',
-                  'rows': 5,
-                  'id': 'ef-description',
-                  'placeholder': 'Décrivez votre événement en détail... L\'IA analysera ce texte pour suggérer automatiquement la catégorie, le lieu, le prix et la capacité.',
-                  'data-ai-field': 'description'
-                }
-              }) }}
-              <div id="ef-loading-bar" class="ef-loading-indicator">
-                <span class="ef-spinner"></span>
-                <span>Analyse IA en cours...</span>
-              </div>
-            </div>
 
-            {# Catégorie #}
-            <div class="ef-form-group ef-mb-0">
-              {{ form_label(form.categorie, null, {'label_attr': {'class': 'ef-label'}}) }}
-              {{ form_widget(form.categorie, {
-                'attr': {
-                  'class': 'ef-input',
-                  'id': 'ef-categorie',
-                  'data-ai-field': 'category'
-                }
-              }) }}
-            </div>
-          </div>
-        </section>
-
-        {# Section: Dates & horaires #}
-        <section class="ef-section">
-          <header class="ef-section-header">
-            <div class="ef-section-icon green">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            </div>
-            <h2 class="ef-section-title">Dates & horaires</h2>
-            <span class="ef-section-badge">Étape 2/3</span>
-          </header>
-          
-          <div class="ef-section-body">
-            <div class="ef-row ef-row-2">
-              <div class="ef-form-group">
-                {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'ef-label'}}) }}
-                {{ form_widget(form.dateDebut, {
-                  'attr': {
-                    'class': 'ef-input',
-                    'id': 'ef-dateDebut'
-                  }
-                }) }}
-                {% if form.dateDebut.vars.errors|length > 0 %}
-                  <div class="ef-error">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="8" x2="12" y2="12" />
-                      <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </svg>
-                    {% for error in form.dateDebut.vars.errors %}
-                      {{ error.message }}
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-              <div class="ef-form-group">
-                {{ form_label(form.dateFin, null, {'label_attr': {'class': 'ef-label'}}) }}
-                {{ form_widget(form.dateFin, {
-                  'attr': {
-                    'class': 'ef-input',
-                    'id': 'ef-dateFin'
-                  }
-                }) }}
-                {% if form.dateFin.vars.errors|length > 0 %}
-                  <div class="ef-error">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="8" x2="12" y2="12" />
-                      <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </svg>
-                    {% for error in form.dateFin.vars.errors %}
-                      {{ error.message }}
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {# Section: Capacité, Prix, Statut #}
-        <section class="ef-section">
-          <header class="ef-section-header">
-            <div class="ef-section-icon amber">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-              </svg>
-            </div>
-            <h2 class="ef-section-title">Capacité, prix & statut</h2>
-            <span class="ef-section-badge">Étape 3/3</span>
-          </header>
-          
-          <div class="ef-section-body">
-            <div class="ef-row ef-row-3">
-              <div class="ef-form-group">
-                {{ form_label(form.capacite, null, {'label_attr': {'class': 'ef-label'}}) }}
-                {{ form_widget(form.capacite, {
-                  'attr': {
-                    'class': 'ef-input',
-                    'id': 'ef-capacite',
-                    'placeholder': '50',
-                    'data-ai-field': 'capacity'
-                  }
-                }) }}
-              </div>
-              <div class="ef-form-group">
-                {{ form_label(form.prix, null, {'label_attr': {'class': 'ef-label'}}) }}
-                <div class="ef-input-wrapper">
-                  <span class="ef-input-icon" style="font-weight: 700;">DT</span>
-                  {{ form_widget(form.prix, {
-                    'attr': {
-                      'class': 'ef-input',
-                      'id': 'ef-prix',
-                      'placeholder': '0.00',
-                      'data-ai-field': 'price'
-                    }
-                  }) }}
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold text-dark small text-uppercase mb-0">Description captivante</label>
+                        <button type="button" id="ef-magic-btn" class="btn btn-ai-magic btn-sm rounded-pill px-3">
+                            <i class="feather-sparkles me-1"></i> AI Magic Fix
+                        </button>
+                    </div>
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 6, 'id': 'ef-description', 'placeholder': 'Décrivez votre événement... L\'IA utilisera ces informations pour suggérer le lieu, le prix et prédire la réussite.'}}) }}
+                    <div id="ef-loading-bar" class="mt-2 hidden-panel">
+                        <div class="d-flex align-items-center text-primary fs-12 italic">
+                            <span class="ef-spinner me-2"></span> Analyse sémantique en cours...
+                        </div>
+                    </div>
+                    {{ form_errors(form.description) }}
                 </div>
-              </div>
-              <div class="ef-form-group">
-                {{ form_label(form.statut, null, {'label_attr': {'class': 'ef-label'}}) }}
-                {{ form_widget(form.statut, {
-                  'attr': {
-                    'class': 'ef-input',
-                    'id': 'ef-statut'
-                  }
-                }) }}
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
 
-      {# ===== RIGHT COLUMN - AI INSIGHTS ===== #}
-      <div class="ef-insights-column">
-        <aside class="ef-insights" id="ef-insights-panel">
-          <header class="ef-insights-header">
-            <div class="ef-insights-title">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4l3 3" />
-              </svg>
-              Intelligence IA
-              <span class="ef-insights-badge">Live</span>
-            </div>
-          </header>
-
-          <div class="ef-insights-body">
-            {# Empty state #}
-            <div id="ef-insights-empty" class="ef-insights-empty">
-              <div class="ef-insights-empty-icon">🤖</div>
-              <div class="ef-insights-empty-text">
-                Saisissez un titre et une catégorie<br>pour activer les insights IA.
-              </div>
-            </div>
-
-            {# Content - hidden by default #}
-            <div id="ef-insights-content" class="ef-hidden">
-              
-              {# Score gauge #}
-              <div class="ef-gauge">
-                <div class="ef-gauge-header">
-                  <span class="ef-gauge-label">Score de succès prédit</span>
-                  <span id="ef-score-pill" class="ef-gauge-score medium">—</span>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Localisation / Lieu</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="feather-map-pin text-muted"></i></span>
+                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control border-x-0 ps-0', 'id': 'ef-lieu', 'placeholder': 'Entrez une adresse ou un lieu'}}) }}
+                        <button type="button" id="ef-geocode-btn" class="btn btn-light-brand border-start-0" title="Rechercher les coordonnées">
+                            <i class="feather-search"></i>
+                        </button>
+                    </div>
+                    {{ form_errors(form.lieu) }}
+                    
+                    <div class="row g-2 mt-2">
+                        <div class="col-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light fs-10 text-muted">LAT</span>
+                                {{ form_widget(form.latitude, {'attr': {'class': 'form-control fs-10 ps-2', 'id': 'ef-latitude'}}) }}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light fs-10 text-muted">LNG</span>
+                                {{ form_widget(form.longitude, {'attr': {'class': 'form-control fs-10 ps-2', 'id': 'ef-longitude'}}) }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="ef-progress">
-                  <div id="ef-progress-bar" class="ef-progress-bar" style="width: 0%; background: var(--ef-warning);"></div>
-                </div>
-              </div>
 
-              {# Suggestions #}
-              <div id="ef-suggestions-list" class="ef-suggestions ef-hidden"></div>
-
-              {# Timing suggestions #}
-              <div class="ef-timing">
-                <div class="ef-timing-title">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  Meilleurs créneaux recommandés
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Catégorie</label>
+                    {{ form_widget(form.categorie, {'attr': {'class': 'form-select', 'id': 'ef-categorie'}}) }}
+                    {{ form_errors(form.categorie) }}
                 </div>
-                <div id="ef-timing-grid" class="ef-timing-grid">
-                  <div style="grid-column: 1/-1; text-align: center; padding: 1rem; font-size: 0.8rem; color: var(--ef-muted);">
-                    Sélectionnez une catégorie pour voir les créneaux...
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-        </aside>
-
-        {# Tip card #}
-        <div class="ef-section" style="margin-top: 1rem;">
-          <div class="ef-section-body" style="padding: 1rem;">
-            <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-              <div style="color: var(--ef-ai); font-size: 1.2rem;">💡</div>
-              <div style="font-size: 0.8rem; color: var(--ef-muted); line-height: 1.6;">
-                <strong style="color: var(--ef-label); display: block; margin-bottom: 0.2rem;">Astuce IA</strong>
-                Cliquez sur <strong>AI Magic</strong> après avoir saisi votre description pour remplir automatiquement la catégorie, le lieu, le prix et la capacité.
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+
+        {# Section 2: Logistics & Pricing #}
+        <div class="glass-card p-4 shadow-sm">
+            <div class="d-flex align-items-center mb-4">
+                <div class="avatar-sm bg-success-soft text-success rounded-circle me-3 d-flex align-items-center justify-content-center">
+                    <i class="feather-calendar fs-5"></i>
+                </div>
+                <h5 class="mb-0 fw-bold">Planification & Logistique</h5>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Date & Heure de début</label>
+                    {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control', 'id': 'ef-dateDebut'}}) }}
+                    {{ form_errors(form.dateDebut) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Date & Heure de fin</label>
+                    {{ form_widget(form.dateFin, {'attr': {'class': 'form-control', 'id': 'ef-dateFin'}}) }}
+                    {{ form_errors(form.dateFin) }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Capacité (Places)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="feather-users text-muted"></i></span>
+                        {{ form_widget(form.capacite, {'attr': {'class': 'form-control border-start-0 ps-0', 'id': 'ef-capacite'}}) }}
+                    </div>
+                    {{ form_errors(form.capacite) }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Prix d'entrée</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">DT</span>
+                        {{ form_widget(form.prix, {'attr': {'class': 'form-control border-start-0 ps-0', 'id': 'ef-prix', 'placeholder': '0.00'}}) }}
+                    </div>
+                    {{ form_errors(form.prix) }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Statut initial</label>
+                    {{ form_widget(form.statut, {'attr': {'class': 'form-select', 'id': 'ef-statut'}}) }}
+                    {{ form_errors(form.statut) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 mt-4 mb-4">
+            <a href="{{ path('back_event_index') }}" class="btn btn-light px-4 rounded-pill">Annuler</a>
+            <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm">
+                <i class="feather-check-circle me-1"></i> {{ button_label|default('Finaliser l\'Événement') }}
+            </button>
+        </div>
     </div>
 
-    {# Actions bar #}
-    <footer class="ef-section" style="margin-top: 1.5rem;">
-      <div class="ef-actions">
-        <button class="ef-btn-primary" type="submit">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-            <polyline points="17 21 17 13 7 13 7 21" />
-            <polyline points="7 3 7 8 15 8" />
-          </svg>
-          {{ button_label|default('Enregistrer') }}
-        </button>
-        <a href="{{ path('back_event_index') }}" class="ef-btn-secondary">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-          Annuler
-        </a>
-        <span id="ef-autosave-note" class="ef-autosave-note ef-hidden">✓ Modifications sauvegardées</span>
-      </div>
-    </footer>
+    {# AI Insights Sidebar #}
+    <div class="col-xl-4">
+        <div class="sticky-panel">
+            <div class="ai-magic-card shadow-lg p-0 mb-4">
+                <div class="p-4 border-bottom border-white-10">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="feather-cpu text-primary me-2 fs-5"></i>
+                            <h6 class="mb-0 text-white fw-bold">AI Intelligence</h6>
+                        </div>
+                        <span class="ai-badge-live">LIVE ANALYTICS</span>
+                    </div>
+                </div>
+                
+                <div class="p-4">
+                    {# Empty state #}
+                    <div id="ef-insights-empty" class="text-center py-5">
+                        <div class="display-6 mb-3 text-white-50">🤖</div>
+                        <h6 class="text-white mb-2">Assistant IA Prêt</h6>
+                        <p class="fs-12 text-white-50 px-4">Saisissez un titre et une description pour activer les prédictions de succès et les conseils stratégiques.</p>
+                    </div>
 
-    {{ form_end(form) }}
+                    {# Active insights #}
+                    <div id="ef-insights-content" class="hidden-panel">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <span class="fs-11 fw-bold text-white-50 text-uppercase tracking-wider">Score de Réussite Prédit</span>
+                                <div class="text-end">
+                                    <span id="ef-score-pill" class="display-6 fw-bold text-primary">—</span>
+                                    <span class="fs-14 fw-bold text-primary">%</span>
+                                </div>
+                            </div>
+                            <div class="progress progress-ai mb-2">
+                                <div id="ef-progress-bar" class="progress-bar progress-bar-ai bg-primary" style="width: 0%"></div>
+                            </div>
+                            <p class="fs-11 text-white-50 italic">Basé sur l'historique des catégories, le timing et la concurrence.</p>
+                        </div>
 
-  </div>{# /.ef-container #}
-</div>{# /.ef-shell #}
+                        <div id="ef-suggestions-list" class="mb-4 hidden-panel">
+                            <h6 class="fs-11 fw-bold text-white-50 mb-3 text-uppercase tracking-wider">
+                                <i class="feather-zap text-warning me-1"></i> Optimisations Suggérées
+                            </h6>
+                            <ul class="list-unstyled mb-0 fs-12" id="ef-suggestions-items"></ul>
+                        </div>
 
-{# ======================================================
-   HINT MODAL
-   ====================================================== #}
-<div id="ef-hint-panel" class="ef-modal" role="dialog" aria-modal="true">
-  <div class="ef-modal-content">
-    <h3>
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-      Comment utiliser l'AI Magic ?
-    </h3>
+                        <div class="timing-section pt-4 border-top border-white-10">
+                            <h6 class="fs-11 fw-bold text-white-50 mb-3 text-uppercase tracking-wider">
+                                <i class="feather-clock text-info me-1"></i> Créneaux Stratégiques
+                            </h6>
+                            <div id="ef-timing-grid" class="row g-2">
+                                <div class="col-12 text-center py-3 text-white-50 fs-11">
+                                    Définissez une catégorie pour voir les créneaux optimaux...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div class="ef-modal-step">
-      <div class="ef-step-number">1</div>
-      <div class="ef-step-text">Saisissez une <strong>description détaillée</strong> de votre événement (ex: "Soirée networking avec cocktails pour professionnels du digital").</div>
+            <div class="glass-card p-3 border-start border-primary border-4 shadow-sm bg-white">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 avatar-xs bg-primary-soft text-primary rounded d-flex align-items-center justify-content-center">
+                        <i class="feather-help-circle fs-13"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="fs-13 fw-bold mb-1">Besoin d'aide ?</h6>
+                        <p class="fs-12 text-muted mb-0">Utilisez <strong>AI Magic Fix</strong> après avoir écrit votre description pour remplir automatiquement les champs techniques.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="ef-modal-step">
-      <div class="ef-step-number">2</div>
-      <div class="ef-step-text">Cliquez sur le bouton <strong>AI Magic ✨</strong>. L'IA analysera votre texte automatiquement.</div>
-    </div>
-    <div class="ef-modal-step">
-      <div class="ef-step-number">3</div>
-      <div class="ef-step-text">Les champs <strong>Catégorie, Lieu, Prix et Capacité</strong> seront pré-remplis et mis en évidence en vert.</div>
-    </div>
-    <div class="ef-modal-step">
-      <div class="ef-step-number">4</div>
-      <div class="ef-step-text">Le panneau IA à droite affiche en <strong>temps réel</strong> le score de succès prédit et les meilleurs créneaux pour votre événement.</div>
-    </div>
-
-    <button class="ef-modal-close" id="ef-hint-close">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <line x1="18" y1="6" x2="6" y2="18" />
-        <line x1="6" y1="6" x2="18" y2="18" />
-      </svg>
-      J'ai compris !
-    </button>
-  </div>
 </div>
 
-{# ======================================================
-   JAVASCRIPT - Optimized with Service Pattern
-   ====================================================== #}
+{{ form_end(form) }}
+
 <script>
 (function() {
   'use strict';
-
-  // ===== CONFIGURATION =====
+  
   const CONFIG = {
     routes: {
       aiImprove: '{{ path("back_event_ai_improve") }}',
       predictSuccess: '{{ path("back_ai_predict_success") }}',
       suggestTiming: '{{ path("back_ai_suggest_timing") }}'
     },
-    debounceDelay: 800,
-    aiHighlightDuration: 4000,
-    minDescriptionLength: 10,
-    defaultCapacity: 50
+    debounceDelay: 1000,
+    highlightClass: 'ai-pulse-input',
+    highlightDuration: 3000
   };
 
-  // ===== DOM CACHE =====
   const DOM = {
-    // Elements
     magicBtn: document.getElementById('ef-magic-btn'),
-    hintBtn: document.getElementById('ef-hint-btn'),
-    hintPanel: document.getElementById('ef-hint-panel'),
-    hintClose: document.getElementById('ef-hint-close'),
     loadingBar: document.getElementById('ef-loading-bar'),
     insightsEmpty: document.getElementById('ef-insights-empty'),
     insightsContent: document.getElementById('ef-insights-content'),
     scorePill: document.getElementById('ef-score-pill'),
     progressBar: document.getElementById('ef-progress-bar'),
-    suggestionsList: document.getElementById('ef-suggestions-list'),
+    suggestionsContainer: document.getElementById('ef-suggestions-list'),
+    suggestionsItems: document.getElementById('ef-suggestions-items'),
     timingGrid: document.getElementById('ef-timing-grid'),
-    autosaveNote: document.getElementById('ef-autosave-note'),
-
-    // Form fields
     fields: {
       titre: document.getElementById('ef-titre'),
       description: document.getElementById('ef-description'),
@@ -1251,350 +367,236 @@
       categorie: document.getElementById('ef-categorie'),
       capacite: document.getElementById('ef-capacite'),
       prix: document.getElementById('ef-prix'),
-      statut: document.getElementById('ef-statut'),
-      dateDebut: document.getElementById('ef-dateDebut')
+      dateDebut: document.getElementById('ef-dateDebut'),
+      latitude: document.getElementById('ef-latitude'),
+      longitude: document.getElementById('ef-longitude')
+    },
+    geocodeBtn: document.getElementById('ef-geocode-btn')
+  };
+
+  const API = {
+    async post(url, data) {
+      const formData = new FormData();
+      Object.entries(data).forEach(([k, v]) => v != null && formData.append(k, v));
+      
+      const res = await fetch(url, { 
+        method: 'POST', 
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      
+      if (!res.ok) throw new Error('API request failed');
+      return res.json();
     }
   };
 
-  // ===== UTILITIES =====
-  const Utils = {
-    debounce(fn, delay) {
-      let timer;
-      return function(...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn.apply(this, args), delay);
+  const Handlers = {
+    highlight(el) {
+      if (!el) return;
+      el.classList.add(CONFIG.highlightClass);
+      setTimeout(() => el.classList.remove(CONFIG.highlightClass), CONFIG.highlightDuration);
+    },
+
+    async handleMagic() {
+      const desc = DOM.fields.description.value.trim();
+      if (desc.length < 2) {
+        alert("Veuillez saisir au moins 2 caractères (ex: 'mi', 'dev') pour activer l'IA.");
+        return;
+      }
+      
+      DOM.loadingBar.classList.remove('hidden-panel');
+      DOM.magicBtn.disabled = true;
+
+      try {
+        const res = await API.post(CONFIG.routes.aiImprove, { description: desc });
+        
+        if (res.titre && DOM.fields.titre.value.trim() === '') {
+            DOM.fields.titre.value = res.titre;
+            this.highlight(DOM.fields.titre);
+        }
+
+        if (res.category && DOM.fields.categorie) {
+            for(let opt of DOM.fields.categorie.options) {
+                if(opt.text.toLowerCase() === res.category.toLowerCase() || opt.value === res.category) {
+                    DOM.fields.categorie.value = opt.value;
+                    break;
+                }
+            }
+            this.highlight(DOM.fields.categorie);
+        }
+        
+        if (res.suggested_lieu && DOM.fields.lieu.value.trim() === '') { 
+            DOM.fields.lieu.value = res.suggested_lieu; 
+            this.highlight(DOM.fields.lieu);
+            // Auto-trigger geocoding for the new lieu
+            await this.handleGeocode();
+        }
+        
+        if (res.suggested_prix !== undefined && (DOM.fields.prix.value.trim() == '0' || DOM.fields.prix.value.trim() == '')) { 
+            DOM.fields.prix.value = res.suggested_prix; 
+            this.highlight(DOM.fields.prix); 
+        }
+        
+        if (res.suggested_capacite && (DOM.fields.capacite.value.trim() == '50' || DOM.fields.capacite.value.trim() == '')) { 
+            DOM.fields.capacite.value = res.suggested_capacite; 
+            this.highlight(DOM.fields.capacite); 
+        }
+
+        if (res.suggested_time && DOM.fields.dateDebut) {
+            let currentVal = DOM.fields.dateDebut.value;
+            let datePart = currentVal && currentVal.includes('T') ? currentVal.split('T')[0] : new Date().toISOString().split('T')[0];
+            DOM.fields.dateDebut.value = `${datePart}T${res.suggested_time}`;
+            this.highlight(DOM.fields.dateDebut);
+            
+            if (res.suggested_endtime && DOM.fields.dateFin) {
+                DOM.fields.dateFin.value = `${datePart}T${res.suggested_endtime}`;
+                this.highlight(DOM.fields.dateFin);
+            }
+        }
+        this.refresh();
+      } catch (e) {
+        console.error("AI Magic failed", e);
+      } finally {
+        DOM.loadingBar.classList.add('hidden-panel');
+        DOM.magicBtn.disabled = false;
+      }
+    },
+
+    async handleGeocode() {
+      const lieu = DOM.fields.lieu.value.trim();
+      if (!lieu) {
+        alert("Veuillez saisir un lieu d'abord.");
+        return;
+      }
+
+      DOM.geocodeBtn.disabled = true;
+      const originalHtml = DOM.geocodeBtn.innerHTML;
+      DOM.geocodeBtn.innerHTML = '<span class="ef-spinner" style="width: 12px; height: 12px; border-width: 1px;"></span>';
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(lieu)}&limit=1`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'fr' } });
+        const data = await res.json();
+
+        if (data && data.length > 0) {
+          DOM.fields.latitude.value = parseFloat(data[0].lat).toFixed(6);
+          DOM.fields.longitude.value = parseFloat(data[0].lon).toFixed(6);
+          this.highlight(DOM.fields.latitude);
+          this.highlight(DOM.fields.longitude);
+          this.refresh();
+        } else {
+          alert("Lieu non trouvé. Veuillez être plus précis (ex: ville, pays).");
+        }
+      } catch (e) {
+        console.error("Geocoding failed", e);
+        alert("Erreur lors de la récupération des coordonnées.");
+      } finally {
+        DOM.geocodeBtn.innerHTML = originalHtml;
+        DOM.geocodeBtn.disabled = false;
+      }
+    },
+
+    debounce(fn, wait) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn.apply(this, args), wait);
       };
     },
 
-    async postData(url, data) {
-      const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (value != null) formData.append(key, value);
-      });
+    refresh: null // defined in init
+  };
 
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-      return response.json();
-    },
-
-    highlightField(field) {
-      if (!field) return;
-      field.classList.add('ai-filled');
-      setTimeout(() => {
-        field.classList.remove('ai-filled');
-      }, CONFIG.aiHighlightDuration);
-    },
-
-    setSelectValue(select, value) {
-      if (!select || !value) return false;
+  function init() {
+    Handlers.refresh = Handlers.debounce(async function() {
+      const hasMinData = (DOM.fields.titre.value.trim().length > 3);
       
-      // Try by value first
-      for (const option of select.options) {
-        if (option.value === value) {
-          select.value = value;
-          return true;
-        }
-      }
+      DOM.insightsEmpty.classList.toggle('hidden-panel', hasMinData);
+      DOM.insightsContent.classList.toggle('hidden-panel', !hasMinData);
       
-      // Then by text (case insensitive)
-      const searchValue = value.trim().toLowerCase();
-      for (const option of select.options) {
-        if (option.text.trim().toLowerCase() === searchValue) {
-          select.value = option.value;
-          return true;
-        }
-      }
-      return false;
-    },
-
-    showError(field, message) {
-      const existingError = field.parentElement.querySelector('.ef-error');
-      if (existingError) existingError.remove();
-
-      const error = document.createElement('div');
-      error.className = 'ef-error';
-      error.innerHTML = `
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-        ${message}
-      `;
-      field.parentElement.appendChild(error);
-      setTimeout(() => error.remove(), 4000);
-    }
-  };
-
-  // ===== SERVICES =====
-  const AIService = {
-    async improveDescription(description) {
-      return Utils.postData(CONFIG.routes.aiImprove, { description });
-    },
-
-    async predictSuccess(data) {
-      return Utils.postData(CONFIG.routes.predictSuccess, data);
-    },
-
-    async suggestTiming(category) {
-      return Utils.postData(CONFIG.routes.suggestTiming, { category });
-    }
-  };
-
-  const UIService = {
-    setMagicLoading(isLoading) {
-      if (!DOM.magicBtn || !DOM.loadingBar) return;
-
-      DOM.magicBtn.disabled = isLoading;
-      DOM.loadingBar.classList.toggle('visible', isLoading);
-
-      if (isLoading) {
-        DOM.magicBtn.innerHTML = `
-          <span class="ef-spinner" style="border-color: rgba(124,58,237,0.3); border-top-color: var(--ef-ai);"></span>
-          Analyse...
-        `;
-      } else {
-        DOM.magicBtn.innerHTML = `
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          AI Magic
-        `;
-      }
-    },
-
-    renderScore(score) {
-      if (score === undefined) return;
-
-      const isGood = score >= 75;
-      const isMedium = score >= 50 && score < 75;
-
-      DOM.scorePill.textContent = `${score}%`;
-      DOM.scorePill.className = `ef-gauge-score ${isGood ? 'good' : isMedium ? 'medium' : 'poor'}`;
-
-      DOM.progressBar.style.width = `${score}%`;
-      DOM.progressBar.style.background = isGood 
-        ? 'var(--ef-success)' 
-        : isMedium 
-          ? 'var(--ef-warning)' 
-          : 'var(--ef-danger)';
-    },
-
-    renderSuggestions(suggestions) {
-      if (!DOM.suggestionsList) return;
-
-      if (suggestions && suggestions.length > 0) {
-        DOM.suggestionsList.innerHTML = `
-          <ul class="ef-suggestions-list">
-            ${suggestions.map(s => `<li>${s}</li>`).join('')}
-          </ul>
-        `;
-        DOM.suggestionsList.classList.remove('ef-hidden');
-      } else {
-        DOM.suggestionsList.innerHTML = `
-          <div class="ef-success-message">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            Excellent ! Aucun problème détecté.
-          </div>
-        `;
-        DOM.suggestionsList.classList.remove('ef-hidden');
-      }
-    },
-
-    renderTimingCards(timingData) {
-      if (!DOM.timingGrid || !Array.isArray(timingData) || timingData.length === 0) {
-        DOM.timingGrid.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 1rem; font-size: 0.8rem; color: var(--ef-muted);">
-            Aucun créneau recommandé pour cette catégorie
-          </div>
-        `;
-        return;
-      }
-
-      DOM.timingGrid.innerHTML = timingData.map((item, index) => {
-        const scoreClass = item.score >= 70 ? 'score-high' : item.score >= 40 ? 'score-mid' : 'score-low';
-        const conflictHtml = item.conflicts && item.conflicts.length > 0
-          ? `<div class="ef-timing-conflict">
-               <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                 <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                 <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-               </svg>
-               ${item.conflicts.join(', ')}
-             </div>`
-          : '';
-
-        return `
-          <div class="ef-timing-card ${scoreClass}" style="animation-delay: ${index * 0.05}s">
-            <div class="ef-timing-day">${item.day || '—'}</div>
-            <div class="ef-timing-slot">${item.slot || '—'}</div>
-            <span class="ef-timing-score">Score ${item.score || '—'}</span>
-            ${conflictHtml}
-          </div>
-        `;
-      }).join('');
-    },
-
-    toggleInsights(hasData) {
-      if (!DOM.insightsEmpty || !DOM.insightsContent) return;
-
-      DOM.insightsEmpty.classList.toggle('ef-hidden', hasData);
-      DOM.insightsContent.classList.toggle('ef-hidden', !hasData);
-    }
-  };
-
-  // ===== HANDLERS =====
-  const Handlers = {
-    async handleMagicClick() {
-      const description = DOM.fields.description?.value.trim();
-
-      if (!description || description.length < CONFIG.minDescriptionLength) {
-        Utils.showError(
-          DOM.fields.description, 
-          `Veuillez saisir au moins ${CONFIG.minDescriptionLength} caractères pour l'analyse IA`
-        );
-        return;
-      }
-
-      UIService.setMagicLoading(true);
+      if (!hasMinData) return;
 
       try {
-        const result = await AIService.improveDescription(description);
-        
-        // Apply results to fields
-        if (result.category) {
-          if (Utils.setSelectValue(DOM.fields.categorie, result.category)) {
-            Utils.highlightField(DOM.fields.categorie);
+        const [scoreData, timingData] = await Promise.allSettled([
+          API.post(CONFIG.routes.predictSuccess, {
+            titre: DOM.fields.titre.value,
+            category: DOM.fields.categorie.value,
+            capacite: DOM.fields.capacite.value,
+            prix: DOM.fields.prix.value,
+            dateDebut: DOM.fields.dateDebut.value
+          }),
+          DOM.fields.categorie.value ? API.post(CONFIG.routes.suggestTiming, { category: DOM.fields.categorie.value }) : Promise.reject()
+        ]);
+
+        if (scoreData.status === 'fulfilled') {
+          const s = scoreData.value;
+          DOM.scorePill.textContent = Math.round(s.total_score);
+          DOM.progressBar.style.width = s.total_score + '%';
+          
+          let colorClass = 'bg-danger';
+          if (s.total_score > 75) colorClass = 'bg-success';
+          else if (s.total_score > 50) colorClass = 'bg-primary';
+          else if (s.total_score > 30) colorClass = 'bg-warning';
+          
+          DOM.progressBar.className = `progress-bar progress-bar-ai ${colorClass}`;
+
+          if (s.suggestions && s.suggestions.length > 0) {
+            DOM.suggestionsItems.innerHTML = s.suggestions.map(text => 
+              `<li class="mb-2 d-flex align-items-start">
+                <i class="feather-chevron-right text-primary me-2 mt-1 fs-10"></i>
+                <span class="text-white-50">${text}</span>
+              </li>`
+            ).join('');
+            DOM.suggestionsContainer.classList.remove('hidden-panel');
+          } else {
+            DOM.suggestionsContainer.classList.add('hidden-panel');
           }
         }
 
-        if (result.marketing_hook && DOM.fields.titre?.value.trim().length < 5) {
-          DOM.fields.titre.value = result.marketing_hook;
-          Utils.highlightField(DOM.fields.titre);
+        if (timingData.status === 'fulfilled' && timingData.value.length > 0) {
+          DOM.timingGrid.innerHTML = timingData.value.map(t => `
+            <div class="col-6">
+                <div class="timing-slot">
+                    <div class="fs-10 fw-bold text-white-50 mb-1">${t.day.toUpperCase()}</div>
+                    <div class="fs-12 fw-bold text-white">${t.slot.charAt(0).toUpperCase() + t.slot.slice(1)}</div>
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="progress flex-grow-1 progress-ai" style="height: 3px;">
+                            <div class="progress-bar bg-info" style="width: ${t.score}%"></div>
+                        </div>
+                        <span class="fs-9 text-info ms-2">${Math.round(t.score)}%</span>
+                    </div>
+                </div>
+            </div>
+          `).join('');
         }
-
-        if (result.suggested_lieu && !DOM.fields.lieu?.value.trim()) {
-          DOM.fields.lieu.value = result.suggested_lieu;
-          Utils.highlightField(DOM.fields.lieu);
-        }
-
-        const currentPrice = parseFloat(DOM.fields.prix?.value);
-        if (result.suggested_prix !== undefined && DOM.fields.prix && (!currentPrice || currentPrice === 0)) {
-          DOM.fields.prix.value = result.suggested_prix;
-          Utils.highlightField(DOM.fields.prix);
-        }
-
-        const currentCapacity = parseInt(DOM.fields.capacite?.value);
-        if (result.suggested_capacite && DOM.fields.capacite && 
-            (!currentCapacity || currentCapacity === CONFIG.defaultCapacity)) {
-          DOM.fields.capacite.value = result.suggested_capacite;
-          Utils.highlightField(DOM.fields.capacite);
-        }
-
-        // Refresh insights after magic
-        await Handlers.refreshInsights();
-        
-        // Show success feedback
-        if (DOM.autosaveNote) {
-          DOM.autosaveNote.classList.remove('ef-hidden');
-          setTimeout(() => DOM.autosaveNote.classList.add('ef-hidden'), 2000);
-        }
-
-      } catch (error) {
-        console.error('AI Magic error:', error);
-        Utils.showError(DOM.fields.description, 'Erreur lors de l\'analyse IA. Veuillez réessayer.');
-      } finally {
-        UIService.setMagicLoading(false);
+      } catch (e) {
+        console.warn("AI refresh partially failed", e);
       }
-    },
+    }, CONFIG.debounceDelay);
 
-    refreshInsights: Utils.debounce(async function() {
-      const fields = DOM.fields;
-      const hasData = fields.titre?.value.trim().length > 2;
+    DOM.magicBtn.addEventListener('click', () => Handlers.handleMagic());
+    DOM.geocodeBtn.addEventListener('click', () => Handlers.handleGeocode());
 
-      UIService.toggleInsights(hasData);
-
-      if (!hasData) return;
-
-      // Prepare data for prediction
-      const predictionData = {
-        titre: fields.titre?.value || '',
-        category: fields.categorie?.value || '',
-        capacite: fields.capacite?.value || 50,
-        prix: fields.prix?.value || 0,
-        dateDebut: fields.dateDebut?.value || ''
-      };
-
-      try {
-        // Parallel API calls
-        const [scoreResult, timingResult] = await Promise.allSettled([
-          AIService.predictSuccess(predictionData),
-          fields.categorie?.value ? AIService.suggestTiming(fields.categorie.value) : Promise.resolve([])
-        ]);
-
-        if (scoreResult.status === 'fulfilled' && scoreResult.value) {
-          UIService.renderScore(scoreResult.value.total_score);
-          UIService.renderSuggestions(scoreResult.value.suggestions);
+    // Auto-geocode when lieu field loses focus
+    if (DOM.fields.lieu) {
+      DOM.fields.lieu.addEventListener('blur', () => {
+        if (DOM.fields.lieu.value.trim().length > 3) {
+          Handlers.handleGeocode();
         }
-
-        if (timingResult.status === 'fulfilled') {
-          UIService.renderTimingCards(timingResult.value);
-        }
-
-      } catch (error) {
-        console.error('Insights refresh error:', error);
-      }
-    }, CONFIG.debounceDelay)
-  };
-
-  // ===== INITIALIZATION =====
-  function init() {
-    // Magic button
-    if (DOM.magicBtn) {
-      DOM.magicBtn.addEventListener('click', Handlers.handleMagicClick);
-    }
-
-    // Hint modal
-    if (DOM.hintBtn && DOM.hintPanel && DOM.hintClose) {
-      DOM.hintBtn.addEventListener('click', () => DOM.hintPanel.classList.add('open'));
-      DOM.hintClose.addEventListener('click', () => DOM.hintPanel.classList.remove('open'));
-      DOM.hintPanel.addEventListener('click', (e) => {
-        if (e.target === DOM.hintPanel) DOM.hintPanel.classList.remove('open');
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') DOM.hintPanel.classList.remove('open');
       });
     }
-
-    // Watch fields for insights
-    const watchFields = [
-      DOM.fields.titre,
-      DOM.fields.categorie,
-      DOM.fields.capacite,
-      DOM.fields.prix,
-      DOM.fields.dateDebut,
-      DOM.fields.statut
-    ].filter(Boolean);
-
-    watchFields.forEach(field => {
-      field.addEventListener('input', Handlers.refreshInsights);
-      field.addEventListener('change', Handlers.refreshInsights);
+    
+    // Listen for changes
+    [DOM.fields.titre, DOM.fields.description, DOM.fields.categorie, DOM.fields.capacite, DOM.fields.prix, DOM.fields.dateDebut].forEach(el => {
+      if (!el) return;
+      el.addEventListener('input', () => Handlers.refresh());
+      el.addEventListener('change', () => Handlers.refresh());
     });
 
-    // Initial refresh for edit form
-    setTimeout(Handlers.refreshInsights, 500);
+    // Initial check
+    setTimeout(() => Handlers.refresh(), 500);
   }
 
-  // Start when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  document.addEventListener('DOMContentLoaded', init);
 })();
 </script>

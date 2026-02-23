@@ -52,7 +52,13 @@ class Event
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(options: ['default' => 50])]
-    #[Assert\Positive(message: "La capacité doit être positive")]
+    #[Assert\NotBlank(message: "La capacité est obligatoire")]
+    #[Assert\Type(type: 'integer', message: "La capacité doit être un nombre entier")]
+    #[Assert\Range(
+        min: 1, 
+        max: 50000, 
+        notInRangeMessage: "La capacité doit être comprise entre {{ min }} et {{ max }} places"
+    )]
     private ?int $capacite = 50;
 
     #[ORM\Column(options: ['default' => 0])]
@@ -67,11 +73,19 @@ class Event
     private ?string $categorie = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2, options: ['default' => 0.00])]
+    #[Assert\NotBlank(message: "Le prix est obligatoire")]
     #[Assert\PositiveOrZero(message: "Le prix ne peut pas être négatif")]
+    #[Assert\LessThan(value: 100000, message: "Le prix semble irréaliste")]
     private ?string $prix = '0.00';
 
     #[ORM\Column(length: 250)]
     #[Assert\NotBlank(message: "Le lieu est obligatoire")]
+    #[Assert\Length(
+        min: 2, 
+        max: 250, 
+        minMessage: "Le nom du lieu est trop court", 
+        maxMessage: "Le nom du lieu ne peut pas dépasser {{ limit }} caractères"
+    )]
     private ?string $lieu = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 6, nullable: true)]
@@ -174,7 +188,7 @@ public function getTitre(): ?string
     return $this->titre;
 }
 
-public function setTitre(string $titre): static
+public function setTitre(?string $titre): static
 {
     $this->titre = $titre;
 
@@ -186,7 +200,7 @@ public function getDescription(): ?string
     return $this->description;
 }
 
-public function setDescription(string $description): static
+public function setDescription(?string $description): static
 {
     $this->description = $description;
 
@@ -203,7 +217,7 @@ public function getDateDebut(): ?\DateTimeInterface
     return $this->dateDebut;
 }
 
-public function setDateDebut(\DateTimeInterface $dateDebut): static
+public function setDateDebut(?\DateTimeInterface $dateDebut): static
 {
     $this->dateDebut = $dateDebut;
 
@@ -215,7 +229,7 @@ public function getDateFin(): ?\DateTimeInterface
     return $this->dateFin;
 }
 
-public function setDateFin(\DateTimeInterface $dateFin): static
+public function setDateFin(?\DateTimeInterface $dateFin): static
 {
     $this->dateFin = $dateFin;
 
@@ -227,7 +241,7 @@ public function getCapacite(): ?int
     return $this->capacite;
 }
 
-public function setCapacite(int $capacite): static
+public function setCapacite(?int $capacite): static
 {
     $this->capacite = $capacite;
 
@@ -263,7 +277,7 @@ public function getCategorie(): ?string
     return $this->categorie;
 }
 
-public function setCategorie(string $categorie): static
+public function setCategorie(?string $categorie): static
 {
     $this->categorie = $categorie;
 
@@ -275,7 +289,7 @@ public function getPrix(): ?string
     return $this->prix;
 }
 
-public function setPrix(string $prix): static
+public function setPrix(?string $prix): static
 {
     $this->prix = $prix;
 
@@ -287,7 +301,7 @@ public function getLieu(): ?string
     return $this->lieu;
 }
 
-public function setLieu(string $lieu): static
+public function setLieu(?string $lieu): static
 {
     $this->lieu = $lieu;
 
