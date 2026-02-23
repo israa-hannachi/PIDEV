@@ -1,0 +1,403 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Clustering des Discussions{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-project-diagram me-2"></i>
+                Clustering des Discussions
+            </h1>
+            <p class="text-muted mb-0">Analyse automatique des thématiques des messages du forum</p>
+        </div>
+        <div class="d-flex gap-2">
+            <!-- Sélecteur de nombre de clusters -->
+            <form method="get" class="d-flex gap-2">
+                <select name="clusters" class="form-select" onchange="this.form.submit()">
+                    {% for count in available_clusters %}
+                        <option value="{{ count }}" {% if count == current_clusters_count %}selected{% endif %}>
+                            {{ count }} clusters
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-sync-alt me-1"></i>
+                    Actualiser
+                </button>
+            </form>
+            <a href="{{ path('app_back_clustering_refresh', {'clusters': current_clusters_count}) }}" 
+               class="btn btn-primary">
+                <i class="fas fa-redo me-1"></i>
+                Relancer l'analyse
+            </a>
+        </div>
+    </div>
+
+    {% if clusters is empty %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Aucun message trouvé pour effectuer le clustering. Veuillez d'abord ajouter des messages dans le forum.
+        </div>
+    {% else %}
+
+    <!-- Statistiques globales -->
+    {% if stats %}
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.total_clusters }}</h4>
+                            <p class="card-text">Clusters</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-layer-group fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.total_messages }}</h4>
+                            <p class="card-text">Messages</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-comments fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.avg_messages_per_cluster }}</h4>
+                            <p class="card-text">Moyenne/Cluster</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-bar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.largest_cluster_size }}</h4>
+                            <p class="card-text">Plus grand cluster</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-arrow-up fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.smallest_cluster_size }}</h4>
+                            <p class="card-text">Plus petit cluster</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-arrow-down fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Grille des clusters -->
+    <div class="row">
+        {% for cluster in clusters %}
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <span class="badge bg-primary me-2">{{ cluster.id + 1 }}</span>
+                        {{ cluster.name }}
+                    </h5>
+                    <span class="badge bg-info">{{ cluster.message_count }} messages</span>
+                </div>
+                <div class="card-body">
+                    <!-- Mots-clés du cluster -->
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-tags me-1"></i>
+                            Mots-clés principaux
+                        </h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for keyword in cluster.keywords|slice(0, 8) %}
+                                <span class="badge bg-light text-dark">{{ keyword }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Messages récents du cluster -->
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-comment me-1"></i>
+                            Messages récents
+                        </h6>
+                        <div class="small">
+                            {% for message in cluster.messages|slice(0, 3) %}
+                                <div class="mb-2 p-2 bg-light rounded">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{ message.author }}</strong>
+                                        <small class="text-muted">{{ message.date|date('d/m H:i') }}</small>
+                                    </div>
+                                    <div class="text-muted mt-1">
+                                        {{ message.content|striptags|slice(0, 100) }}...
+                                    </div>
+                                    <small class="text-primary">
+                                        <i class="fas fa-folder me-1"></i>{{ message.forum_title }}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Tendances temporelles -->
+                    {% if trends %}
+                        {% set trend = trends[cluster.id] is defined ? trends[cluster.id] : null %}
+                        {% if trend and trend.monthly_counts %}
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-chart-line me-1"></i>
+                                    Tendance (6 derniers mois)
+                                </h6>
+                                <div class="progress" style="height: 20px;">
+                                    {% set monthly = trend.monthly_counts|slice(-6) %}
+                                    {% set max_count = 0 %}
+                                    {% for month, count in monthly %}
+                                        {% if count > max_count %}
+                                            {% set max_count = count %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for month, count in monthly %}
+                                        {% set percentage = max_count > 0 ? (count / max_count * 100) : 0 %}
+                                        <div class="progress-bar" 
+                                             style="width: {{ percentage }}%"
+                                             title="{{ month }}: {{ count }} messages">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">
+                                    {% for month, count in monthly|slice(-3) %}
+                                        {{ month|date('M') }}: {{ count }}
+                                        {% if not loop.last %} | {% endif %}
+                                    {% endfor %}
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ path('app_back_clustering_detail', {'id': cluster.id, 'clusters': current_clusters_count}) }}" 
+                       class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-eye me-1"></i>
+                        Voir les détails
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Graphique des tendances globales -->
+    {% if trends %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-area me-2"></i>
+                        Évolution temporelle des clusters
+                    </h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="changeChartType('line')">
+                            <i class="fas fa-chart-line"></i> Ligne
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="changeChartType('bar')">
+                            <i class="fas fa-chart-bar"></i> Barres
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="height: 400px; position: relative;">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Ce graphique montre l'évolution du nombre de messages par cluster sur les 6 derniers mois
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+
+<!-- Graphique Chart.js -->
+{% if trends %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let trendsChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('trendsChart').getContext('2d');
+    
+    // Préparer les données pour Chart.js
+    const trendsData = {{ trends|json_encode|raw }};
+    const labels = [];
+    const datasets = [];
+    
+    // Extraire tous les mois uniques
+    const allMonths = new Set();
+    trendsData.forEach(trend => {
+        Object.keys(trend.monthly_counts).forEach(month => {
+            allMonths.add(month);
+        });
+    });
+    
+    const sortedMonths = Array.from(allMonths).sort();
+    const monthLabels = sortedMonths.map(month => {
+        const date = new Date(month + '-01');
+        return date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+    });
+    
+    // Créer un dataset pour chaque cluster
+    trendsData.forEach((trend, index) => {
+        const data = sortedMonths.map(month => trend.monthly_counts[month] || 0);
+        
+        datasets.push({
+            label: trend.cluster_name,
+            data: data,
+            backgroundColor: `hsla(${index * 360 / trendsData.length}, 70%, 60%, 0.2)`,
+            borderColor: `hsla(${index * 360 / trendsData.length}, 70%, 60%, 1)`,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+        });
+    });
+    
+    trendsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                title: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#ddd',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    callbacks: {
+                        title: function(context) {
+                            return 'Mois: ' + context[0].label;
+                        },
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + ' messages';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de messages',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Mois',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            }
+        }
+    });
+});
+
+function changeChartType(type) {
+    if (trendsChart) {
+        trendsChart.config.type = type;
+        
+        // Ajuster les options selon le type
+        if (type === 'bar') {
+            trendsChart.config.data.datasets.forEach(dataset => {
+                dataset.fill = false;
+                dataset.borderWidth = 1;
+            });
+        } else {
+            trendsChart.config.data.datasets.forEach((dataset, index) => {
+                dataset.fill = true;
+                dataset.borderWidth = 2;
+                dataset.backgroundColor = `hsla(${index * 360 / trendsChart.data.datasets.length}, 70%, 60%, 0.2)`;
+            });
+        }
+        
+        trendsChart.update();
+    }
+}
+</script>
+{% endif %}
+{% endblock %}

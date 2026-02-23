@@ -7,6 +7,7 @@ use App\Entity\Message;
 use App\Form\ForumType;
 use App\Form\MessageType;
 use App\Repository\ForumRepository;
+use App\Repository\MessageRepository;
 use App\Repository\CategorieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,6 +35,9 @@ final class ForumController extends AbstractController
         EntityManagerInterface $entityManager,
         ForumRepository $forumRepository
     ): Response {
+        // Gestion de la recherche
+        $searchQuery = $request->query->get('search', '');
+        
         // Formulaire de message vide (pour le formulaire de publication)
         $message = new Message();
         $form = $this->createForm(MessageType::class, $message);
@@ -55,10 +59,41 @@ final class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum_front');
         }
 
-        return $this->render('forum/Front/show.html.twig', [
+        return $this->render('front_forum/index.html.twig', [
             'categories' => $categorieRepository->findAll(), // ✅ pour la navigation
-            'forum'      => $forumRepository->find(1) ?? new Forum(), // forum par défaut
-            'form'       => $form,
+            'allCategories' => $categorieRepository->findAll(), // ✅ pour les catégories du forum
+            'forums' => $forumRepository->findAll(), // ✅ liste de tous les forums
+            'totalForums' => count($forumRepository->findAll()), // ✅ nombre total de forums
+            'totalMessages' => $entityManager->getRepository(Message::class)->count([]), // ✅ nombre total de messages
+            'form' => $form,
+            'searchQuery' => $searchQuery, // ✅ pour la recherche
+        ]);
+    }
+
+    // ✅ MESSAGES RÉCENTS : affiche les derniers messages de l'utilisateur connecté
+    #[Route('/recent-messages', name: 'app_user_recent_messages', methods: ['GET'])]
+    public function recentMessages(MessageRepository $messageRepository): Response
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour voir vos messages récents.');
+            return $this->redirectToRoute('app_forum_front');
+        }
+
+        // Récupérer l'identifiant de l'utilisateur
+        $userIdentifier = $user->getUserIdentifier() ?? $user->getUsername() ?? $user->getEmail();
+        
+        // Récupérer les 20 derniers messages de l'utilisateur
+        $recentMessages = $messageRepository->findBy(
+            ['createdBy' => $userIdentifier],
+            ['datePublication' => 'DESC'],
+            20
+        );
+
+        return $this->render('forum/Front/recent_messages.html.twig', [
+            'recentMessages' => $recentMessages,
+            'userIdentifier' => $userIdentifier
         ]);
     }
 
@@ -178,4 +213,5 @@ final class ForumController extends AbstractController
 
         return $this->redirectToRoute('app_forum_index', [], Response::HTTP_SEE_OTHER);
     }
-}
+
+    }

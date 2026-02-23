@@ -196,6 +196,16 @@
             background-color: rgba(99, 102, 241, 0.2);
         }
         
+        .admin-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            color: #9ca3af;
+        }
+        
+        .admin-btn.disabled:hover {
+            background-color: transparent;
+        }
+        
         .btn-icon {
             width: 20px;
             height: 20px;
@@ -409,10 +419,10 @@
 
                 <!-- Right Actions -->
                 <div class="navbar-actions">
-                    <a href="#" class="admin-btn">
+                    <span class="admin-btn disabled">
                         <i data-lucide="layout-dashboard" class="btn-icon"></i>
                         <span>Admin</span>
-                    </a>
+                    </span>
                     <button class="icon-btn relative">
                         <i data-lucide="bell" class="btn-icon"></i>
                         <span class="notification-dot"></span>

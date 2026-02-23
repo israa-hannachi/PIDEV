@@ -1,0 +1,312 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Détails du Cluster {{ cluster.id + 1 }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_back_clustering_index', {'clusters': clusters_count}) }}">
+                            <i class="fas fa-project-diagram me-1"></i>
+                            Clustering
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ cluster.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">
+                <span class="badge bg-primary me-2">{{ cluster.id + 1 }}</span>
+                {{ cluster.name }}
+            </h1>
+            <p class="text-muted mb-0">{{ cluster.message_count }} messages dans ce cluster</p>
+        </div>
+        <a href="{{ path('app_back_clustering_index', {'clusters': clusters_count}) }}" 
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Retour à la liste
+        </a>
+    </div>
+
+    <!-- Informations du cluster -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations du cluster
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>ID du cluster:</strong> {{ cluster.id }}</p>
+                            <p><strong>Nombre de messages:</strong> {{ cluster.message_count }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Pourcentage du total:</strong> 
+                                {% if total_messages is defined %}
+                                    {{ ((cluster.message_count / total_messages) * 100)|round(1) }}%
+                                {% endif %}
+                            </p>
+                            <p><strong>Densité:</strong> 
+                                {% if cluster.message_count > 50 %}
+                                    <span class="badge bg-success">Élevée</span>
+                                {% elseif cluster.message_count > 20 %}
+                                    <span class="badge bg-warning">Moyenne</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Faible</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tags me-2"></i>
+                        Mots-clés principaux
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for keyword in cluster.keywords %}
+                            <span class="badge bg-primary">{{ keyword }}</span>
+                        {% else %}
+                            <span class="text-muted">Aucun mot-clé trouvé</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages du cluster -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-comments me-2"></i>
+                Messages du cluster ({{ cluster.messages|length }})
+            </h5>
+            <div class="d-flex gap-2">
+                <!-- Filtres -->
+                <select class="form-select form-select-sm" id="forumFilter" style="width: 200px;">
+                    <option value="">Tous les forums</option>
+                    {% set forums = [] %}
+                    {% for message in cluster.messages %}
+                        {% if message.forum_title not in forums %}
+                            {% set forums = forums|merge([message.forum_title]) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% for forum in forums|sort %}
+                        <option value="{{ forum }}">{{ forum }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-select form-select-sm" id="sortBy" style="width: 150px;">
+                    <option value="date">Par date</option>
+                    <option value="author">Par auteur</option>
+                    <option value="forum">Par forum</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row" id="messagesContainer">
+                {% for message in cluster.messages %}
+                <div class="col-lg-6 col-xl-4 mb-3 message-item" 
+                     data-forum="{{ message.forum_title }}"
+                     data-date="{{ message.date }}"
+                     data-author="{{ message.author }}">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">{{ message.author }}</h6>
+                                <small class="text-muted">{{ message.date|date('d/m H:i') }}</small>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-folder me-1"></i>{{ message.forum_title }}
+                                </span>
+                            </div>
+                            
+                            <div class="message-content">
+                                <p class="card-text small">
+                                    {{ message.content|striptags|slice(0, 200) }}{% if message.content|length > 200 %}...{% endif %}
+                                </p>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    ID: {{ message.id }}
+                                </small>
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        onclick="toggleFullContent(this, {{ message.id }})">
+                                    <i class="fas fa-expand-alt me-1"></i>
+                                    Voir plus
+                                </button>
+                            </div>
+                            
+                            <!-- Contenu complet masqué -->
+                            <div class="full-content d-none" id="full-content-{{ message.id }}">
+                                <hr>
+                                <div class="small">
+                                    {{ message.content|raw }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if cluster.messages is empty %}
+                <div class="text-center py-4">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Aucun message trouvé dans ce cluster</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistiques détaillées -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Répartition par forum
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set forum_counts = {} %}
+                    {% for message in cluster.messages %}
+                        {% set forum = message.forum_title %}
+                        {% set forum_counts = forum_counts|merge({(forum): (forum_counts[forum] is defined ? forum_counts[forum] + 1 : 1)}) %}
+                    {% endfor %}
+                    
+                    {% for forum, count in forum_counts|slice(0, 10) %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ forum }}</span>
+                            <div>
+                                <span class="badge bg-primary me-2">{{ count }}</span>
+                                <small class="text-muted">
+                                    ({{ ((count / cluster.messages|length) * 100)|round(1) }}%)
+                                </small>
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" 
+                                 style="width: {{ ((count / cluster.messages|length) * 100) }}%">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Top contributeurs
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set author_counts = {} %}
+                    {% for message in cluster.messages %}
+                        {% set author = message.author %}
+                        {% set author_counts = author_counts|merge({(author): (author_counts[author] is defined ? author_counts[author] + 1 : 1)}) %}
+                    {% endfor %}
+                    
+                    {% for author, count in author_counts|slice(0, 10) %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ author }}</span>
+                            <div>
+                                <span class="badge bg-success me-2">{{ count }} messages</span>
+                                <small class="text-muted">
+                                    ({{ ((count / cluster.messages|length) * 100)|round(1) }}%)
+                                </small>
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-success" 
+                                 style="width: {{ ((count / cluster.messages|length) * 100) }}%">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtrage par forum
+    const forumFilter = document.getElementById('forumFilter');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageItems = messagesContainer.querySelectorAll('.message-item');
+    
+    forumFilter.addEventListener('change', function() {
+        const selectedForum = this.value.toLowerCase();
+        
+        messageItems.forEach(item => {
+            const itemForum = item.dataset.forum.toLowerCase();
+            if (selectedForum === '' || itemForum.includes(selectedForum)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Tri
+    const sortBy = document.getElementById('sortBy');
+    sortBy.addEventListener('change', function() {
+        const sortType = this.value;
+        const items = Array.from(messageItems);
+        
+        items.sort((a, b) => {
+            switch(sortType) {
+                case 'date':
+                    return new Date(b.dataset.date) - new Date(a.dataset.date);
+                case 'author':
+                    return a.dataset.author.localeCompare(b.dataset.author);
+                case 'forum':
+                    return a.dataset.forum.localeCompare(b.dataset.forum);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Réorganiser les éléments
+        items.forEach(item => {
+            messagesContainer.appendChild(item);
+        });
+    });
+});
+
+// Fonction pour afficher/masquer le contenu complet
+function toggleFullContent(button, messageId) {
+    const fullContent = document.getElementById('full-content-' + messageId);
+    const icon = button.querySelector('i');
+    
+    if (fullContent.classList.contains('d-none')) {
+        fullContent.classList.remove('d-none');
+        button.innerHTML = '<i class="fas fa-compress-alt me-1"></i>Voir moins';
+    } else {
+        fullContent.classList.add('d-none');
+        button.innerHTML = '<i class="fas fa-expand-alt me-1"></i>Voir plus';
+    }
+}
+</script>
+{% endblock %}
