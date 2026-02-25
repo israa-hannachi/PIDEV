@@ -265,8 +265,18 @@
 <script>
 let trendsChart = null;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('trendsChart').getContext('2d');
+function initializeChart() {
+    const canvas = document.getElementById('trendsChart');
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Could not get canvas context');
+        return;
+    }
     
     // Préparer les données pour Chart.js
     const trendsData = {{ trends|json_encode|raw }};
@@ -302,80 +312,101 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    trendsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: monthLabels,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
+    try {
+        trendsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthLabels,
+                datasets: datasets
             },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            title: function(context) {
+                                return 'Mois: ' + context[0].label;
+                            },
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' messages';
+                            }
+                        }
                     }
                 },
-                title: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    borderColor: '#ddd',
-                    borderWidth: 1,
-                    padding: 12,
-                    displayColors: true,
-                    callbacks: {
-                        title: function(context) {
-                            return 'Mois: ' + context[0].label;
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Nombre de messages',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
                         },
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + ' messages';
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Nombre de messages',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
                         }
                     },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Mois',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Mois',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
                         }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
                     }
                 }
             }
-        }
-    });
-});
+        });
+        console.log('Chart initialized successfully');
+    } catch (error) {
+        console.error('Error initializing chart:', error);
+    }
+}
+
+// Initialiser le graphique quand le DOM est prêt et Chart.js est disponible
+function initWhenReady() {
+    if (typeof Chart !== 'undefined') {
+        initializeChart();
+    } else {
+        setTimeout(initWhenReady, 50);
+    }
+}
+
+// Démarrer l'initialisation
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWhenReady);
+} else {
+    initWhenReady();
+}
 
 function changeChartType(type) {
     if (trendsChart) {
