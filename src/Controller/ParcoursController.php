@@ -112,12 +112,7 @@ final class ParcoursController extends AbstractController
             }
 
             $cours = $entityManager->getRepository(Cours::class)->findBy(['id' => $cids]);
-            $existingCoursIds = [];
-            foreach ($cours as $c) {
-                if ($c->getModule() && (int) $c->getModule()->getId() === $mid) {
-                    $existingCoursIds[] = (int) $c->getId();
-                }
-            }
+            $existingCoursIds = array_map(static fn (Cours $c) => (int) $c->getId(), $cours);
 
             foreach ($cids as $cid) {
                 if (!in_array($cid, $existingCoursIds, true)) {
@@ -169,6 +164,46 @@ final class ParcoursController extends AbstractController
             'coursMeta' => $sanitizedCoursMeta,
             'savedAt' => time(),
         ]);
+
+        $session = $request->getSession();
+        $gamification = (array) $session->get('gamification', []);
+        $xp = isset($gamification['xp']) ? (int) $gamification['xp'] : 0;
+        $badges = isset($gamification['badges']) && is_array($gamification['badges']) ? $gamification['badges'] : [];
+        $events = isset($gamification['events']) && is_array($gamification['events']) ? $gamification['events'] : [];
+
+        $xp += 10;
+        $events[] = ['type' => 'save_parcours', 'at' => time(), 'xp' => 10];
+
+        $totalCours = 0;
+        $doneCours = 0;
+        foreach ($sanitizedCoursOrder as $mid => $cids) {
+            if (!is_array($cids)) {
+                continue;
+            }
+            $totalCours += count($cids);
+            foreach ($cids as $cid) {
+                if (isset($sanitizedCoursMeta[$cid]) && isset($sanitizedCoursMeta[$cid]['statut']) && $sanitizedCoursMeta[$cid]['statut'] === 'done') {
+                    $doneCours += 1;
+                }
+            }
+        }
+
+        if ($totalCours > 0 && $doneCours >= $totalCours && !in_array('parcours_termine', $badges, true)) {
+            $badges[] = 'parcours_termine';
+            $xp += 50;
+            $events[] = ['type' => 'badge', 'badge' => 'parcours_termine', 'at' => time(), 'xp' => 50];
+        }
+        if ($doneCours >= 1 && !in_array('premier_cours_termine', $badges, true)) {
+            $badges[] = 'premier_cours_termine';
+            $xp += 20;
+            $events[] = ['type' => 'badge', 'badge' => 'premier_cours_termine', 'at' => time(), 'xp' => 20];
+        }
+
+        $gamification['xp'] = $xp;
+        $gamification['badges'] = array_values(array_unique(array_map('strval', $badges)));
+        $gamification['events'] = array_slice($events, -50);
+        $gamification['updatedAt'] = time();
+        $session->set('gamification', $gamification);
 
         if ($isJson) {
             return new JsonResponse(['ok' => true]);

@@ -1,0 +1,56 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Réclamations{% endblock %}
+
+{% block page_title %}Réclamations{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">Réclamations</h3>
+            <small class="text-muted">Signalements envoyés par les étudiants</small>
+        </div>
+        <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cours</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for r in reclamations %}
+                        <tr>
+                            <td>{{ r.id }}</td>
+                            <td class="fw-semibold">{{ r.cours ? r.cours.titre : '-' }}</td>
+                            <td>{{ r.createdAt ? r.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                            <td>
+                                {% if r.resolved %}
+                                    <span class="badge bg-success">Traitée</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_reclamation_show', {'id': r.id}) }}">Voir</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Aucune réclamation.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

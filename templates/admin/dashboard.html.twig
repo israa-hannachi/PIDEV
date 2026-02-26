@@ -40,5 +40,25 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Réclamations</h5>
+                    <p class="card-text text-muted">Voir les réclamations envoyées par les étudiants.</p>
+                    <a href="{{ path('app_admin_reclamation_index') }}" class="btn btn-primary">Ouvrir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Qualité des contenus</h5>
+                    <p class="card-text text-muted">Contrôles automatiques (MVP).</p>
+                    <a href="{{ path('app_admin_qualite_index') }}" class="btn btn-primary">Ouvrir</a>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

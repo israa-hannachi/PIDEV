@@ -109,5 +109,37 @@
             </div>
             <textarea data-ai-summary-display-target="textarea" class="hidden mt-4 w-full min-h-[180px] p-4 rounded-xl border border-border bg-muted/10 text-sm" placeholder="Le résumé apparaîtra ici. Tu peux le modifier avant de le télécharger."></textarea>
         </div>
+
+        <div class="pt-2">
+            <h2 class="text-lg font-bold mb-2">Mes notes</h2>
+            <form method="post" action="{{ path('app_cours_note_save', {'id': cour.id}) }}" class="space-y-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('cours_note' ~ cour.id) }}">
+                <textarea name="note" rows="4" class="w-full p-4 rounded-xl border border-border bg-white text-sm" placeholder="Écris tes notes ici...">{{ note_value|default('') }}</textarea>
+                <div class="flex items-center justify-end gap-2">
+                    <button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-semibold shadow hover:shadow-md transition" type="submit">Enregistrer</button>
+                </div>
+            </form>
+
+            {% if (note_value|default('')|trim) %}
+                <form method="post" action="{{ path('app_cours_note_clear', {'id': cour.id}) }}" class="mt-2 flex items-center justify-end">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cours_note_clear' ~ cour.id) }}">
+                    <button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-muted transition" type="submit">Supprimer</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="pt-2">
+            <h2 class="text-lg font-bold mb-2">Remarque / Réclamation</h2>
+            <div class="p-4 rounded-xl border border-border bg-muted/10 text-sm text-muted-foreground">
+                Si tu as un problème (contenu incorrect, fichier manquant, bug, etc.), envoie une réclamation. Elle sera visible par l’admin.
+            </div>
+            <form method="post" action="{{ path('app_cours_reclamation_submit', {'id': cour.id}) }}" class="space-y-3 mt-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('cours_reclamation' ~ cour.id) }}">
+                <textarea name="message" rows="4" class="w-full p-4 rounded-xl border border-border bg-white text-sm" placeholder="Décris le problème..."></textarea>
+                <div class="flex items-center justify-end">
+                    <button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white font-semibold shadow hover:shadow-md transition" type="submit">Envoyer</button>
+                </div>
+            </form>
+        </div>
     </div>
 {% endblock %}

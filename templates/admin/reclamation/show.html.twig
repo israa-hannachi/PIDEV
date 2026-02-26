@@ -1,0 +1,53 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Réclamation{% endblock %}
+
+{% block page_title %}Détail de la réclamation{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">Réclamation #{{ reclamation.id }}</h3>
+            <small class="text-muted">{{ reclamation.createdAt ? reclamation.createdAt|date('d/m/Y H:i') : '' }}</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_admin_reclamation_index') }}" class="btn btn-outline-secondary btn-sm">Retour</a>
+            {% if reclamation.cours %}
+                <a href="{{ path('app_admin_cours_show', {'id': reclamation.cours.id}) }}" class="btn btn-outline-primary btn-sm">Voir le cours</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Cours</dt>
+                <dd class="col-sm-9">{{ reclamation.cours ? reclamation.cours.titre : '-' }}</dd>
+
+                <dt class="col-sm-3">Statut</dt>
+                <dd class="col-sm-9">
+                    {% if reclamation.resolved %}
+                        <span class="badge bg-success">Traitée</span>
+                        <span class="text-muted ms-2">{{ reclamation.resolvedAt ? reclamation.resolvedAt|date('d/m/Y H:i') : '' }}</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">En attente</span>
+                    {% endif %}
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Message</h5>
+            <div class="p-3 border rounded bg-light" style="white-space: pre-wrap;">{{ reclamation.message }}</div>
+
+            {% if not reclamation.resolved %}
+                <form method="post" action="{{ path('app_admin_reclamation_resolve', {'id': reclamation.id}) }}" class="mt-3">
+                    <input type="hidden" name="_token" value="{{ csrf_token('reclamation_resolve' ~ reclamation.id) }}">
+                    <button type="submit" class="btn btn-success">Marquer comme traitée</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

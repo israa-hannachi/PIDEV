@@ -1,0 +1,224 @@
+{% extends 'template_back/base_admin.html.twig' %}
+
+{% block title %}Admin - Qualité{% endblock %}
+
+{% block page_title %}Qualité des contenus{% endblock %}
+
+{% block admin_content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h3 class="mb-0">Qualité des contenus</h3>
+            <small class="text-muted">Contrôles automatiques (MVP)</small>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="post" action="{{ path('app_admin_qualite_export') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('qualite_export') }}">
+                <button type="submit" class="btn btn-outline-primary btn-sm">Exporter CSV</button>
+            </form>
+            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+                <div class="fw-semibold">Actions rapides</div>
+                <div class="text-muted small">Ces actions modifient les données (auto-fix).</div>
+            </div>
+            <div class="d-flex gap-2">
+                <form method="post" action="{{ path('app_admin_qualite_fix_hide_empty') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('qualite_hide_empty') }}">
+                    <button type="submit" class="btn btn-warning btn-sm">Masquer les cours sans contenu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-1">Cours sans contenu</h5>
+                            <p class="text-muted mb-0">Aucun texte et aucun fichier.</p>
+                        </div>
+                        <span class="badge bg-danger">{{ cours_sans_contenu|length }}</span>
+                    </div>
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Titre</th>
+                                <th>Module</th>
+                                <th>Visible</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for c in cours_sans_contenu %}
+                                <tr>
+                                    <td>{{ c.id }}</td>
+                                    <td class="fw-semibold">{{ c.titre }}</td>
+                                    <td>{{ c.module ? c.module.titre : '-' }}</td>
+                                    <td>{{ c.visible ? 'Oui' : 'Non' }}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_cours_edit', {'id': c.id}) }}">Modifier</a>
+                                        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_cours_show', {'id': c.id}) }}">Voir</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">OK</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-1">Ordres dupliqués (par module)</h5>
+                            <p class="text-muted mb-0">Deux cours (ou plus) avec le même ordre dans un même module.</p>
+                        </div>
+                        <span class="badge bg-warning text-dark">{{ cours_ordre_duplique|length }}</span>
+                    </div>
+
+                    {% if modules_ordre_duplique is defined and modules_ordre_duplique|length > 0 %}
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            {% for m in modules_ordre_duplique %}
+                                <form method="post" action="{{ path('app_admin_qualite_fix_resequence_module', {'id': m.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('qualite_resequence_module' ~ m.id) }}">
+                                    <button type="submit" class="btn btn-outline-warning btn-sm">Réordonner: {{ m.titre }}</button>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th>Ordre</th>
+                                <th>Cours</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for c in cours_ordre_duplique %}
+                                <tr>
+                                    <td>{{ c.module ? c.module.titre : '-' }}</td>
+                                    <td>{{ c.ordre }}</td>
+                                    <td class="fw-semibold">{{ c.titre }}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_cours_edit', {'id': c.id}) }}">Modifier</a>
+                                        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_cours_show', {'id': c.id}) }}">Voir</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">OK</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-1">Cours visibles dans le futur</h5>
+                            <p class="text-muted mb-0">Visible = Oui mais date de visibilité dans le futur.</p>
+                        </div>
+                        <span class="badge bg-info">{{ cours_visibilite_future|length }}</span>
+                    </div>
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Titre</th>
+                                <th>Visible à partir de</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for c in cours_visibilite_future %}
+                                <tr>
+                                    <td>{{ c.id }}</td>
+                                    <td class="fw-semibold">{{ c.titre }}</td>
+                                    <td>{{ c.visibleFrom ? c.visibleFrom|date('d/m/Y H:i') : '-' }}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_cours_edit', {'id': c.id}) }}">Modifier</a>
+                                        <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_admin_cours_show', {'id': c.id}) }}">Voir</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">OK</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-1">Modules sans cours</h5>
+                            <p class="text-muted mb-0">Modules vides.</p>
+                        </div>
+                        <span class="badge bg-secondary">{{ modules_sans_cours|length }}</span>
+                    </div>
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Titre</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for m in modules_sans_cours %}
+                                <tr>
+                                    <td>{{ m.id }}</td>
+                                    <td class="fw-semibold">{{ m.titre }}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm" href="{{ path('app_admin_module_show', {'id': m.id}) }}">Voir</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">OK</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

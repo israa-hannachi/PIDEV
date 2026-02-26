@@ -11,7 +11,20 @@ export default class extends Controller {
 
     connect() {
         this._initialized = false;
+        this._initAttempts = 0;
+        this._sortableLoading = false;
+
+        if (typeof console !== 'undefined' && console && typeof console.debug === 'function') {
+            console.debug('[parcours-builder] connect');
+        }
+
         this._initWhenReady();
+
+        window.setTimeout(() => {
+            if (!this._initialized) {
+                this._showInitError('Le drag & drop n\'est pas initialisé. Vérifie que les scripts JS sont chargés (importmap + SortableJS).');
+            }
+        }, 2000);
     }
 
     _initWhenReady() {
@@ -19,8 +32,17 @@ export default class extends Controller {
             return;
         }
 
+        this._initAttempts += 1;
+
         if (typeof window.Sortable === 'undefined' || typeof window.Sortable.create !== 'function') {
-            window.setTimeout(() => this._initWhenReady(), 50);
+            if (!this._sortableLoading) {
+                this._sortableLoading = true;
+                this._loadSortableFromCdn();
+            }
+
+            if (this._initAttempts < 200) {
+                window.setTimeout(() => this._initWhenReady(), 50);
+            }
             return;
         }
 
@@ -30,6 +52,43 @@ export default class extends Controller {
         this.initModuleSortable();
         this.initCoursSortables();
         this.renderRoadmap();
+    }
+
+    _loadSortableFromCdn() {
+        if (document.querySelector('script[data-sortablejs="1"]')) {
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.setAttribute('data-sortablejs', '1');
+        script.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js';
+        script.async = true;
+        script.onload = () => {
+            if (typeof console !== 'undefined' && console && typeof console.debug === 'function') {
+                console.debug('[parcours-builder] SortableJS loaded');
+            }
+        };
+        script.onerror = () => {
+            this._showInitError('Impossible de charger SortableJS. Vérifie ta connexion internet ou le chargement des scripts.');
+        };
+        document.head.appendChild(script);
+    }
+
+    _showInitError(message) {
+        if (this._initialized) {
+            return;
+        }
+
+        const target = this.hasRoadmapTarget ? this.roadmapTarget : null;
+        if (!target) {
+            return;
+        }
+
+        target.innerHTML = '';
+        const box = document.createElement('div');
+        box.className = 'p-4 rounded-xl border border-border bg-muted/10 text-sm text-muted-foreground';
+        box.textContent = message;
+        target.appendChild(box);
     }
 
     bindMetaListeners() {
@@ -109,7 +168,7 @@ export default class extends Controller {
         this.modulesSortable = window.Sortable.create(this.modulesTarget, {
             animation: 150,
             handle: '.parcours-handle-module',
-            draggable: '[data-module-id]',
+            draggable: '[data-parcours-module][data-module-id]',
             onEnd: () => this.renderRoadmap(),
         });
     }
@@ -124,8 +183,8 @@ export default class extends Controller {
                 draggable: '[data-cours-id]',
                 group: {
                     name: 'cours',
-                    pull: false,
-                    put: false,
+                    pull: true,
+                    put: true,
                 },
                 onEnd: () => this.renderRoadmap(),
             });

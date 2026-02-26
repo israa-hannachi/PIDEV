@@ -5,6 +5,7 @@ namespace App\Controller;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Entity\Cours;
+use App\Entity\ReclamationCours;
 use App\Entity\Module;
 use App\Form\CoursType;
 use App\Repository\CoursRepository;
@@ -118,10 +119,88 @@ final class CoursController extends AbstractController
         $favorisIds = (array) $session->get('favoris_ids', []);
         $favorisIds = array_values(array_unique(array_map('intval', $favorisIds)));
 
+        $notes = (array) $session->get('cours_notes', []);
+        $noteValue = '';
+        $cid = (int) ($cour->getId() ?? 0);
+        if ($cid > 0) {
+            $raw = $notes[$cid] ?? $notes[(string) $cid] ?? '';
+            $noteValue = is_string($raw) ? $raw : '';
+        }
+
         return $this->render('cours/show.html.twig', [
             'cour' => $cour,
             'favoris_ids' => $favorisIds,
+            'note_value' => $noteValue,
         ]);
+    }
+
+    #[Route('/{id}/note', name: 'app_cours_note_save', methods: ['POST'])]
+    public function saveNote(Request $request, Cours $cour): Response
+    {
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('cours_note' . $cour->getId(), $token)) {
+            throw $this->createAccessDeniedException('CSRF token invalide.');
+        }
+
+        $note = (string) $request->request->get('note', '');
+        $note = trim($note);
+        if (mb_strlen($note) > 5000) {
+            $note = mb_substr($note, 0, 5000);
+        }
+
+        $session = $request->getSession();
+        $notes = (array) $session->get('cours_notes', []);
+        $notes[(int) $cour->getId()] = $note;
+        $session->set('cours_notes', $notes);
+
+        $this->addFlash('success', 'Note enregistrée.');
+        return $this->redirectToRoute('app_cours_show', ['id' => $cour->getId()]);
+    }
+
+    #[Route('/{id}/note/clear', name: 'app_cours_note_clear', methods: ['POST'])]
+    public function clearNote(Request $request, Cours $cour): Response
+    {
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('cours_note_clear' . $cour->getId(), $token)) {
+            throw $this->createAccessDeniedException('CSRF token invalide.');
+        }
+
+        $session = $request->getSession();
+        $notes = (array) $session->get('cours_notes', []);
+        unset($notes[(int) $cour->getId()], $notes[(string) $cour->getId()]);
+        $session->set('cours_notes', $notes);
+
+        $this->addFlash('success', 'Note supprimée.');
+        return $this->redirectToRoute('app_cours_show', ['id' => $cour->getId()]);
+    }
+
+    #[Route('/{id}/reclamation', name: 'app_cours_reclamation_submit', methods: ['POST'])]
+    public function submitReclamation(Request $request, Cours $cour, EntityManagerInterface $entityManager): Response
+    {
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('cours_reclamation' . $cour->getId(), $token)) {
+            throw $this->createAccessDeniedException('CSRF token invalide.');
+        }
+
+        $message = (string) $request->request->get('message', '');
+        $message = trim($message);
+        if ($message === '') {
+            $this->addFlash('danger', 'Veuillez saisir une remarque / réclamation.');
+            return $this->redirectToRoute('app_cours_show', ['id' => $cour->getId()]);
+        }
+        if (mb_strlen($message) > 5000) {
+            $message = mb_substr($message, 0, 5000);
+        }
+
+        $reclamation = new ReclamationCours();
+        $reclamation->setCours($cour);
+        $reclamation->setMessage($message);
+
+        $entityManager->persist($reclamation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Réclamation envoyée.');
+        return $this->redirectToRoute('app_cours_show', ['id' => $cour->getId()]);
     }
 
     #[Route('/{id}/pdf', name: 'app_cours_pdf', methods: ['GET'])]
