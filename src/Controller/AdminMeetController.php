@@ -29,11 +29,31 @@ class AdminMeetController extends AbstractController
     {
         $q = $request->query->get('q');
         $teacher = $request->query->get('teacher');
+        $status = $request->query->get('status');
+        $fromRaw = $request->query->get('from');
+        $toRaw = $request->query->get('to');
         $sort = $request->query->get('sort');
         $dir = $request->query->get('dir');
 
+        $from = null;
+        if (is_string($fromRaw) && trim($fromRaw) !== '') {
+            try {
+                $from = new \DateTimeImmutable(trim($fromRaw));
+            } catch (\Throwable $e) {
+                $from = null;
+            }
+        }
+        $to = null;
+        if (is_string($toRaw) && trim($toRaw) !== '') {
+            try {
+                $to = new \DateTimeImmutable(trim($toRaw));
+            } catch (\Throwable $e) {
+                $to = null;
+            }
+        }
+
         $items = [];
-        $meets = $meetRepository->searchCalendarAjax($q, $teacher, null, $sort, $dir);
+        $meets = $meetRepository->searchCalendarAjax($q, $teacher, $status, $sort, $dir, $from, $to);
         foreach ($meets as $meet) {
             if (!$meet instanceof Meet) {
                 continue;

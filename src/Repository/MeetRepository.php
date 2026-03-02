@@ -40,7 +40,15 @@ class MeetRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function searchCalendarAjax(?string $course, ?string $teacher, ?string $status, ?string $sort, ?string $dir): array
+    public function searchCalendarAjax(
+        ?string $course,
+        ?string $teacher,
+        ?string $status,
+        ?string $sort,
+        ?string $dir,
+        ?\DateTimeInterface $from = null,
+        ?\DateTimeInterface $to = null
+    ): array
     {
         $qb = $this->createQueryBuilder('m')
             ->leftJoin('m.participant', 'p')
@@ -70,6 +78,13 @@ class MeetRepository extends ServiceEntityRepository
             } elseif ($status === 'completed') {
                 $qb->andWhere('m.dateFin < :now')->setParameter('now', $now);
             }
+        }
+
+        if ($from !== null) {
+            $qb->andWhere('m.dateDebut >= :from')->setParameter('from', $from);
+        }
+        if ($to !== null) {
+            $qb->andWhere('m.dateDebut <= :to')->setParameter('to', $to);
         }
 
         $sort = $sort !== null ? trim($sort) : '';

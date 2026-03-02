@@ -47,11 +47,38 @@
     </div>
 </div>
 
-<div id="concentrationBadge" style="position:fixed;right:12px;bottom:12px;z-index:9998;max-width:420px;background:#fff;color:#b91c1c;padding:12px 14px;border-radius:12px;font-size:18px;line-height:1.15;border:2px solid rgba(185,28,28,0.35);box-shadow:0 10px 28px rgba(0,0,0,0.16);display:none;align-items:center;gap:10px;">
-    <span class="d-inline-flex align-items-center justify-content-center" style="width:34px;height:34px;border-radius:999px;background:rgba(185,28,28,0.10);color:#b91c1c;">
-        <i data-lucide="bell" style="width:18px;height:18px;"></i>
-    </span>
-    <div id="concentrationText" style="font-weight:800;">Vous devez vous concentrer !</div>
+<div id="concentrationToast" role="status" aria-live="polite" style="position:fixed;right:16px;bottom:16px;z-index:9998;max-width:420px;width:calc(100% - 32px);display:none;">
+    <div style="background:#ffffff;border-radius:16px;border:1px solid rgba(15,181,169,0.22);box-shadow:0 16px 40px rgba(0,0,0,0.18);overflow:hidden;transform:translateY(8px);opacity:0;transition:transform .18s ease, opacity .18s ease;">
+        <div style="padding:14px 14px 10px 14px;display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:999px;background:rgba(245,158,11,0.14);color:#b45309;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <i data-lucide="sparkles" style="width:18px;height:18px;"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                    <div style="font-weight:800;font-size:14px;color:#0f172a;">Focus check</div>
+                    <button type="button" id="concentrationDismiss" aria-label="Fermer" style="border:0;background:transparent;color:#64748b;padding:4px;border-radius:10px;cursor:pointer;">
+                        <i data-lucide="x" style="width:16px;height:16px;"></i>
+                    </button>
+                </div>
+                <div id="concentrationText" style="margin-top:4px;color:#334155;font-size:13px;line-height:1.35;font-weight:600;">
+                    Reste concentré sur la réunion.
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button type="button" id="concentrationResume" class="btn btn-primary" style="padding:8px 10px;border-radius:12px;font-weight:700;">Je suis concentré</button>
+                    <button type="button" id="concentrationSnooze" class="btn btn-secondary" style="padding:8px 10px;border-radius:12px;font-weight:700;">Snooze 2 min</button>
+                </div>
+            </div>
+        </div>
+        <div style="padding:0 14px 12px 14px;">
+            <div style="height:8px;border-radius:999px;background:rgba(15,23,42,0.08);overflow:hidden;">
+                <div id="concentrationProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#0FB5A9,#04B6D5);transition:width .20s linear;"></div>
+            </div>
+            <div id="concentrationMeta" style="margin-top:8px;color:#64748b;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <span>Déclenchement dans <span id="concentrationCountdown">10</span>s</span>
+                <span id="concentrationHint">Regarde l’écran pour continuer.</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="doomscrollStatus" style="position:fixed;left:12px;bottom:12px;z-index:9998;max-width:420px;background:rgba(0,0,0,0.72);color:#fff;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.25;display:block;">Doomscroll: initialisation...</div>
@@ -142,13 +169,57 @@
             const closeBtn = document.getElementById('doomscrollClose');
             const resumeBtn = document.getElementById('doomscrollResume');
             const statusEl = document.getElementById('doomscrollStatus');
-            const concentrationBadgeEl = document.getElementById('concentrationBadge');
+            const concentrationToastEl = document.getElementById('concentrationToast');
             const concentrationTextEl = document.getElementById('concentrationText');
+            const concentrationProgressEl = document.getElementById('concentrationProgress');
+            const concentrationCountdownEl = document.getElementById('concentrationCountdown');
+            const concentrationHintEl = document.getElementById('concentrationHint');
+            const concentrationDismissBtn = document.getElementById('concentrationDismiss');
+            const concentrationResumeBtn = document.getElementById('concentrationResume');
+            const concentrationSnoozeBtn = document.getElementById('concentrationSnooze');
             const userRole = localStorage.getItem('userRole') || 'etudiant';
 
             let concentrationVisible = false;
             let concentrationSince = null;
             const concentrationDelaySeconds = 10.0;
+            const noFaceDelaySeconds = 3.0;
+            let concentrationSnoozeUntil = 0;
+
+            function showConcentrationToast() {
+                if (!concentrationToastEl) return;
+                concentrationToastEl.style.display = 'block';
+                const card = concentrationToastEl.firstElementChild;
+                if (card) {
+                    requestAnimationFrame(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0px)';
+                    });
+                }
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }
+
+            function hideConcentrationToast() {
+                if (!concentrationToastEl) return;
+                const card = concentrationToastEl.firstElementChild;
+                if (card) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(8px)';
+                }
+                setTimeout(() => {
+                    if (concentrationToastEl) concentrationToastEl.style.display = 'none';
+                }, 180);
+            }
+
+            function setConcentrationProgress(elapsedSeconds, delaySeconds) {
+                if (!concentrationProgressEl || !concentrationCountdownEl) return;
+                const safeDelay = Math.max(0.1, Number(delaySeconds || concentrationDelaySeconds));
+                const pct = Math.max(0, Math.min(1, elapsedSeconds / safeDelay));
+                concentrationProgressEl.style.width = Math.round(pct * 100) + '%';
+                const remaining = Math.max(0, Math.ceil(safeDelay - elapsedSeconds));
+                concentrationCountdownEl.textContent = String(remaining);
+            }
 
             function setStatus(msg) {
                 if (!statusEl) return;
@@ -157,42 +228,62 @@
             }
 
             function setConcentration(iris, head, noFace) {
-                if (!concentrationBadgeEl) return;
                 if (userRole === 'enseignant') {
-                    concentrationBadgeEl.style.display = 'none';
+                    hideConcentrationToast();
+                    return;
+                }
+
+                const now = Date.now();
+                if (now < concentrationSnoozeUntil) {
+                    hideConcentrationToast();
+                    concentrationVisible = false;
+                    concentrationSince = null;
                     return;
                 }
 
                 const isNoFace = (noFace === true);
                 if (!isNoFace && (iris === null || head === null)) {
-                    concentrationBadgeEl.style.display = 'none';
+                    hideConcentrationToast();
                     concentrationVisible = false;
                     concentrationSince = null;
+                    setConcentrationProgress(0, concentrationDelaySeconds);
                     return;
                 }
 
                 const warningCondition = isNoFace || (head < 0.4000) ||(iris < 0.3000);
-                const now = Date.now();
 
                 if (warningCondition) {
                     if (concentrationSince === null) concentrationSince = now;
                     const elapsed = (now - concentrationSince) / 1000;
-                    const shouldShow = elapsed >= concentrationDelaySeconds;
+                    const delay = isNoFace ? noFaceDelaySeconds : concentrationDelaySeconds;
+                    const shouldShow = elapsed >= delay;
 
-                    concentrationBadgeEl.style.display = shouldShow ? 'flex' : 'none';
+                    setConcentrationProgress(elapsed, delay);
+
+                    if (concentrationHintEl) {
+                        concentrationHintEl.textContent = isNoFace ? 'Visage non détecté.' : 'Regarde l’écran pour continuer.';
+                    }
+
                     if (shouldShow) {
-                        if (concentrationTextEl) concentrationTextEl.textContent = 'Vous devez vous concentrer !';
+                        if (concentrationTextEl) {
+                            concentrationTextEl.textContent = isNoFace
+                                ? 'On ne te voit plus. Reviens face à la caméra.'
+                                : 'Petit rappel: reste concentré sur la réunion.';
+                        }
+                        showConcentrationToast();
                         if (!concentrationVisible) {
                             playBellSound();
                         }
                         concentrationVisible = true;
                     } else {
+                        hideConcentrationToast();
                         concentrationVisible = false;
                     }
                 } else {
                     concentrationSince = null;
                     concentrationVisible = false;
-                    concentrationBadgeEl.style.display = 'none';
+                    hideConcentrationToast();
+                    setConcentrationProgress(0, concentrationDelaySeconds);
                 }
             }
 
@@ -462,6 +553,34 @@
             }
 
             document.addEventListener('click', ensureAudioUnlocked, { once: true, capture: true });
+
+            if (concentrationDismissBtn) {
+                concentrationDismissBtn.addEventListener('click', () => {
+                    concentrationSince = null;
+                    concentrationVisible = false;
+                    hideConcentrationToast();
+                    setConcentrationProgress(0, concentrationDelaySeconds);
+                });
+            }
+
+            if (concentrationResumeBtn) {
+                concentrationResumeBtn.addEventListener('click', () => {
+                    concentrationSince = null;
+                    concentrationVisible = false;
+                    hideConcentrationToast();
+                    setConcentrationProgress(0, concentrationDelaySeconds);
+                });
+            }
+
+            if (concentrationSnoozeBtn) {
+                concentrationSnoozeBtn.addEventListener('click', () => {
+                    concentrationSnoozeUntil = Date.now() + (2 * 60 * 1000);
+                    concentrationSince = null;
+                    concentrationVisible = false;
+                    hideConcentrationToast();
+                    setConcentrationProgress(0, concentrationDelaySeconds);
+                });
+            }
             startDoomscrollDetection();
         };
 

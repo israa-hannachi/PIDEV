@@ -1,0 +1,410 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h4 class="mb-1">Statistiques calendrier</h4>
+            <p class="text-muted mb-0">Synthèse des réunions (à venir, en cours, terminées)</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_admin_meet_index') }}" class="btn btn-light">
+                <i class="feather-video me-1"></i>
+                Gérer les réunions
+            </a>
+            <a href="{{ path('app_calendar') }}" class="btn btn-primary">
+                <i class="feather-calendar me-1"></i>
+                Ouvrir calendrier
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-12 col-md-4 col-xl-3">
+                    <label class="form-label">Période</label>
+                    <select name="period" id="dashPeriod" class="form-select">
+                        <option value="7d" {{ filters.period == '7d' ? 'selected' : '' }}>7 jours</option>
+                        <option value="30d" {{ filters.period == '30d' ? 'selected' : '' }}>30 jours</option>
+                        <option value="90d" {{ filters.period == '90d' ? 'selected' : '' }}>90 jours</option>
+                        <option value="custom" {{ filters.period == 'custom' ? 'selected' : '' }}>Personnalisé</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-4 col-xl-3">
+                    <label class="form-label">Du</label>
+                    <input type="date" name="from" id="dashFrom" class="form-control" value="{{ filters.from ? filters.from|date('Y-m-d') : '' }}" />
+                </div>
+                <div class="col-6 col-md-4 col-xl-3">
+                    <label class="form-label">Au</label>
+                    <input type="date" name="to" id="dashTo" class="form-control" value="{{ filters.to ? filters.to|date('Y-m-d') : '' }}" />
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                    <label class="form-label">Enseignant</label>
+                    <select name="teacherId" class="form-select">
+                        <option value="">Tous</option>
+                        {% for t in teachers %}
+                            <option value="{{ t.id }}" {{ filters.teacherId == t.id ? 'selected' : '' }}>{{ t.nom }} {{ t.prenom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="feather-filter me-1"></i>
+                        Appliquer
+                    </button>
+                    <a href="{{ path('app_admin_dashboard') }}" class="btn btn-light">Reset</a>
+                    <a href="{{ path('app_admin_dashboard_export', { period: filters.period, from: (filters.from ? filters.from|date('Y-m-d') : ''), to: (filters.to ? filters.to|date('Y-m-d') : ''), teacherId: filters.teacherId }) }}" class="btn btn-outline-primary">
+                        <i class="feather-download me-1"></i>
+                        Export CSV
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Réunions (période)</div>
+                        <div class="h4 mb-0">{{ kpi.meets_total }}</div>
+                        <div class="text-muted small mt-1">
+                            {% if trends.meets is not null %}
+                                <span class="badge {{ trends.meets >= 0 ? 'bg-success' : 'bg-danger' }}">{{ trends.meets|round(1) }}%</span>
+                                vs période précédente
+                            {% else %}
+                                <span class="badge bg-secondary">n/a</span>
+                                vs période précédente
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="avatar-text avatar-lg">
+                        <i class="feather-layers"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">À venir</div>
+                        <div class="h4 mb-0">{{ kpi.meets_upcoming }}</div>
+                    </div>
+                    <div class="avatar-text avatar-lg">
+                        <i class="feather-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">En cours</div>
+                        <div class="h4 mb-0">{{ kpi.meets_current }}</div>
+                    </div>
+                    <div class="avatar-text avatar-lg">
+                        <i class="feather-play-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Terminées</div>
+                        <div class="h4 mb-0">{{ kpi.meets_completed }}</div>
+                    </div>
+                    <div class="avatar-text avatar-lg">
+                        <i class="feather-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small">Participants (total)</div>
+                            <div class="h4 mb-0">{{ kpi.participants_total }}</div>
+                            <div class="text-muted small mt-1">
+                                {% if trends.participants is not null %}
+                                    <span class="badge {{ trends.participants >= 0 ? 'bg-success' : 'bg-danger' }}">{{ trends.participants|round(1) }}%</span>
+                                    vs période précédente
+                                {% else %}
+                                    <span class="badge bg-secondary">n/a</span>
+                                    vs période précédente
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="avatar-text avatar-lg"><i class="feather-users"></i></div>
+                    </div>
+                    <div class="mt-3 text-muted small">Moyenne / réunion: <span class="fw-semibold">{{ kpi.participants_avg }}</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small">Durée totale</div>
+                            <div class="h4 mb-0">{{ (kpi.duration_total_minutes / 60)|round(1) }}h</div>
+                            <div class="text-muted small mt-1">
+                                {% if trends.duration is not null %}
+                                    <span class="badge {{ trends.duration >= 0 ? 'bg-success' : 'bg-danger' }}">{{ trends.duration|round(1) }}%</span>
+                                    vs période précédente
+                                {% else %}
+                                    <span class="badge bg-secondary">n/a</span>
+                                    vs période précédente
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="avatar-text avatar-lg"><i class="feather-clock"></i></div>
+                    </div>
+                    <div class="mt-3 text-muted small">Durée moyenne: <span class="fw-semibold">{{ kpi.duration_avg_minutes }} min</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Drill-down</div>
+                        <div class="h6 mb-1">Explorer la liste filtrée</div>
+                        <div class="text-muted small">Clique sur un graphique pour ouvrir la liste des réunions correspondante.</div>
+                    </div>
+                    <div class="avatar-text avatar-lg"><i class="feather-mouse-pointer"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-7">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Réunions / jour</h5>
+                </div>
+                <div class="card-body">
+                    <div id="meetsDailyChart" style="min-height: 280px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-5">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Statuts (donut)</h5>
+                </div>
+                <div class="card-body">
+                    <div id="meetsStatusDonut" style="min-height: 280px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12 col-xl-7">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Réunions par heure</h5>
+                </div>
+                <div class="card-body">
+                    <div id="meetsHourlyChart" style="min-height: 280px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-5">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Top enseignants</h5>
+                </div>
+                <div class="card-body">
+                    {% if topTeachers is empty %}
+                        <div class="text-muted">Aucune donnée.</div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Enseignant</th>
+                                        <th class="text-end">Réunions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for name, count in topTeachers %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ name }}</td>
+                                            <td class="text-end">{{ count }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Prochaine réunion</h5>
+                </div>
+                <div class="card-body">
+                    {% if nextMeet %}
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <div>
+                                <div class="h5 mb-1">{{ nextMeet.titre }}</div>
+                                <div class="text-muted">Prof. {{ nextMeet.participant.nom }} {{ nextMeet.participant.prenom }}</div>
+                                <div class="text-muted small">{{ nextMeet.dateDebut|date('d/m/Y H:i') }} - {{ nextMeet.dateFin|date('H:i') }}</div>
+                            </div>
+                            <a href="{{ path('app_admin_meet_show', {'id': nextMeet.id}) }}" class="btn btn-light">
+                                <i class="feather-eye me-1"></i>
+                                Voir
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-muted">Aucune réunion à venir.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ApexCharts === 'undefined') return;
+
+            const dailyLabels = {{ charts.daily.labels|json_encode|raw }};
+            const dailySeries = {{ charts.daily.series|json_encode|raw }};
+            const statusLabels = {{ charts.status.labels|json_encode|raw }};
+            const statusSeries = {{ charts.status.series|json_encode|raw }};
+            const hourlyLabels = {{ charts.hourly.labels|json_encode|raw }};
+            const hourlySeries = {{ charts.hourly.series|json_encode|raw }};
+
+            const drillFrom = {{ charts.drilldown.from|json_encode|raw }};
+            const drillTo = {{ charts.drilldown.to|json_encode|raw }};
+            const drillTeacherId = {{ (filters.teacherId ?? '')|json_encode|raw }};
+
+            function openMeetsList(extra) {
+                const params = new URLSearchParams();
+                if (drillFrom) params.set('from', drillFrom);
+                if (drillTo) params.set('to', drillTo);
+                if (drillTeacherId) params.set('teacherId', String(drillTeacherId));
+                if (extra && extra.status) params.set('status', extra.status);
+                if (extra && extra.day) params.set('day', extra.day);
+                window.location.href = '{{ path('app_admin_meet_index') }}' + '?' + params.toString();
+            }
+
+            const dailyEl = document.querySelector('#meetsDailyChart');
+            if (dailyEl) {
+                const dailyOptions = {
+                    chart: {
+                        type: 'area',
+                        height: 280,
+                        toolbar: { show: false },
+                        events: {
+                            dataPointSelection: function(event, chartContext, config) {
+                                const idx = config.dataPointIndex;
+                                const day = Array.isArray(dailyLabels) ? dailyLabels[idx] : null;
+                                if (day) openMeetsList({ day: day });
+                            }
+                        }
+                    },
+                    series: [{ name: 'Réunions', data: dailySeries }],
+                    xaxis: {
+                        categories: dailyLabels.map(d => {
+                            const dt = new Date(d + 'T00:00:00');
+                            return dt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+                        }),
+                    },
+                    dataLabels: { enabled: false },
+                    stroke: { curve: 'smooth', width: 2 },
+                    fill: {
+                        type: 'gradient',
+                        gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] },
+                    },
+                    colors: ['#0FB5A9'],
+                    grid: { strokeDashArray: 4 },
+                    yaxis: { labels: { formatter: v => Math.round(v) } },
+                    tooltip: { y: { formatter: v => `${v} réunion(s)` } },
+                };
+                new ApexCharts(dailyEl, dailyOptions).render();
+            }
+
+            const donutEl = document.querySelector('#meetsStatusDonut');
+            if (donutEl) {
+                const donutOptions = {
+                    chart: {
+                        type: 'donut',
+                        height: 280,
+                        events: {
+                            dataPointSelection: function(event, chartContext, config) {
+                                const idx = config.dataPointIndex;
+                                const map = { 0: 'upcoming', 1: 'current', 2: 'completed' };
+                                if (map[idx]) openMeetsList({ status: map[idx] });
+                            }
+                        }
+                    },
+                    labels: statusLabels,
+                    series: statusSeries,
+                    legend: { position: 'bottom' },
+                    colors: ['#04B6D5', '#0FB5A9', '#F59E0B'],
+                    dataLabels: { enabled: true },
+                };
+                new ApexCharts(donutEl, donutOptions).render();
+            }
+
+            const hourlyEl = document.querySelector('#meetsHourlyChart');
+            if (hourlyEl) {
+                const hourlyOptions = {
+                    chart: {
+                        type: 'bar',
+                        height: 280,
+                        toolbar: { show: false },
+                    },
+                    series: [{ name: 'Réunions', data: hourlySeries }],
+                    xaxis: { categories: hourlyLabels },
+                    plotOptions: { bar: { borderRadius: 6, columnWidth: '65%' } },
+                    dataLabels: { enabled: false },
+                    colors: ['#04B6D5'],
+                    grid: { strokeDashArray: 4 },
+                    yaxis: { labels: { formatter: v => Math.round(v) } },
+                    tooltip: { y: { formatter: v => `${v} réunion(s)` } },
+                };
+                new ApexCharts(hourlyEl, hourlyOptions).render();
+            }
+
+            const periodEl = document.getElementById('dashPeriod');
+            const fromEl = document.getElementById('dashFrom');
+            const toEl = document.getElementById('dashTo');
+            function toggleCustom() {
+                const isCustom = periodEl && periodEl.value === 'custom';
+                if (fromEl) fromEl.disabled = !isCustom;
+                if (toEl) toEl.disabled = !isCustom;
+            }
+            if (periodEl) {
+                periodEl.addEventListener('change', toggleCustom);
+                toggleCustom();
+            }
+        });
+    </script>
+{% endblock %}

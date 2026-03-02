@@ -8,6 +8,7 @@ use App\Form\MeetType;
 use App\Repository\MeetRepository;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Mailer;
@@ -180,7 +181,7 @@ class MeetController extends AbstractController
     }
 
     #[Route('/new', name: 'app_meet_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository, MailerInterface $mailer, Environment $twig): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository, MailerInterface $mailer, Environment $twig, LoggerInterface $logger): Response
     {
         $meet = new Meet();
         $meet->setCreatedAt(new \DateTime());
@@ -213,7 +214,7 @@ class MeetController extends AbstractController
 
             if ($participant && $participant->getRole() === 'enseignant' && $smtpEmail !== '' && trim($smtpAppPassword) !== '') {
                 $dsn = sprintf(
-                    'smtp://%s:%s@smtp.gmail.com:587?encryption=tls&auth_mode=login',
+                    'smtp://%s:%s@smtp.gmail.com:465?encryption=ssl&auth_mode=login',
                     rawurlencode($smtpEmail),
                     rawurlencode($smtpAppPassword)
                 );
@@ -245,6 +246,7 @@ class MeetController extends AbstractController
 
             $sentCount = 0;
             $failedCount = 0;
+            $failures = [];
             foreach ($meet->getParticipants() as $student) {
                 if (!$student instanceof Participant) {
                     continue;
@@ -275,11 +277,51 @@ class MeetController extends AbstractController
                     $sentCount++;
                 } catch (TransportExceptionInterface $e) {
                     $failedCount++;
+                    $reason = trim((string) $e->getMessage());
+                    $failures[] = ['to' => $to, 'reason' => $reason];
+                    $logger->error('Meet email send failed (transport).', [
+                        'meet_id' => $meet->getId(),
+                        'to' => $to,
+                        'from_email' => $fromAddress instanceof Address ? $fromAddress->getAddress() : null,
+                        'from_name' => $fromAddress instanceof Address ? $fromAddress->getName() : null,
+                        'exception_class' => $e::class,
+                        'exception_code' => $e->getCode(),
+                        'exception_message' => $reason,
+                        'exception_file' => $e->getFile(),
+                        'exception_line' => $e->getLine(),
+                        'exception_trace' => $e->getTraceAsString(),
+                    ]);
+                } catch (\Throwable $e) {
+                    $failedCount++;
+                    $reason = trim((string) $e->getMessage());
+                    $failures[] = ['to' => $to, 'reason' => $reason];
+                    $logger->error('Meet email send failed (unexpected).', [
+                        'meet_id' => $meet->getId(),
+                        'to' => $to,
+                        'from_email' => $fromAddress instanceof Address ? $fromAddress->getAddress() : null,
+                        'from_name' => $fromAddress instanceof Address ? $fromAddress->getName() : null,
+                        'exception_class' => $e::class,
+                        'exception_code' => $e->getCode(),
+                        'exception_message' => $reason,
+                        'exception_file' => $e->getFile(),
+                        'exception_line' => $e->getLine(),
+                        'exception_trace' => $e->getTraceAsString(),
+                    ]);
                 }
             }
 
             if ($failedCount > 0) {
-                $this->addFlash('error', sprintf('Meet créé, mais %d email(s) n\'ont pas pu être envoyés.', $failedCount));
+                $details = [];
+                foreach (array_slice($failures, 0, 3) as $f) {
+                    $details[] = sprintf('%s (%s)', (string) ($f['to'] ?? ''), (string) ($f['reason'] ?? 'erreur inconnue'));
+                }
+                $suffix = count($failures) > 3 ? sprintf(' (+%d autres)', count($failures) - 3) : '';
+                $this->addFlash('error', sprintf(
+                    'Meet créé, mais %d email(s) n\'ont pas pu être envoyés. Détails: %s%s',
+                    $failedCount,
+                    implode(' | ', $details),
+                    $suffix
+                ));
             } elseif ($sentCount > 0) {
                 $this->addFlash('success', sprintf('Meet créé et %d email(s) envoyés aux étudiants.', $sentCount));
             }
